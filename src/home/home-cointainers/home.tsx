@@ -1,18 +1,48 @@
 import * as React from 'react'
 import * as Papa from 'papaparse'
+import * as idb from 'idb-keyval'
+import * as d3 from 'd3'
 import CardDeck from 'react-bootstrap/CardDeck'
+import Navbar from 'react-bootstrap/Navbar'
+import Button from 'react-bootstrap/Button'
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
+import { ReportCards } from '../../shared/report-types'
+import { fileListHas, getUniqueFileName } from '../../shared/utils'
 import { ReportCard } from '../home-displays/report-card'
-import { ReportCards } from '../report-types'
 import { ReportModal } from './report-modal'
+import { InstructionModal } from '../home-displays/instructions-modal'
+import { FileManagerContainer } from './file-manager-container'
 import { 
     FileList,
     FileTypes,
-    ParseResult, } from '../file-types'
+    ParseResult,
+    RawFileParse, } from '../../shared/file-types'
+import './home.css'
 
+export type Action = 'Delete' | 'Save' | 'Rename'
+ 
+export interface FileContextInterface{
+    fileList: FileList
+    savedFiles: RawFileParse[]
+    addFile: (fileType: string, file: File) => Promise<void>
+    modifyFile: (file: RawFileParse, action: Action) => Promise<void>
+}
+
+export const FileContext = React.createContext<FileContextInterface>({
+    fileList: {},
+    savedFiles: [],
+    addFile: () => {return new Promise<void>( (resolve, reject) => null)},
+    modifyFile: () => {return new Promise<void>( (resolve, reject) => null)},
+});
+
+export const FileContextConsumer = FileContext.Consumer;
+export const FileContextProvider = FileContext.Provider;
 
 interface ReportHomeState {
     fileList: FileList
     activeModal: string | null
+    savedFiles: RawFileParse[]
+    loadingFiles: boolean
 }
 
 interface ReportHomeProps {
@@ -30,14 +60,79 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         this.state = {
             fileList: emptyFileList,
             activeModal: null,
+            savedFiles: [],
+            loadingFiles: true,
+        }
+        this.loadFiles();
+    }
+
+    private loadFiles = () => {
+        idb.keys().then( keys => {
+            Promise.all(keys.map(key => idb.get(key))).then( (files) => {
+                const newSavedFiles = (files as RawFileParse[]).map( (file):RawFileParse => {
+                    return {fileName: file.fileName, fileType: file.fileType, parseResult: null}
+                });
+                const savedFileObj: FileList = d3.nest<RawFileParse>()
+                                    .key( r => r.fileType)
+                                    .object(files as RawFileParse[]);
+                const newFileList = {};
+                Object.assign(newFileList, this.state.fileList, savedFileObj);
+                this.setState({savedFiles: newSavedFiles, fileList: newFileList, loadingFiles: false});
+            });
+        })
+    }
+    /*
+     * This works, but I need to get a handle on making the css load before the page does.
+     * Otherwise it takes these as the values of the raw html elements, which is bad.
+     * It behaves correclty in a production build, but not as a dev build
+     */
+    componentDidMount(){
+        var cards = document.getElementsByClassName('card') as HTMLCollectionOf<HTMLDivElement>
+        var max = 0;
+        for(var card in cards){
+            if(cards[card].clientHeight > max){max=cards[card].clientHeight}
+        }
+        for(var card in cards){
+            if(cards[card].style){
+               cards[card].style.height = max + 'px'
+            }
         }
     }
+
+
     render () {
         return (
-            <React.Fragment>
+            <FileContextProvider value={{
+                fileList: this.state.fileList, 
+                addFile: this.addFile, 
+                savedFiles: this.state.savedFiles,
+                modifyFile: this.modifyFile,}}>
+                <Navbar>
+                    <Navbar.Brand>Chavez Report Suite</Navbar.Brand>
+                </Navbar>
+                <ButtonToolbar className='home-btn-toolbar'>
+                    <Button onClick={() => this.activateModal('Instructions')}>
+                        Instructions
+                    </Button>
+                    <Button onClick={() => this.activateModal('Manage Files')}>
+                        {this.state.loadingFiles ? 'Loading...':'Manage Local Files'}
+                    </Button>
+                </ButtonToolbar>
                 <CardDeck>
-                    {ReportCards.map( card => {return (<ReportCard key={card.title} cardInfo={card} onClick={this.activateModal} />)})}
+                    {ReportCards.map( card => {return (<ReportCard 
+                        key={card.title} 
+                        cardInfo={card} 
+                        onClick={this.activateModal} />)})}
                 </CardDeck>
+
+                <InstructionModal 
+                    show={this.state.activeModal === 'Instructions'}
+                    handleHide={this.handleHide}/>
+
+                <FileManagerContainer
+                    show={this.state.activeModal === 'Manage Files'}
+                    handleHide={this.handleHide}/>
+
                 {ReportCards.map( report => {
                     return(
                     <ReportModal key={report.title}
@@ -47,22 +142,100 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         handleHide={this.handleHide}
                         addFile={this.addFile} />)
                 })}
-            </React.Fragment>
+            </FileContextProvider>
         )
     }
 
     private activateModal = (title: string) => {
         this.setState({activeModal: title});
     }
+
     private handleHide = () => {
         this.setState({activeModal: null});
     }
-    private addFile = (fileType: string, file: File) => {
-        Papa.parse(file, {complete: (result: ParseResult) => {
-            const newFileList = this.state.fileList;
-            newFileList[fileType].push({fileType: fileType, fileName: file.name, parseResult: result});
-            this.setState({fileList: newFileList});},
-            skipEmptyLines: true,
-            header: true})
+
+    //add file to the working instance of the app, should refactor into utils along with delete and save
+    private addFile = (fileType: string, file: File): Promise<void> => {
+        return new Promise ( (resolve, reject) => 
+            Papa.parse(file, {complete: (result: ParseResult) => {
+                const newFileList = {};
+                Object.assign(newFileList, this.state.fileList);
+                const fileName = newFileList[fileType].find( f => f.fileName === file.name) ? 
+                                    getUniqueFileName(file.name, this.state.fileList[fileType]):
+                                    file.name;
+                newFileList[fileType].push({fileType: fileType, fileName: fileName, parseResult: result});
+                this.setState({fileList: newFileList})
+                resolve();
+            },
+                skipEmptyLines: true,
+                header: true})
+    )}
+
+    //remove file from working instance of app and delete it from indexeddb if necessary
+    private deleteFile = (file: RawFileParse): Promise<void> => {
+        return new Promise ( (resolve, reject) => {
+            idb.del(file.fileType+file.fileName).finally(()=> {
+                const newFileList: FileList = {}
+                Object.assign(newFileList, this.state.fileList);
+                const index = newFileList[file.fileType].findIndex(e => e.fileName === file.fileName);
+                if(index !== -1){
+                    newFileList[file.fileType].splice(index,1)
+                    const newSavedList = this.state.savedFiles
+                        .filter( f => f.fileType !== file.fileType || f.fileName !== file.fileName)
+                    this.setState({fileList: newFileList, savedFiles: newSavedList})}
+                resolve()})
+        })
     }
+
+    //save file to indexeddb using filetype+filename as key
+    private saveFile = (file: RawFileParse): Promise<void> => {
+        return idb.set(file.fileType + file.fileName, file).then( () => {
+            this.setState({savedFiles: this.state.savedFiles
+                .concat([{fileName: file.fileName, fileType: file.fileType, parseResult: null}])})
+        })
+    }
+
+    //rename a file in the saved database and in the working copy
+    private renameFile = (file: RawFileParse, name: string): Promise<void> => {
+        return new Promise ( (resolve, reject) => {
+            const newFileList: FileList = {}
+            const newFile = {...file, fileName: name}
+            Object.assign(newFileList, this.state.fileList);
+            const index = newFileList[file.fileType].findIndex(e => e.fileName === file.fileName);
+            if(index !== -1){
+                newFileList[file.fileType].splice(index,1, newFile)
+            }
+            if(fileListHas(this.state.savedFiles, file)){
+                idb.del(file.fileType+file.fileName).finally( () => {
+                    idb.set(newFile.fileType+newFile.fileName, newFile).finally( ()=>{
+                        const newSavedList = this.state.savedFiles
+                            .filter( f => f.fileType !== file.fileType || f.fileName !== file.fileName)
+                            .concat([{...newFile, parseResult: null}]);
+                        this.setState({fileList: newFileList, savedFiles: newSavedList});
+                
+                    })
+                })
+            } else {
+                this.setState({fileList: newFileList});
+            }
+        })
+    }
+
+    //default should be a better (any) error check
+    private modifyFile = (file: RawFileParse, action: Action, name?: string): Promise<void> => {
+        switch(action) {
+            case 'Delete':
+                return this.deleteFile(file);
+                break;
+            case 'Rename':
+                if(name){
+                return this.renameFile(file, name);}
+            case 'Save':
+                return this.saveFile(file);
+                break;
+            default:
+                return new Promise((resolve, reject) => {});
+        }
+    }
+
 }

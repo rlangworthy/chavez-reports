@@ -19,7 +19,8 @@
     "noEmit": true,
     "jsx": "preserve",
     "noImplicitThis": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "downlevelIteration": true
   },
   "include": [
     "src"

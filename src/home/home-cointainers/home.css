@@ -1,0 +1,17 @@
+.card {
+    margin: 15px
+}
+
+.card-deck {
+    align-items: center;
+    justify-content: center;
+}
+
+.home-btn-toolbar {
+    margin-bottom: 25px;
+}
+
+.btn-toolbar > * {
+    margin-left: .4rem;
+    margin-right: .4rem;
+}

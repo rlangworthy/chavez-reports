@@ -1,0 +1,190 @@
+.gradebook-audit-report {
+  page-break-after: always;
+  padding-top: 1cm;
+}
+
+.grade-distributions {
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+
+}
+
+.grade-distribution-x-axis {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 2in;
+  height: 2em;
+}
+.x-axis-label {
+  width: 0.5in;
+  height: 100%;
+  text-align: center;
+}
+
+.grade-distribution {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  width: 2in;
+  height: 1.5in;
+}
+.grade-distribution:not(:last-child) {
+  margin-right: 1em;
+}
+
+.bar-container {
+  border: 1px solid gray;
+  border-top: 4px solid black;
+  border-bottom: 4px solid black;
+  position: relative;
+  width: 0.5in;
+  height: 100%;
+}
+.bar-container:first-child {
+  border-left: 4px solid black;
+}
+.bar-container:last-child {
+  border-right: 4px solid black;
+}
+
+
+.bar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+.bar-a {
+  background-color: green;
+}
+.bar-b {
+  background-color: blue;
+}
+.bar-c {
+  background-color: yellow;
+}
+.bar-d {
+  background-color: orange;
+}
+.bar-f {
+  background-color: red;
+}
+.bar-blank {
+  background-color: grey;
+}
+
+table.data-table {
+  border: 2px solid #000;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+
+  margin: 1em 0;
+}
+table.data-table td, table.data-table th {
+  border: 1px solid #000;
+  padding: 3px 4px;
+}
+
+
+table.data-table tbody td {
+  font-size: 13px;
+}
+table.data-table tr:nth-child(even) {
+  background: #EBEBEB;
+}
+table.data-table thead {
+  background: #FFFFFF;
+  border-bottom: 4px solid #333333;
+}
+table.data-table thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  border-left: 2px solid #333333;
+}
+table.data-table tbody .index-column {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  border: 2px solid #333;
+
+}
+table.data-table thead th:first-child {
+  border-left: none;
+}
+
+table.data-table tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333333;
+  border-top: 4px solid #333333;
+}
+table.data-table tfoot td {
+  font-size: 14px;
+}
+
+table.data-table td.warning {
+  background-color: #FFF76B;
+}
+
+table.data-table td div.cell-icon {
+  width: 16px;
+  height: 16px;
+  float: left;
+  display: inline-block;
+  margin: 0 0.5em;
+}
+.warning-icon {
+  fill: none;
+  stroke: black;
+}
+
+.warning-key-cell {
+  background-color: #FFF76B;
+  text-align: left;
+}
+
+@media print {
+  .table {
+    page-break-inside: auto;
+  }
+
+  .gradebook-audit-display {
+    page-break-inside: avoid;
+  }
+
+  .bar-a {
+    background-color: green;
+    -webkit-print-color-adjust: exact;
+  }
+  .bar-b {
+    background-color: blue;
+    -webkit-print-color-adjust: exact;
+  }
+  .bar-c {
+    background-color: yellow;
+    -webkit-print-color-adjust: exact;
+  }
+  .bar-d {
+    background-color: orange;
+    -webkit-print-color-adjust: exact;
+  }
+  .bar-f {
+    background-color: red;
+    -webkit-print-color-adjust: exact;
+  }
+  .bar-blank {
+    background-color: grey;
+    -webkit-print-color-adjust: exact;
+  }
+
+}

@@ -1,0 +1,12 @@
+.calendar-display-body {
+    display: flex;
+    justify-content: space-around;
+}
+
+.off-by-day {
+    display: flex;
+}
+
+.off-by-month {
+    display: flex;
+}

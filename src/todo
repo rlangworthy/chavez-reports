@@ -1,0 +1,22 @@
+Good Practice Items
+    TODO: refactor interfaces/imports
+    TODO: do something about the hardcoded index links on homepage
+    TODO: fix prop and state handling so I can use PureComponents. Good practice.
+    TODO: remove variable creation from render methods everywhere
+    TODO: turn fileInputs into a component, not just a function
+
+Features
+    TODO: file manager footer addfile
+    TODO: Implement rename
+
+Style
+    TODO: gear icon styling onClick
+    TODO: smooth out delete all so the uploaded files count doesn't count down
+    TODO: instruction videos for files
+    TODO: make home look better
+
+Reports
+    TODO: staff absence tardies
+    TODO: Gradebook audit refit -
+        TODO: Category table display assignment data functions
+
