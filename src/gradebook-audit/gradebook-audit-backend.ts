@@ -47,7 +47,7 @@ export const createGradebookReports = (files: ReportFiles ) =>{
 const getGradeDistributions = (grades: RawESCumulativeGradeExtractRow[]):TeacherGradeDistributions => {
     const distributions:TeacherGradeDistributions = d3.nest<RawESCumulativeGradeExtractRow, GradeDistribution>()
         .key( r => r.TeacherFirstName + r.TeacherLastName)
-        .key( r => r.SubjectName + ' (' + r.StudentHomeroom + ')')
+        .key( (r:RawESCumulativeGradeExtractRow) => r.SubjectName + ' ' + r.StudentGradeLevel.slice(-1) + ' (' + r.StudentHomeroom + ')')
         .rollup( (rs):GradeDistribution => {
             const failingStudents = rs.filter(r => r.QuarterAvg !== '' && r.QuarterAvg < 60)
                 .map(r => {
@@ -56,7 +56,6 @@ const getGradeDistributions = (grades: RawESCumulativeGradeExtractRow[]):Teacher
                         quarterGrade: r.QuarterAvg
                     }
                 })
-                                    
             return {
                 A: rs.filter(r => r.QuarterAvg !== '' && r.QuarterAvg > 89).length,
                 B: rs.filter(r => r.QuarterAvg !== '' && r.QuarterAvg > 79 && r.QuarterAvg < 90).length,
@@ -155,7 +154,7 @@ export const hasCategoryWeightsNot100 = (categories: {
 
 export const getTotalAssignmentStats = (assignments: Assignment[]):AssignmentStats => {
     const stats = assignments.map( a => a.stats);
-    const avg = Math.floor(stats.reduce( (a,b) => a - b.averageGrade, 0)/(-assignments.length))
+    const avg = Math.floor(stats.reduce( (a,b) => a - (Number.isNaN(b.averageGrade) ? 0:b.averageGrade), 0)/(-assignments.length))
     return stats.reduce( (a,b) => {
         return {
             numBlank: a.numBlank+b.numBlank,

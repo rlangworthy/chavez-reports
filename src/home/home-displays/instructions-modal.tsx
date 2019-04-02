@@ -2,6 +2,7 @@ import * as React from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
+import Alert from 'react-bootstrap/Alert'
 
 interface InstructionModalProps {
     show: boolean
@@ -16,6 +17,9 @@ export const InstructionModal: React.SFC<InstructionModalProps> = (props) => {
                 <Modal.Title>Welcome To Chavez Reports</Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                <Alert variant='primary'>
+                    Reports open in a new tab, make sure your popup blocker allows this.
+                </Alert>
                 <p>
                     This website is here to make publicly availbale several tools for organizing and displaying data in helpful ways.  You school generates a mind boggling amount of information and we are here to help you interpret that data and get it to the people that need to see it.
                 </p>

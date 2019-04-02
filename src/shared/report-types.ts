@@ -9,6 +9,7 @@ export interface ReportTitle {
     files: ReportTitleFile[]
     optionalFiles?: {fileType: FileTypes, fileDesc: string}[]
     externalLink?: string
+    moreInfoLink?: string
 }
 //alternate link gets checked first, in case you have two files of the same type but are expecting different things
 export interface ReportTitleFile {
@@ -33,6 +34,7 @@ export const ReportCards: ReportTitle[] = [
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT, fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
+        moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
     },
     {
         title: 'Summerschool Report',

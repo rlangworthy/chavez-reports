@@ -2,6 +2,9 @@ import * as Papa from 'papaparse'
 import { 
   RawFileParse, } from '../shared/file-types'
 import { LetterGrade } from './file-interfaces'
+import {
+  getHours,
+  getMinutes} from 'date-fns'
 
 export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
     const scores = [[1,1,2,2,3], [1,2,2,3,3], [2,2,3,3,4], [2,3,4,5,5], [2,3,4,5,5]];
@@ -19,6 +22,24 @@ export const getCPSOnTrack = (math: number, reading: number, attendancePCT: numb
 export const stringToDate = (s: string): Date => {
   const d = s.split('/').map(a => parseInt(a))
   return new Date(d[2], d[0]-1, d[1])
+}
+
+export const punchcardStringToDate = (s: string): Date => {
+  const d = s.split(' ')
+  if(d.length === 1){
+    const date = d[0].split('-').map(a=> parseInt(a))
+    return new Date(date[2], date[0]-1, date[1])
+  } else if(d.length === 3){
+    const date = d[0].split('-').map(a=> parseInt(a))
+    const timeOffset:number = d[2] === 'AM' ? 0:12;
+    const time = d[1].split(':').map(a=>parseInt(a, 10))
+    const newDate = new Date(date[2], date[0]-1, date[1], time[0]+timeOffset, time[1])
+    if (isNaN(newDate.getTime())) {  
+      console.log('Invalid date:' + newDate + ' from string' + s)
+    }
+    return newDate
+  }
+  throw new Error('Date string ' + s + ' is malformed')
 }
 
 export const fileListHas = (files: RawFileParse[], file: RawFileParse): boolean => {
@@ -112,4 +133,10 @@ export const parseGrade = (g: string): number => {
   }
   console.log('Invalid Grade' + g)
   return -1;
+}
+
+export const isTardy = (start: number, end: number, clockIn: Date, clockOut: Date | null) : boolean[] => {
+  const timeIn:number = (getHours(clockIn) * 100 + getMinutes(clockIn)) 
+  const timeOut:number | null = clockOut ? (getHours(clockOut) * 100 + getMinutes(clockOut)):null
+  return [timeIn > start, timeOut !== null && timeOut < end]
 }

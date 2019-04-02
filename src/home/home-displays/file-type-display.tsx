@@ -2,13 +2,15 @@ import * as React from 'react'
 import Dropdown from 'react-bootstrap/Dropdown'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Collapse from 'react-bootstrap/Collapse'
-import gear from '../../shared/icons/simple-gear.svg'
 import saveIcon from '../../shared/icons/save-icon.svg'
 
 import { 
     FileList,
     RawFileParse,
     FileTypes } from '../../shared/file-types'
+import {
+    CustomToggle
+    } from '../../shared/components/custom-toggle'
 import { 
     Action,
     FileContextConsumer } from '../home-cointainers/home'
@@ -82,30 +84,6 @@ export const FileDropdownWidget: React.SFC<FileDropdownWidgetProps> = (props) =>
             </Dropdown.Menu>
         </Dropdown>
     )
-}
-
-//taken & modified from the react-bootstrap site
-class CustomToggle extends React.PureComponent<any> {
-    constructor(props, context) {
-      super(props, context);
-  
-      this.handleClick = this.handleClick.bind(this);
-    }
-  
-    handleClick(e) {
-      e.preventDefault();
-  
-      this.props.onClick(e);
-    }
-  
-    render() {
-      return (
-        <div>
-            <img src={gear} style={{height:'24px', width:'24px'}} onClick={this.handleClick}/>
-            {this.props.children}
-        </div>
-      );
-    }
 }
   
 //interactive view for each file type.

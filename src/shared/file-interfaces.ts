@@ -120,6 +120,16 @@ export interface RawStaffAbsenceRow {
   'Unit/Dept ID': number
 }
 
+export interface RawPunchcardRow {
+  PERSONNUM: string
+  PERSONFULLNAME: string
+  POSITION: string
+  EVENTDATE: string
+  PAYCODENAME: string
+  PUNCHDTM: string
+  ENDPUNCHDTM: string
+}
+
 export type LetterGrade = 'A' | 'B' | 'C' | 'D' | 'F' | 'a' | 'b' | 'c' | 'd' | 'f';
 export const LetterGradeList = ['A' , 'B' , 'C' , 'D' , 'F' , 'a' , 'b' , 'c' , 'd' , 'f']
 

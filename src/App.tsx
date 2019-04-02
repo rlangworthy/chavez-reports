@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import { ReportHome } from './home/home-cointainers/home'
 import './App.css';
 import {Route} from 'react-router';
@@ -9,7 +8,7 @@ import {ReportWrapper} from './shared/report-wrapper'
 import {ReportCards} from './shared/report-types'
 import { SummerschoolReportDownload } from './summerschool-report/summerschool-report-download'
 import { StudentOnePagers } from './student-one-pager/student-one-pager-displays/student-one-pager-display'
-import { StaffAbsenceReport } from './staff-absence-report/staff-absence-download'
+import { StaffAbsenceReport } from './staff-absence-report/absence-containers/staff-absence-download'
 import { GradebookAuditReport } from './gradebook-audit/gradebook-audit-containers/gradebook-audit-container'
 
 export const history = createBrowserHistory({});

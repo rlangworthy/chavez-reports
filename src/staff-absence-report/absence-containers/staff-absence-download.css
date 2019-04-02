@@ -1,24 +1,4 @@
-.tab-list-item{
-  display: none
-}
-
-.tab-list-item.tab-list-active {
-  display: inline
-}
-
-.staff-absence-report-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: white;
-  width: 100%;
-}
-
-.tab-list {
-  margin: 100px auto 0;
-}
-
-table.data-table {
+  table.data-table {
     border: 2px solid #000;
     text-align: center;
     border-collapse: collapse;
@@ -28,7 +8,6 @@ table.data-table {
     border: 1px solid #000;
     padding: 3px 4px;
   }
-  
   
   table.data-table tbody td {
     font-size: 13px;
@@ -135,4 +114,48 @@ table.calendar-table {
     float: left;
     display: inline-block;
     margin: 0 0.5em;
+  }
+
+  .calendar-modal {
+    max-width: initial;
+    width: 80%;
+  }
+  @media (min-width: 768px){
+    .staff-absence-filter-container {
+      position: absolute;
+      top: 0px;
+      bottom: 0;
+      left: 0;
+      width: 25%;
+      overflow-y: scroll; 
+    }
+  
+    .staff-absence-tabs {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      overflow-y: scroll;
+      width: 75%;
+    }
+  }
+
+  @media print {
+    .staff-absence-filter-container {
+      display: none;
+      width: 0%;
+      height:0%;
+    }
+
+    .staff-absence-tabs {
+      position: relative;
+      overflow: visible;
+      width: 100%;  
+    }
+
+    .nav-tabs {
+      display: none;
+
+    }
+  
   }

@@ -23,7 +23,8 @@ interface HighImpactAssignmentsRenderProps{
             assignments: Assignment[]
         }   
     }
-}
+  }
+  hasGrades: string[]
 }
 
 export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderProps> = props => {
@@ -31,8 +32,9 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
   let rows: JSX.Element[] = [];
   // put header row in
   const headRow = (
-    <tr key={'High Impact Assignments'}>
+    <tr key={'High Impact Assignments'} className='gradebook-header-row'>
       <th>Class Name</th>
+      <th>Relative Assignment Weights</th>
       <th>Assignment Name</th>
       <th>Category Name</th>
       <th>Category Weight</th>
@@ -41,24 +43,34 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
       <th>Average Grade</th>
       <th>Median Grade</th>
       <th>Lowest Grade</th>
-      <th>Chart</th>
     </tr>
   );
-  Object.keys(props.classes).forEach( c => {
+  props.hasGrades.forEach( c => {
     const NUM_ASSIGNS_PER_CLASS = 3;
     const topAssignments = getTopAssignments(props.classes[c], NUM_ASSIGNS_PER_CLASS);
     const invertedRedBGStyle = {
       backgroundColor: 'red',
       color: 'white',
       fontWeight: 'bold' as 'bold',
+      webkitPrintColorAdjust: 'exact',
+
     };
     topAssignments.forEach( (a, i) => {
       const row = (
         <tr key={c+ '-' + a.assignmentName + ' ' +  i.toString()}>
           { i === 0 &&
-          <td className='index-column' rowSpan={topAssignments.length}>{c}</td>
+          <td className='index-column' rowSpan={topAssignments.length}>{c}</td>}
+          { i === 0 && 
+          <td className='chart-column' rowSpan={topAssignments.length}>
+            <Chart 
+              width={'12rem'}
+              height={'6rem'}
+              loader={<div style={{width:'12rem',height:'6rem'}}>Loading Chart</div>}
+              chartType='PieChart'
+              data={getChartData(topAssignments)} />
+          </td>
           }
-          <td>{a.assignmentName}</td>
+          <td>(<span className={`high-impact-dot-${(i+1).toString()}`}/>){a.assignmentName}</td>
           <td>{a.categoryName}</td>
           <td>{a.categoryWeight}</td>
           <td style={a.numAssignmentsInCategory === 0 ? invertedRedBGStyle : {}}>
@@ -68,14 +80,6 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
           <td>{a.averageGrade.toFixed(0)}</td>
           <td>{a.medianGrade.toFixed(0)}</td>
           <td>{a.lowestGrade.toFixed(0)}</td>
-          { i === 0 && 
-            <td className='chart-column' rowSpan={topAssignments.length}>
-              <Chart 
-                width={'12rem'}
-                height={'6rem'}
-                chartType='PieChart'
-                data={getChartData(topAssignments)} />
-            </td>}
         </tr>
       );
       rows.push(row);
@@ -85,10 +89,8 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
     <div className='gradebook-audit-display'>
       <h3>Highest Impact Assignments</h3>
       <table className={'data-table'}>
-        <thead>
-          {headRow}
-        </thead>
         <tbody>
+          {headRow}
           {rows}
         </tbody>
       </table>
@@ -122,13 +124,13 @@ const getTopAssignments = (c: {
   })  
 
 
-  return classAsgns.flat().sort((a,b) => a.impact-b.impact).slice(0,numAssigns);
+  return classAsgns.reduce((a,b) => a.concat(b)).sort((a,b) => b.impact-a.impact).slice(0,numAssigns);
 }
 
 const getChartData = (assignments: AssignmentImpact[]):any => {
   const percentOther = 100 - (-assignments.reduce((a,b) => a - b.impact, 0))
   const data = [['Assignment Name', 'Assignment Weight'] as any]
-  assignments.forEach( (a, i) => data.push([(i+1).toString(), a.impact]))
+  assignments.forEach( (a, i) => data.push([(a.impact).toFixed(1) + '%', a.impact]))
   data.push(['Others', percentOther])
   return data;
 }

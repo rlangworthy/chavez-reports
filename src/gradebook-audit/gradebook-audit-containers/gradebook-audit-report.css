@@ -3,6 +3,10 @@
   padding-top: 1cm;
 }
 
+.gradebook-audit-display {
+  page-break-inside: avoid;
+}
+
 .grade-distributions {
   width: 100vw;
   display: flex;
@@ -99,10 +103,14 @@ table.data-table tbody td {
 table.data-table tr:nth-child(even) {
   background: #EBEBEB;
 }
+.gradebook-header-row {
+  border-bottom: 4px solid #333333;
+}
 table.data-table thead {
   background: #FFFFFF;
   border-bottom: 4px solid #333333;
 }
+
 table.data-table thead th {
   font-size: 15px;
   font-weight: bold;
@@ -153,38 +161,74 @@ table.data-table td div.cell-icon {
   text-align: left;
 }
 
+.high-impact-dot-1 {
+  border-radius: 50%;
+  height: .5rem;
+  width: .5rem;
+  background-color: #36c;
+  display: inline-block;
+  -webkit-print-color-adjust: exact;
+
+}
+
+.high-impact-dot-2 {
+  border-radius: 50%;
+  height: .5rem;
+  width: .5rem;
+  background-color:#dc3912;
+  -webkit-print-color-adjust: exact;
+  display: inline-block;
+}
+
+.high-impact-dot-3 {
+  border-radius: 50%;
+  height: .5rem;
+  width: .5rem;
+  background-color: #f90;
+  -webkit-print-color-adjust: exact;
+  display: inline-block;
+}
+
 @media print {
-  .table {
-    page-break-inside: auto;
-  }
-
-  .gradebook-audit-display {
-    page-break-inside: avoid;
-  }
-
   .bar-a {
     background-color: green;
     -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
   .bar-b {
     background-color: blue;
     -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
   .bar-c {
     background-color: yellow;
     -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
   .bar-d {
     background-color: orange;
     -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
   .bar-f {
     background-color: red;
     -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
   .bar-blank {
     background-color: grey;
     -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
-
+  .category-warning {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  .gradebook-audit-report {
+    page-break-after: always;
+  }
+  
+  .gradebook-audit-display {
+    page-break-inside: avoid;
+  }
 }

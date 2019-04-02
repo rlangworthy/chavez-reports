@@ -7,7 +7,8 @@ import {
 interface FailingGradesRenderProps{
   classes: {
     [className: string]: GradeDistribution
-}
+  }
+  hasGrades: string[]
 }
 
 export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props => {
@@ -16,13 +17,13 @@ export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props =>
     let rows: JSX.Element[] = [];
     // put header row in
     const headRow = (
-      <tr key={'Failing Students Header'}>
+      <tr key={'Failing Students Header'} className='gradebook-header-row'>
         <th>Class Name</th>
         <th>Student Name</th>
         <th>Quarter Grade</th>
       </tr>
     );
-    Object.keys(props.classes).forEach( c => {
+    props.hasGrades.forEach( c => {
       const students = props.classes[c].failingStudents;
       students.forEach( (s, i) => {
         const studentName = s.studentName;
@@ -43,10 +44,8 @@ export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props =>
       <div className='gradebook-audit-display'>
         <h3>Failing Grades</h3>
         <table className={'data-table'}>
-          <thead>
-            {headRow}
-          </thead>
           <tbody>
+            {headRow}
             {rows}
           </tbody>
         </table>

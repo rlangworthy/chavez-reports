@@ -1,79 +1,76 @@
 import * as d3 from 'd3'
+import {uniq} from 'ramda'
+import {compareAsc} from 'date-fns'
+
 import { 
-    RawFileParse, } from "../shared/file-types";
-
-import { RawStaffAbsenceRow } from '../shared/file-interfaces'
-
+    RawPunchcardRow } from '../shared/file-interfaces'
 import { ReportFiles } from '../shared/report-types'
-
 import { 
-    stringToDate } from "../shared/utils";
-
+    punchcardStringToDate } from "../shared/utils";
 import {
-    PayCodeKeys,
-    StaffAbsence,
-    AbsenceDate
+    StaffPunchTimes,
+    StaffPositions,
+    StaffDates,
+    PunchTimes,
     } from '../shared/staff-absence-types'
 
-
-export const createStaffAbsenceReport = (files: ReportFiles): {absences: StaffAbsence[], dates: AbsenceDate[]} => {
-
-        return getStaffAbsences(files.reportFiles[files.reportTitle.files[0].fileDesc]);
+interface SortedPunchcardRow extends RawPunchcardRow {
+    parsedEventDate: Date
 }
 
-const getStaffAbsences = (parse: RawFileParse): any =>  {
-    if (parse.parseResult === null){return {}}
-    const rawData = (parse.parseResult.data as RawStaffAbsenceRow[]).filter( r => r.PAYCODENAME !== null && 
-        PayCodeKeys.includes(r.PAYCODENAME.substring(0,3)));
-    const staffAbsenceObject = d3.nest<RawStaffAbsenceRow, StaffAbsence>()
-                                .key( r => r.Emplid.toString())
-                                .rollup( rs => {
-                                    
-                                    return {
-                                        name: rs[0].Name,
-                                        position: rs[0].Position,
-                                        absences: {
-                                            'VAC': rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='VAC')
-                                                .map( r => {return stringToDate(r.Date)}),
-                                            'BRV': rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='BRV')
-                                            .map( r => {return stringToDate(r.Date)}),
-                                            'CRT':rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='CRT')
-                                            .map( r => {return stringToDate(r.Date)}),
-                                            'EXC':rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='EXC')
-                                            .map( r => {return stringToDate(r.Date)}),
-                                            'PBD':rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='PBD')
-                                            .map( r => {return stringToDate(r.Date)}),
-                                            'SCG':rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='SCG')
-                                            .map( r => {return stringToDate(r.Date)}),
-                                            'SCK':rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='SCK')
-                                            .map( r => {return stringToDate(r.Date)}),
-                                            'SCU':rs.filter(r => r.PAYCODENAME !== null && r.PAYCODENAME.substring(0,3)==='SCU')
-                                            .map( r => {return stringToDate(r.Date)}),
-                                        }
-                                    }
-                                }).object(rawData);                   
-    const staffAbsences = Object.keys(staffAbsenceObject).map( k =>{
-        return staffAbsenceObject[k];
-    })
+export const createStaffAbsenceReport = (files: ReportFiles): {punchTimes: StaffPunchTimes, positions: StaffPositions} => {
+        return punchcardParser(files)
+}
 
-    const absenceDateObject = d3.nest<RawStaffAbsenceRow, AbsenceDate>()
-                                .key( r => r.Date)
-                                .rollup( rs => {
-
-                                    return {
-                                        date: stringToDate(rs[0].Date),
-                                        absences: rs.map( r => {return {name: r.Name, 
-                                            code: (r.PAYCODENAME != null) ? r.PAYCODENAME.substring(0,3): '',
-                                            position: r.Position}})
-                                    }
-
-                                }).object(rawData);
-    const absenceDates = Object.keys(absenceDateObject).map( k =>{
-                                    return absenceDateObject[k];
+const punchcardParser = (files: ReportFiles): {punchTimes: StaffPunchTimes, positions: StaffPositions} => {
+    const parse = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
+    if(parse === null)
+    {return {punchTimes:{}, positions:{}}}else{
+        const data = parse.data as RawPunchcardRow[]
+        const staffTimes = d3.nest<RawPunchcardRow, PunchTimes>()
+                            .key( r => r.PERSONFULLNAME)
+                            .rollup(rs => {
+                                const absences:{[code:string]:Date[]} = {};
+                                //sort dates by earliest, use map to preserve ordering + use date as key
+                                const dates = d3.nest<SortedPunchcardRow>()
+                                    .key( r => r.parsedEventDate)
+                                    .rollup( ks => {
+                                        return ks.map( r=> {
+                                            if(r.PAYCODENAME !== ''){
+                                                const code = r.PAYCODENAME.slice(0,3);
+                                                if(absences[code] !== undefined){
+                                                    absences[code] = absences[code].concat([punchcardStringToDate(r.EVENTDATE)])
+                                                } else {
+                                                    absences[code]= [punchcardStringToDate(r.EVENTDATE)]
+                                                }
+                                                return r.PAYCODENAME.slice(0,3)
+                                            }else{
+                                                return {
+                                                    in: punchcardStringToDate(r.PUNCHDTM), 
+                                                    out: r.ENDPUNCHDTM === '' ? null: punchcardStringToDate(r.ENDPUNCHDTM)
+                                                }
+                                            }
+                                        })
+                                    }).map(rs.map( (s:RawPunchcardRow):SortedPunchcardRow => {
+                                    return {...s, parsedEventDate: punchcardStringToDate(s.EVENTDATE)}}).sort(compareAsc));
+                                const dateMap: StaffDates = new Map();
+                                dates.each((val,key) => {
+                                    dateMap.set(new Date(key), val);
                                 })
-    
-                                          
-    return {absences: staffAbsences, dates: absenceDates};
+                                return {
+                                    name: rs[0].PERSONFULLNAME,
+                                    position: rs[0].POSITION,
+                                    punchTimes: dateMap,
+                                    absences: absences,
+                                }
+                            }).object(data)
+        const positions = d3.nest()
+                            .key(r => r.POSITION)
+                            .rollup( rs => {
+                                return uniq(rs.map(r => r.PERSONFULLNAME))
+                            }).object(data)
 
+        return {punchTimes:staffTimes, positions:positions}
+    }
 }
 

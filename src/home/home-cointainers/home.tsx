@@ -190,9 +190,9 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
     //save file to indexeddb using filetype+filename as key
     private saveFile = (file: RawFileParse): Promise<void> => {
         return idb.set(file.fileType + file.fileName, file).then( () => {
-            this.setState({savedFiles: this.state.savedFiles
-                .concat([{fileName: file.fileName, fileType: file.fileType, parseResult: null}])})
-        })
+            const newSaved = this.state.savedFiles
+            .concat([{fileName: file.fileName, fileType: file.fileType, parseResult: null}])
+            this.setState({savedFiles: newSaved})})
     }
 
     //rename a file in the saved database and in the working copy

@@ -19,7 +19,7 @@ export const FileManagerFooter: React.SFC<FileManagerFooterProps> = (props) => {
             {({fileList, savedFiles, addFile, modifyFile}) => {
                 const saveList = (files: RawFileParse[]) => {
                     files.map(file => {
-                        if(savedFiles.every( f => f.fileType !== file.fileType || f.fileName !== f.fileName)){
+                        if(savedFiles.every( f => f.fileType !== file.fileType || f.fileName !== file.fileName)){
                             modifyFile(file,'Save');
                         }
                     })

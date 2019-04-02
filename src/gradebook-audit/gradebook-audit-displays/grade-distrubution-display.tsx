@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {partition} from 'ramda';
 
 import {
   GradeDistribution
@@ -10,6 +11,8 @@ interface GradeDistributionProps {
 }
 interface GradeDistributionDisplayProps{
   classes: {[className: string]: GradeDistribution}
+  hasGrades: string[]
+  noGrades: string[]
 }
 
 const GradeDistributionRender: React.SFC<GradeDistributionProps> = props => {
@@ -51,12 +54,13 @@ const GradeDistributionRender: React.SFC<GradeDistributionProps> = props => {
   }
 
 export const GradeDistributionDisplay : React.SFC<GradeDistributionDisplayProps> = props => {
+  
   return (
-        <div className='gradebook-audit-display'>
+        <div>
           <h3>Grade Distributions</h3>
+          {props.noGrades.length > 0 ? <div style={{fontStyle:'italic'}}>{'No Grades: ' + props.noGrades.toString()}<hr/></div> : null}
           <div className='grade-distributions'>
-          {props.classes ? null : console.log(props.classes)}
-          { Object.keys(props.classes).map( (className, i) => {
+          { props.hasGrades.map( (className, i) => {
               return <GradeDistributionRender distribution={props.classes[className]} className={className} key={i}/>
             })
           }

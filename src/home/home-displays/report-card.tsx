@@ -31,7 +31,13 @@ export const ReportCard: React.SFC<ReportCardProps> = (props) => {
                 <Card.Body>
                     <Card.Title>{props.cardInfo.title}</Card.Title>
                     <Card.Text>{props.cardInfo.description}</Card.Text>
+                    {props.cardInfo.moreInfoLink && 
+                    <Button
+                        variant='link'
+                        onClick={() => window.open(props.cardInfo.moreInfoLink, '_blank')}
+                        style={{textAlign:'center'}}>Report Details</Button>}
                 </Card.Body>
+                
                 <Card.Footer>
                     <CardButton/>
                 </Card.Footer>

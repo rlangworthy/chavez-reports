@@ -21,6 +21,7 @@ interface CategoryTableRenderProps{
           }   
       }
   }
+  hasGrades:string[]
 }
 
 export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props => {
@@ -29,7 +30,7 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
     let rows: JSX.Element[] = [];
     // put header row in
     const headRow =(
-      <tr key={'Category Table Header'}>
+      <tr key={'Category Table Header'} className='gradebook-header-row'>
         <th>Subject Name</th>
         <th>CategoryName</th>
         <th>Category Weight</th>
@@ -48,7 +49,7 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
       color: 'white',
       fontWeight: 'bold' as 'bold',
     };
-    Object.keys(props.classes).forEach( c => {
+    props.hasGrades.forEach( c => {
         const badCategoryWeight = hasCategoryWeightsNot100(props.classes[c]);
         let i = 0;
         Object.keys(props.classes[c]).forEach( cat => {
@@ -68,9 +69,9 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
                       </div>
                     }
                   </td>
-                  <td>{props.classes[c][cat].TPL ? 'Yes':'No'}</td>
-                  <td>{stats.averageGrade >= 0 ? stats.averageGrade.toFixed(0) : 'Unknown'}</td>
-                  <td style={assignments.length === 0 ? invertedRedBGStyle : {}}>
+                  <td>{props.classes[c][cat].TPL==='TPL Yes' ? 'Yes':'No'}</td>
+                  <td>{assignments.length !== 0 ? stats.averageGrade.toFixed(0) : 'Unknown'}</td>
+                  <td style={assignments.length === 0 ? invertedRedBGStyle : {}} className='category-warning'>
                     {assignments.length}
                   </td>
                   <td>{stats.numBlank}</td>
@@ -102,10 +103,8 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
       <div className='gradebook-audit-display'>
         <h3>Category Table</h3>
         <table className={'data-table'}>
-          <thead>
-            {headRow}
-          </thead>
           <tbody>
+            {headRow}
             {rows}
           </tbody>
         </table>

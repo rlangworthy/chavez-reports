@@ -12,17 +12,21 @@ import {
     ReportTitleFile } from '../../shared/report-types';
 import { FileContextConsumer } from '../home-cointainers/home';
 
-export const fileInputs = (report: ReportTitle, 
-    fileRefs: {[type: string]: HTMLInputElement | null}, 
-    selectedValues: {[fileType: string]: string},
-    handleChange: (ev: React.ChangeEvent<HTMLSelectElement>, f: string) => void): JSX.Element => {
+interface FileInputsProps {
+    report: ReportTitle 
+    fileRefs: {[type: string]: HTMLInputElement | null} 
+    selectedValues: {[fileType: string]: string}
+    handleChange: (ev: React.ChangeEvent<HTMLSelectElement>, f: string) => void
+}
+
+export const FileInputs: React.SFC<FileInputsProps> = (props) => {
 
     const hideUpload = (f : string): 'hidden' | 'visible' => {
-        if(selectedValues[f] === 'Upload New File'){
+        if(props.selectedValues[f] === 'Upload New File'){
             return 'visible'
         }else{
             //resets the upload value on hide
-            const uploadElement = document.getElementById(`${report.title+f}-file-input`) as HTMLInputElement;
+            const uploadElement = document.getElementById(`${props.report.title+f}-file-input`) as HTMLInputElement;
             if (uploadElement !== null){
                 uploadElement.value = ""}
             return 'hidden';
@@ -47,8 +51,8 @@ export const fileInputs = (report: ReportTitle,
                                                     fLink={f.altLink}/>
                                             </Col>
                                             <Col>
-                                                <Form.Control as='select' onChange={(e)=>handleChange(e, f.fileDesc)}
-                                                value={selectedValues[f.fileDesc]}
+                                                <Form.Control as='select' onChange={(e)=>props.handleChange(e, f.fileDesc)}
+                                                value={props.selectedValues[f.fileDesc]}
                                                 id={`${f}-file-select`}>
                                                     {fileList[f.fileType].map( (file, i) => {
                                                         return (
@@ -57,8 +61,8 @@ export const fileInputs = (report: ReportTitle,
                                                     })}
                                                     <option>Upload New File</option>
                                                 </Form.Control>
-                                                <Form.Control id={`${report.title + f.fileDesc}-file-input`}
-                                                ref={(ref => fileRefs[f.fileDesc] = ref) as any } type='file'
+                                                <Form.Control id={`${props.report.title + f.fileDesc}-file-input`}
+                                                ref={(ref => props.fileRefs[f.fileDesc] = ref) as any } type='file'
                                                 style={{visibility: `${hideUpload(f.fileDesc)}`} as any}/>
                                             </Col>
                                         </Row>
@@ -77,13 +81,13 @@ export const fileInputs = (report: ReportTitle,
 
     return (
         <React.Fragment>
-            {listToInput(report.files)}
-            {report.optionalFiles? 
+            {listToInput(props.report.files)}
+            {props.report.optionalFiles? 
                 <React.Fragment>
                     <hr/>
                     <h5 style={{padding: '5px'}}>Optional Files</h5>
                     <hr/>
-                    {listToInput(report.optionalFiles)} 
+                    {listToInput(props.report.optionalFiles)} 
                 </React.Fragment>
                 : null}
         </React.Fragment>

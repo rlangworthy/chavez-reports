@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {partition} from 'ramda';
 
 import {del} from 'idb-keyval'
 import { ReportFiles } from '../../shared/report-types'
@@ -23,15 +24,36 @@ export const GradebookAuditReport: React.SFC<GradebookAuditReportProps> = (props
     return (
         <React.Fragment>
         {teachers.map( teacher => {
-            const tKey = teacher.firstName + teacher.lastName
+            const tKey: string = teacher.firstName + teacher.lastName
             if(distributions[tKey] && categories[tKey]){
+            const [hasGrades, noGrades]: string[][] = partition( (cn: string) => {
+                const gd = distributions[tKey][cn]
+                return (gd.A > 0 || 
+                        gd.B > 0 || 
+                        gd.C > 0 || 
+                        gd.D > 0 ||
+                        gd.F > 0)}, Object.keys(distributions[tKey]))
+            
+            const hasAsgn: string[] = Object.keys(categories[tKey]).filter( cn => {
+                return Object.keys(categories[tKey][cn]).some( cat => categories[tKey][cn][cat].assignments.length > 0)
+            })
+
             return (
                 <div key={tKey} className='gradebook-audit-report'>
                     <h1>{teacher.firstName + ' ' + teacher.lastName}</h1>
-                    <GradeDistributionDisplay classes={distributions[tKey]}/>
-                    <CategoryTableRender classes={categories[tKey]}/>
-                    <FailingGradesRender classes={distributions[tKey]}/>
-                    <HighImpactAssignmentsRender classes={categories[tKey]}/>
+                    <GradeDistributionDisplay 
+                        classes={distributions[tKey]}
+                        hasGrades={hasGrades}
+                        noGrades={noGrades}/>
+                    <CategoryTableRender 
+                        classes={categories[tKey]}
+                        hasGrades={hasAsgn}/>
+                    <FailingGradesRender 
+                        classes={distributions[tKey]}
+                        hasGrades={hasGrades}/>
+                    <HighImpactAssignmentsRender 
+                        classes={categories[tKey]}
+                        hasGrades={hasAsgn}/>
                 </div>
             )}
         })}

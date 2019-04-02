@@ -13,9 +13,13 @@ interface CalendarDisplayProps{
     absenceData: {absences: StaffAbsence[], dates: AbsenceDate[]}
     position: string
     staffName: string
+    positions?: string[]
+    staffNames?: string[]
+    codes?: string[]
 }
 
 interface CalendarDisplayState{
+
 }
 
 interface CalendarDisplayBodyProps{
