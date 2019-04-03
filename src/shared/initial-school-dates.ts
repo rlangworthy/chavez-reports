@@ -5,10 +5,10 @@ const holidays = [new Date(2018, 8,3),new Date(2018, 9,8),new Date(2018, 10,12),
 
 const winterBreak: Date[] = [new Date(2018,11,24), new Date(2019, 0,4)]
 const springBreak = [new Date(2018,11,24), new Date(2019, 0,4)]
-export const defaultStartDay = new Date(2018, 7, 27)
+export const defaultStartDay1819 = new Date(2018, 7, 27)
 export const defaultEndDay = new Date()
 
-export const defaultSchoolYear = fns.eachDay(defaultStartDay, defaultEndDay).filter(d => {
+export const defaultSchoolYear = fns.eachDay(defaultStartDay1819, defaultEndDay).filter(d => {
     if(fns.isWeekend(d) || 
     fns.isWithinRange(d, winterBreak[0], winterBreak[1]) ||
     fns.isWithinRange(d, springBreak[0], springBreak[1]) ||

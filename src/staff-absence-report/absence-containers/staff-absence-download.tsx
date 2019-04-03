@@ -18,13 +18,15 @@ import {
 import { 
     StaffDisplayContainer } from '../absence-displays/staff-display'
 import {
+    AbsenceTotals } from '../absence-displays/absence-totals'
+import {
     SchoolDatesModal } from '../absence-displays/school-dates-modal' 
 
 import { ReportFiles } from '../../shared/report-types'
 import {
     defaultSchoolYear,
     defaultEndDay,
-    defaultStartDay,} from '../../shared/initial-school-dates'
+    defaultStartDay1819,} from '../../shared/initial-school-dates'
 import { createStaffAbsenceReport } from '../staff-absence-backend'
 import { MultiSelect } from '../../shared/components/multi-select'
 
@@ -69,11 +71,11 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
             selectedTeachers: [],
             selectedNonTeachers: [],
             schoolDates: defaultSchoolYear,
-            startDate: defaultStartDay,
+            startDate: defaultStartDay1819,
             endDate: defaultEndDay,
             dateModal: false,
         }
-        window.addEventListener('beforeunload', () => {del('Staff Absence Report')});
+        //window.addEventListener('beforeunload', () => {del('Staff Absence Report')});
     }
 
     componentWillMount(){
@@ -146,8 +148,16 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
                 </Col>
                 <Col className='staff-absence-tabs'>
                     <Tabs defaultActiveKey='staff' id='staff-absence-tabs'>     
-                        <Tab eventKey='staff' title='Staff View' className='staff-absence-printable'>
+                        <Tab eventKey='staff' title='Staff View'>
                             <StaffDisplayContainer
+                                absenceData={this.state.punchTimes}
+                                staffNames={this.state.selectedTeachers.concat(this.state.selectedNonTeachers)}
+                                codes={this.state.selectedCodes}
+                                dates={this.state.schoolDates}
+                                />
+                        </Tab>
+                        <Tab eventKey='totals' title='Absence Totals'>
+                            <AbsenceTotals
                                 absenceData={this.state.punchTimes}
                                 staffNames={this.state.selectedTeachers.concat(this.state.selectedNonTeachers)}
                                 codes={this.state.selectedCodes}
