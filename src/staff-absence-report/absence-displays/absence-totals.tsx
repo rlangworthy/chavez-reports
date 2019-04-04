@@ -5,7 +5,7 @@ import {
     format,
     startOfWeek,
     endOfWeek,
-    getDay} from 'date-fns'
+    addDays} from 'date-fns'
 
 import {
     StaffPunchTimes,
@@ -220,15 +220,26 @@ const TotalsByWeek: React.SFC<TotalDisplayProps> = (props) => {
         var c = 0;
         Object.keys(props.totalAbsences).forEach( (code) => {
             if(byWeek[k][code]!==undefined){
+                if(c===0){
+                    rows.push(
+                        <tr key={'dates'+k}>
+                            <td rowSpan={Object.keys(byWeek[k]).length + 2}
+                                     className='index-column'>
+                                {k + format(startOfWeek(byWeek[k][code][0]), ' (D/M-') + 
+                                format(endOfWeek(byWeek[k][code][0]), 'D/M)')}
+                            </td>
+                            <td className='index-column'>Dates</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),1), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),2), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),3), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),4), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),5), 'ddd(D/M)')}</td>
+                        </tr>)
+                }
                 const totals = getTotalDatesBy(byWeek[k][code], 'day');
                 OT.map( (a,j) => OT[j] = a + totals[j])
                 const row=(
                     <tr key={code+k}>
-                        {c===0 ? <td rowSpan={Object.keys(byWeek[k]).length + 1}
-                                     className='index-column'>
-                                    {k + format(startOfWeek(byWeek[k][code][0]), ' (D/M-') + 
-                                    format(endOfWeek(byWeek[k][code][0]), 'D/M)')}
-                                </td>:null}
                         <td>{code}</td>
                         <td>{totals[0]}</td>
                         <td>{totals[1]}</td>
@@ -244,11 +255,11 @@ const TotalsByWeek: React.SFC<TotalDisplayProps> = (props) => {
         rows.push(
             <tr key={'total'+k}>
                     <td className='index-column'>Total</td>
-                    <td>{OT[0]}</td>
-                    <td>{OT[1]}</td>
-                    <td>{OT[2]}</td>
-                    <td>{OT[3]}</td>
-                    <td>{OT[4]}</td>
+                    <td className='index-column'>{OT[0]}</td>
+                    <td className='index-column'>{OT[1]}</td>
+                    <td className='index-column'>{OT[2]}</td>
+                    <td className='index-column'>{OT[3]}</td>
+                    <td className='index-column'>{OT[4]}</td>
             </tr>
         );
     })

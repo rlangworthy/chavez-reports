@@ -1,7 +1,51 @@
 import * as fns from 'date-fns'
 
+export interface HolidayDate {
+    name: string
+    dates: Date[]
+}
+
 const holidays = [new Date(2018, 8,3),new Date(2018, 9,8),new Date(2018, 10,12),new Date(2018, 10,23),new Date(2018, 10,22),
                     new Date(2019, 0,21),new Date(2019, 1,18),new Date(2019, 4,27)]
+
+export const holidayList: HolidayDate[] = [
+    {
+        name: 'Labor Day',
+        dates: [new Date(2018, 8,3)],
+    },
+    {
+        name: 'Columbus Day',
+        dates: [new Date(2018, 9,8)],
+    },
+    {
+        name: "Veteran's Day",
+        dates: [new Date(2018, 10,12)],
+    },
+    {
+        name: 'Thanksgiving Holiday',
+        dates: [new Date(2018, 10,23),new Date(2018, 10,22),]
+    },
+    {
+        name: 'M.L.K. Day',
+        dates: [new Date(2019, 0,21)]
+    },
+    {
+        name: "President's Day",
+        dates: [new Date(2019, 1,18)],
+    },
+    {
+        name: 'Memorial Day',
+        dates: [new Date(2019, 4,27)]
+    },
+    {
+        name: 'Winter Break',
+        dates: fns.eachDay(new Date(2018,11,24), new Date(2019, 0,4))
+    },
+    {
+        name: 'Spring Break',
+        dates: fns.eachDay(new Date(2018,11,24), new Date(2019, 0,4))
+    }
+]
 
 const winterBreak: Date[] = [new Date(2018,11,24), new Date(2019, 0,4)]
 const springBreak = [new Date(2018,11,24), new Date(2019, 0,4)]
@@ -10,9 +54,7 @@ export const defaultEndDay = new Date()
 
 export const defaultSchoolYear = fns.eachDay(defaultStartDay1819, defaultEndDay).filter(d => {
     if(fns.isWeekend(d) || 
-    fns.isWithinRange(d, winterBreak[0], winterBreak[1]) ||
-    fns.isWithinRange(d, springBreak[0], springBreak[1]) ||
-    holidays.some( h => fns.isSameDay(h,d))){
+    holidayList.reduce( (a:Date[],b) => a.concat(b.dates), []).some( h => fns.isSameDay(h,d))){
         return false;
     }
     return true;

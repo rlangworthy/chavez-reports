@@ -26,7 +26,8 @@ import { ReportFiles } from '../../shared/report-types'
 import {
     defaultSchoolYear,
     defaultEndDay,
-    defaultStartDay1819,} from '../../shared/initial-school-dates'
+    defaultStartDay1819,
+    holidayList} from '../../shared/initial-school-dates'
 import { createStaffAbsenceReport } from '../staff-absence-backend'
 import { MultiSelect } from '../../shared/components/multi-select'
 
@@ -52,6 +53,7 @@ interface StaffAbsenceReportState {
     nonTeacherList: {[position: string]:string[]}
     teacherList: {[position: string]:string[]}
     schoolDates: Date[]
+    disabledDates: Date[]
     startDate: Date
     endDate: Date
     selectedCodes: string[]
@@ -71,6 +73,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
             selectedTeachers: [],
             selectedNonTeachers: [],
             schoolDates: defaultSchoolYear,
+            disabledDates: holidayList.reduce( (a:Date[], b)=> a.concat(b.dates), []),
             startDate: defaultStartDay1819,
             endDate: defaultEndDay,
             dateModal: false,
@@ -176,6 +179,8 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
             startDate={this.state.startDate}
             endDate={this.state.endDate}
             show={this.state.dateModal}
+            holidays={holidayList}
+            handleHolidayClick={this.handleDateList}
           />
         </>
         );
@@ -214,6 +219,14 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
                     startDate: startDate, endDate:endDate})
             }
         }   
+    }
+
+    private handleDateList = (dates: Date[], selectDates: boolean) => {
+        if(selectDates){
+            this.setState({schoolDates: this.state.schoolDates.filter( d=> !dates.includes(d)).concat(dates.filter(d=>!isWeekend(d)))})
+        } else {
+            this.setState({schoolDates: this.state.schoolDates.filter(d=> !dates.includes(d))})
+        }
     }
 
     private handleCodeClick = (staff: string | string[]): void => {
