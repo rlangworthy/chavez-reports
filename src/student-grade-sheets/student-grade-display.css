@@ -1,0 +1,45 @@
+.student-assignments-hidden {
+  display: none
+}
+
+.student-assignments {
+  page-break-after: always
+}
+
+.category-table {
+  page-break-inside: avoid
+}
+
+@media (min-width: 768px){
+    .assignments-filter-container {
+      position: absolute;
+      top: 0px;
+      bottom: 0;
+      left: 0;
+      width: 25%;
+      overflow-y: scroll; 
+    }
+  
+    .assignments-display-container {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      overflow-y: scroll;
+      width: 75%;
+    }
+  }
+
+  @media print {
+    .assignments-filter-container {
+      display: none;
+      width: 0%;
+      height:0%;
+    }
+
+    .assignments-display-container {
+      position: relative;
+      overflow: visible;
+      width: 100%;  
+    }
+  }

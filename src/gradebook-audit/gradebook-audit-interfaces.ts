@@ -63,4 +63,5 @@ export interface AssignmentStats {
     averageGrade: number
     medianGrade: number
     lowestGrade: number
+    grades?:number[]
 }

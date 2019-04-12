@@ -117,21 +117,24 @@ export const parseGrade = (g: string): number => {
     return numberGrade
   }
   if(g==='A'||g==='a'){
-    return 100;
+    return 95;
   }
   if(g==='B'||g==='b'){
-    return 89;
+    return 85;
   }
   if(g==='C'||g==='c'){
-    return 79;
+    return 75;
   }
   if(g==='D'||g==='d'){
-    return 69;
+    return 65;
   }
   if(g==='F'||g==='f'){
     return 59;
   }
-  console.log('Invalid Grade' + g)
+  if(g==='Msg'){
+    return 0;
+  }
+  console.log('Invalid Grade ' + g)
   return -1;
 }
 

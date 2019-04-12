@@ -9,7 +9,7 @@ import {
     CategoryTableRender,
     FailingGradesRender,
     HighImpactAssignmentsRender,
-    } from '../gradebook-audit-displays'
+    GradesByAssignmentRender,} from '../gradebook-audit-displays'
 
 import './gradebook-audit-report.css'
 
@@ -54,6 +54,9 @@ export const GradebookAuditReport: React.SFC<GradebookAuditReportProps> = (props
                     <HighImpactAssignmentsRender 
                         classes={categories[tKey]}
                         hasGrades={hasAsgn}/>
+                    <GradesByAssignmentRender
+                        classes={categories[tKey]}
+                        hasAsign={hasAsgn}/>
                 </div>
             )}
         })}

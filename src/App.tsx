@@ -10,6 +10,7 @@ import { SummerschoolReportDownload } from './summerschool-report/summerschool-r
 import { StudentOnePagers } from './student-one-pager/student-one-pager-displays/student-one-pager-display'
 import { StaffAbsenceReport } from './staff-absence-report/absence-containers/staff-absence-download'
 import { GradebookAuditReport } from './gradebook-audit/gradebook-audit-containers/gradebook-audit-container'
+import { StudentGradeSheets } from './student-grade-sheets/student-grade-display'
 
 export const history = createBrowserHistory({});
 
@@ -38,6 +39,10 @@ class App extends Component {
         <Route path={ReportCards[5].link} render={() => 
           <ReportWrapper reportTitle={ReportCards[5].title}>
             <StudentOnePagers/>
+        </ReportWrapper>}/>
+        <Route path={ReportCards[6].link} render={() => 
+          <ReportWrapper reportTitle={ReportCards[6].title}>
+            <StudentGradeSheets/>
         </ReportWrapper>}/>
       </React.Fragment>
     );

@@ -175,7 +175,7 @@ export const getAssignmentStats = (grades: Score[], name?: string):AssignmentSta
     const inc = grades.filter( g => g === 'Inc').length;
     const missing = grades.filter( g => g === 'Msg').length;
     const zeroes = grades.filter( g => g === '0').length;
-    const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!=='Msg'&&g!=='').map( g => parseGrade(g)).filter(g => g >= 0);
+    const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!=='').map( g => parseGrade(g)).filter(g => g >= 0);
     /*
     const letterGrades = grades.filter( g =>  LetterGradeList.includes(g));
     if( numberGrades.length >0 && letterGrades.length >0){
@@ -202,6 +202,7 @@ export const getAssignmentStats = (grades: Score[], name?: string):AssignmentSta
         numIncomplete: inc,
         numMissing: missing,
         numZero: zeroes,
+        grades: numberGrades,
         ...gradeStats
     }
 }
