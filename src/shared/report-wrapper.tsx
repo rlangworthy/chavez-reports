@@ -9,6 +9,7 @@ interface ReportWrapperProps {
 
 interface ReportWrapperState {
     reportFiles: ReportFiles | null
+    channel: BroadcastChannel
 }
 
 //ReportWrapper assumes each child will have a prop for report files
@@ -16,10 +17,18 @@ interface ReportWrapperState {
 export class ReportWrapper extends React.Component<ReportWrapperProps, ReportWrapperState> {
     constructor(props){
         super(props);
-        this.state={reportFiles: null}
+        const channel = new BroadcastChannel(this.props.reportTitle)
+        channel.onmessage = (message: MessageEvent) => {
+            this.setState({reportFiles: message.data as ReportFiles})
+            channel.close()
+        }
+        this.state={reportFiles: null, channel: channel}
+        channel.postMessage(this.props.reportTitle)
+        /*
         idb.get(this.props.reportTitle).then( (res) => {
             this.setState({reportFiles: res as ReportFiles})
         })
+        */
     }
 
     render(){

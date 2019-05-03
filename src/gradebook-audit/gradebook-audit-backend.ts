@@ -5,9 +5,17 @@ import {
     median} from 'ramda'
 
 import {
+    isAfter,
+    isBefore
+    } from 'date-fns'
+
+import {
     RawESCumulativeGradeExtractRow,
     RawAssignmentsRow,
     RawTeacherCategoriesAndTotalPointsLogicRow,
+    AspenAssignmentRow,
+    AspenCategoriesRow,
+    AspenESGradesRow,
     Score, 
     LetterGradeList,
     LetterGrade } from '../shared/file-interfaces'
@@ -15,7 +23,12 @@ import {
 import { 
     letterGradeToNorm,
     normToLetterGrade,
-    parseGrade } from '../shared/utils'
+    parseGrade,
+    convertAspAsgns,
+    convertAspCategories,
+    convertAspGrades,
+    stringToDate, } from '../shared/utils'
+
 import { ReportFiles } from '../shared/report-types'
 import { 
     TeacherGradeDistributions,
@@ -31,16 +44,26 @@ export const createGradebookReports = (files: ReportFiles ) =>{
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const asg = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
     const cat = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult
-    const rawESGrades = gr ? gr.data as RawESCumulativeGradeExtractRow[] : []
-    const rawAllAssignments = asg ? asg.data as RawAssignmentsRow[] : []
-    const rawCategoriesAndTPL = cat ? cat.data as RawTeacherCategoriesAndTotalPointsLogicRow[] : []
-    const currentTerm = rawESGrades[0].Quarter;
+    const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
+    const aspAllAssignments = asg ? asg.data as AspenAssignmentRow[] : []
+    const aspCategoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
+    //FIXME: hardcoded, should be a choice of the user
+    const currentTerm = '4';
+    const q4Start = new Date(2019, 3, 4)
+    const q3Start = new Date(2019, 1, 1)
+
+    const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
+    const rawAllAssignments = aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), q4Start) 
+        ).map(convertAspAsgns)
+    const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
+     c['CLS Cycle'] ==='All Cycles').map(convertAspCategories)
+
     const distributions: TeacherGradeDistributions = getGradeDistributions(rawESGrades);
     const {categories, teachers} = getTeachersCategoriesAndAssignments(currentTerm, rawAllAssignments, rawCategoriesAndTPL);
 
     return {distributions: distributions, 
             categories: categories,
-            teachers: uniqBy( a => a.firstName + a.lastName, teachers)
+            teachers: uniqBy( (a:Teacher) => a.firstName + a.lastName, teachers)
                         .sort((a,b) => (a.lastName+a.firstName).localeCompare(b.lastName+b.firstName))};
 }
 
@@ -75,6 +98,7 @@ const getTeachersCategoriesAndAssignments = (
     term: string, 
     assignments: RawAssignmentsRow[], 
     categories: RawTeacherCategoriesAndTotalPointsLogicRow[]): {categories: TeacherClassCategories, teachers: Teacher[]} => {
+    
     let classCategories: TeacherClassCategories = d3.nest<RawTeacherCategoriesAndTotalPointsLogicRow, any>()
         .key( r => r.TeacherFirstName + r.TeacherLastName)
         .key( r => r.ClassName)
@@ -96,7 +120,8 @@ const getTeachersCategoriesAndAssignments = (
                     lowestGrade: 0,
                 },
             }
-        }).object(categories.filter(c => c.CLSCycle === term))
+        }).object(categories.filter(c => c.CLSCycle === term || c.CLSCycle === 'All Cycles'))
+
     
     const classAssignments = d3.nest<RawAssignmentsRow>()
         .key( r => r.TeacherFirst + r.TeacherLast)
@@ -104,7 +129,7 @@ const getTeachersCategoriesAndAssignments = (
         .key( r => r.CategoryName)
         .key( r => r.ASGName)
         .object(assignments)
-    const teachers: Teacher[] = []
+    let teachers: Teacher[] = []
     
     Object.keys(classCategories).map( teacher => {
         if(classAssignments[teacher]){
@@ -114,7 +139,7 @@ const getTeachersCategoriesAndAssignments = (
                         if(classAssignments[teacher][className][category]){
                             const asgs: Assignment[] = Object.keys(classAssignments[teacher][className][category]).map( asg => {
                                 const raws: RawAssignmentsRow[] = classAssignments[teacher][className][category][asg]
-                                teachers.push({firstName:raws[0].TeacherFirst, lastName: raws[0].TeacherLast})
+                                teachers = teachers.concat([{firstName:raws[0].TeacherFirst, lastName: raws[0].TeacherLast}])
                                 const grades: Score[] = raws.map( r => r.Score as Score);
                                 return {
                                     maxPoints: parseInt(raws[0].ScorePossible),
@@ -122,7 +147,7 @@ const getTeachersCategoriesAndAssignments = (
                                     categoryName: category,
                                     categoryWeight: raws[0].CategoryWeight,
                                     grades: grades,
-                                    stats: getAssignmentStats(grades, className + '-' + asg)
+                                    stats: getAssignmentStats(grades, parseInt(raws[0].ScorePossible) ,className + '-' + asg)
                                 }
                             })
                             classCategories[teacher][className][category].assignments = asgs;
@@ -169,13 +194,15 @@ export const getTotalAssignmentStats = (assignments: Assignment[]):AssignmentSta
     })
 }
 
-export const getAssignmentStats = (grades: Score[], name?: string):AssignmentStats => {
+export const getAssignmentStats = (grades: Score[], scorePosible: number, name?: string):AssignmentStats => {
     const blanks = grades.filter( g => g === '').length;
     const excused = grades.filter( g => g === 'Exc').length;
     const inc = grades.filter( g => g === 'Inc').length;
     const missing = grades.filter( g => g === 'Msg').length;
     const zeroes = grades.filter( g => g === '0').length;
-    const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!=='').map( g => parseGrade(g)).filter(g => g >= 0);
+    const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!=='')
+        .map( g => parseGrade(g)/scorePosible*100)
+        .filter(g => g >= 0);
     /*
     const letterGrades = grades.filter( g =>  LetterGradeList.includes(g));
     if( numberGrades.length >0 && letterGrades.length >0){

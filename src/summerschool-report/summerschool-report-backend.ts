@@ -3,7 +3,12 @@ import * as d3 from 'd3';
 import {
   RawESCumulativeGradeExtractRow,
   RawStudentProfessionalSupportDetailsRow,
-  RawNWEACDF } from '../shared/file-interfaces';
+  RawNWEACDF,
+  AspenESGradesRow } from '../shared/file-interfaces';
+
+import {
+  convertAspGrades
+} from '../shared/utils'
 
 type RawESCumulativeGradeExtract = RawESCumulativeGradeExtractRow[]
   
@@ -81,7 +86,8 @@ export const createSummerSchoolReportFromFiles = ( files: ReportFiles) => {
   const ly = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
   const pp = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
 
-  const rawGrades = rg === null ? null : rg.data as RawESCumulativeGradeExtract;
+  const aspGrades = rg === null ? null : rg.data as AspenESGradesRow[];
+  const rawGrades = aspGrades ? aspGrades.filter(g => g['Quarter']==='4').map(convertAspGrades): aspGrades
   const rawNWEACY = cy === null ? null : cy.data as RawNWEACDF;
   const rawNWEALY = ly === null ? null : ly.data as RawNWEACDF;
   const paraProp = pp === null ? null : pp.data as RawStudentProfessionalSupportDetailsRow[];

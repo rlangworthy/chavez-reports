@@ -1,3 +1,52 @@
+export type LetterGrade = 'A' | 'B' | 'C' | 'D' | 'F' | 'a' | 'b' | 'c' | 'd' | 'f';
+export const LetterGradeList = ['A' , 'B' , 'C' , 'D' , 'F' , 'a' , 'b' , 'c' , 'd' , 'f']
+
+export type Score = string | 'Msg' | 'Exc' | 'Inc' | '' | LetterGrade;
+
+export interface AspenESGradesRow {
+  'Student Last Name': string
+  'Student First Name': string
+  'Student ID' : string
+  'Grade Level' : string
+  'Homeroom' : string
+  'Quarter' : string
+  'Course Name' : string
+  'Teacher Last Name' : string
+  'Teacher First Name' : string
+  'Term Average' : string
+  'Term Grade' : string
+  'Final Average' : string
+}
+
+export interface AspenAssignmentRow {
+  'Student Last Name': string
+  'Student First Name': string
+  'Student ID' : string
+  'Grade Level' : string
+  'Class Name' : string
+  'Teacher Last Name' : string
+  'Teacher First Name' : string
+  'Assignment Name' : string
+  'Score' : string
+  'Score Possible' : string
+  'Category Name' : string
+  'Category Weight' : string
+  'Assigned Date' : string
+  'Assignment Due': string
+  'Grade entered on': string
+}
+
+export interface AspenCategoriesRow {
+  'Teacher First Name': string
+  'Teacher Last Name' : string
+  'Class Name' : string
+  'CLS Cycle' : string
+  'Average Mode Setting' : string
+  'Category Name' : string
+  'Category Weight' : string
+  'Category Percentage' : string
+}
+
 export interface RawESCumulativeGradeExtractRow {
     SchoolID:string
     SchoolName: string
@@ -12,6 +61,7 @@ export interface RawESCumulativeGradeExtractRow {
     TeacherFirstName: string
     QuarterAvg: string
     FinalAvg: string
+    QuarterGrade?: string
   }
 
 export interface RawStudentProfessionalSupportDetailsRow {
@@ -21,6 +71,59 @@ export interface RawStudentProfessionalSupportDetailsRow {
     PDIS: string
     'ELL Program Year Code'
 }
+
+export interface RawStaffAbsenceRow {
+  AMOUNT: number | null
+  Date: string
+  Emplid: number
+  HOMELABORACCTNAME: string
+  'Job Code': number
+  Name: string
+  PAYCODENAME: string | null
+  Position: string
+  'Position Number': number
+  'Unit Name': string
+  'Unit/Dept ID': number
+}
+
+export interface RawPunchcardRow {
+  PERSONNUM: string
+  PERSONFULLNAME: string
+  POSITION: string
+  EVENTDATE: string
+  PAYCODENAME: string
+  PUNCHDTM: string
+  ENDPUNCHDTM: string
+}
+
+export interface RawAssignmentsRow {
+  StuStudentId: string
+  ClassName: string
+  TeacherLast: string
+  TeacherFirst: string 
+  ASGName: string 
+  Score: Score 
+  ScorePossible: string
+  CategoryName: string
+  CategoryWeight: string
+  GradeEnteredOn: string
+}
+
+export interface RawTeacherCategoriesAndTotalPointsLogicRow {
+  SchoolID: string
+  SchoolName: string
+  TeacherLastName: string
+  TeacherFirstName: string
+  ClassName: string
+  CLSCycle: string
+  MultipleWeightMode: string
+  TotalPointsLogicSetting: string
+  MaxGradestoDrop: string
+  CategoryName: string
+  CategoryWeight: string
+  CategoryPercent: string
+}
+
 
 export type RawNWEACDF = RawNWEACDFRow[];
 
@@ -104,61 +207,4 @@ export interface RawNWEACDFRow {
   PercentCorrect: string
   ProjectedProficiency: string
   Textbox22: string
-}
-
-export interface RawStaffAbsenceRow {
-  AMOUNT: number | null
-  Date: string
-  Emplid: number
-  HOMELABORACCTNAME: string
-  'Job Code': number
-  Name: string
-  PAYCODENAME: string | null
-  Position: string
-  'Position Number': number
-  'Unit Name': string
-  'Unit/Dept ID': number
-}
-
-export interface RawPunchcardRow {
-  PERSONNUM: string
-  PERSONFULLNAME: string
-  POSITION: string
-  EVENTDATE: string
-  PAYCODENAME: string
-  PUNCHDTM: string
-  ENDPUNCHDTM: string
-}
-
-export type LetterGrade = 'A' | 'B' | 'C' | 'D' | 'F' | 'a' | 'b' | 'c' | 'd' | 'f';
-export const LetterGradeList = ['A' , 'B' , 'C' , 'D' , 'F' , 'a' , 'b' , 'c' , 'd' , 'f']
-
-export type Score = string | 'Msg' | 'Exc' | 'Inc' | '' | LetterGrade;
-
-export interface RawAssignmentsRow {
-  StuStudentId: string
-  ClassName: string
-  TeacherLast: string
-  TeacherFirst: string 
-  ASGName: string 
-  Score: Score 
-  ScorePossible: string
-  CategoryName: string
-  CategoryWeight: string
-  GradeEnteredOn: string
-}
-
-export interface RawTeacherCategoriesAndTotalPointsLogicRow {
-  SchoolID: string
-  SchoolName: string
-  TeacherLastName: string
-  TeacherFirstName: string
-  ClassName: string
-  CLSCycle: string
-  MultipleWeightMode: string
-  TotalPointsLogicSetting: string
-  MaxGradestoDrop: string
-  CategoryName: string
-  CategoryWeight: string
-  TotalWeight: string
 }

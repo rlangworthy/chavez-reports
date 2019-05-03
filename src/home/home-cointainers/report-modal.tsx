@@ -88,8 +88,13 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
             }
         });
         const reportFiles: ReportFiles = {reportTitle: this.props.report, reportFiles: selectedFiles};
-        idb.set(reportFiles.reportTitle.title, reportFiles)
-            .then(() => window.open(this.props.report.link, '_blank'));
+        console.log(reportFiles)
+        const channel = new BroadcastChannel(reportFiles.reportTitle.title)
+        channel.onmessage = (message: MessageEvent) => {
+            channel.postMessage(reportFiles)
+            channel.close()
+        }
+        window.open(this.props.report.link, '_blank')
     }
 
     private uploadSubmit = () => {

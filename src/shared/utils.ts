@@ -1,10 +1,69 @@
 import * as Papa from 'papaparse'
 import { 
   RawFileParse, } from '../shared/file-types'
-import { LetterGrade } from './file-interfaces'
+import { 
+  LetterGrade,
+  RawAssignmentsRow,
+  RawESCumulativeGradeExtractRow,
+  RawTeacherCategoriesAndTotalPointsLogicRow,
+  AspenAssignmentRow,
+  AspenCategoriesRow,
+  AspenESGradesRow, } from './file-interfaces'
 import {
   getHours,
   getMinutes} from 'date-fns'
+
+export const convertAspGrades = (grades: AspenESGradesRow):RawESCumulativeGradeExtractRow => {
+  return {
+    SchoolID: '',
+    SchoolName: '',
+    StudentID: grades['Student ID'],
+    StudentFirstName: grades['Student First Name'],
+    StudentLastName: grades['Student Last Name'],
+    StudentHomeroom: grades['Homeroom'],
+    StudentGradeLevel: grades['Grade Level'],
+    Quarter: grades['Quarter'],
+    SubjectName: grades['Course Name'],
+    TeacherLastName: grades['Teacher Last Name'],
+    TeacherFirstName: grades['Teacher First Name'],
+    QuarterAvg: grades['Term Average'],
+    FinalAvg: grades['Final Average'],
+    QuarterGrade: grades['Term Grade'],
+  }
+}
+
+export const convertAspAsgns = (asgns: AspenAssignmentRow): RawAssignmentsRow => {
+  return {
+    StuStudentId: asgns['Student ID'],
+    ClassName: asgns['Class Name'],
+    TeacherLast: asgns['Teacher Last Name'],
+    TeacherFirst: asgns['Teacher First Name'], 
+    ASGName: asgns['Assignment Name'],
+    Score: asgns['Score'],
+    ScorePossible: asgns['Score Possible'],
+    CategoryName: asgns['Category Name'],
+    CategoryWeight: asgns['Category Weight'],
+    GradeEnteredOn: asgns['Assigned Date'],
+  }
+}
+
+export const convertAspCategories = (cats: AspenCategoriesRow) : RawTeacherCategoriesAndTotalPointsLogicRow => {
+  const className = cats['Class Name'].split(' ')
+  return {
+    SchoolID: '',
+    SchoolName: '',
+    TeacherLastName: cats['Teacher Last Name'],
+    TeacherFirstName: cats['Teacher First Name'],
+    ClassName: className.slice(0,className.length-2).join(' '),
+    CLSCycle: cats['CLS Cycle'],
+    MultipleWeightMode: '',
+    TotalPointsLogicSetting: cats['Average Mode Setting'],
+    MaxGradestoDrop: '',
+    CategoryName: cats['Category Name'],
+    CategoryWeight: cats['Category Weight'],
+    CategoryPercent: cats['Category Percentage'],
+  }
+}
 
 export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
     const scores = [[1,1,2,2,3], [1,2,2,3,3], [2,2,3,3,4], [2,3,4,5,5], [2,3,4,5,5]];

@@ -1,19 +1,20 @@
 import * as d3 from 'd3'
 
+import {isAfter} from 'date-fns'
+
 import {
-    RawESCumulativeGradeExtractRow,
     RawAssignmentsRow,
     RawTeacherCategoriesAndTotalPointsLogicRow,
-    Score, 
-    LetterGradeList,
-    LetterGrade } from '../shared/file-interfaces'
+    AspenAssignmentRow,
+    AspenCategoriesRow,
+    Score } from '../shared/file-interfaces'
 
 import { 
-    letterGradeToNorm,
-    normToLetterGrade,
-    parseGrade } from '../shared/utils'
+    convertAspAsgns,
+    convertAspCategories,
+    parseGrade,
+    stringToDate } from '../shared/utils'
 import { ReportFiles } from '../shared/report-types'
-import TabPane from 'react-bootstrap/TabPane';
 
 interface StudentRawAsg extends RawAssignmentsRow {
     AssignmentDue: string
@@ -63,8 +64,18 @@ export interface Category {
 export const createAssignmentReports = (files: ReportFiles ): StudentAssignments =>{
     const asg = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const cats = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
-    const rawAllAssignments = asg ? asg.data as StudentRawAsg[] : []
-    const rawCats = cats ? cats.data as RawTeacherCategoriesAndTotalPointsLogicRow[] : []
+    const aspAllAssignments = asg ? asg.data as AspenAssignmentRow[] : []
+    const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
+    const currentTerm = '4'
+    const q4Start = new Date(2019, 4, 5)
+
+    const rawAllAssignments=aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), q4Start))
+        .map((a:AspenAssignmentRow):StudentRawAsg => {return {
+            ...convertAspAsgns(a),
+            AssignedDate: a['Assigned Date'],
+            AssignmentDue: a['Assignment Due'],StuLName: a['Student Last Name'], StuFName: a['Student First Name']  
+        }})
+    const rawCats = aspCats.filter(c => c['CLS Cycle']===currentTerm).map(convertAspCategories)
 
     const classCats: ClassCategory = d3.nest<RawTeacherCategoriesAndTotalPointsLogicRow, Category>()
         .key( r=> r.ClassName)

@@ -5,6 +5,8 @@ export interface HolidayDate {
     dates: Date[]
 }
 
+export const q4Start = new Date(2019, 4, 5)
+
 const holidays = [new Date(2018, 8,3),new Date(2018, 9,8),new Date(2018, 10,12),new Date(2018, 10,23),new Date(2018, 10,22),
                     new Date(2019, 0,21),new Date(2019, 1,18),new Date(2019, 4,27)]
 
@@ -23,7 +25,7 @@ export const holidayList: HolidayDate[] = [
     },
     {
         name: 'Thanksgiving Holiday',
-        dates: [new Date(2018, 10,23),new Date(2018, 10,22),]
+        dates: [new Date(2018, 10,23),new Date(2018, 10,22), new Date(2018, 10,21)]
     },
     {
         name: 'M.L.K. Day',
@@ -43,7 +45,11 @@ export const holidayList: HolidayDate[] = [
     },
     {
         name: 'Spring Break',
-        dates: fns.eachDay(new Date(2018,11,24), new Date(2019, 0,4))
+        dates: fns.eachDay(new Date(2019,3,15), new Date(2019, 3,15))
+    },
+    {
+        name: 'Snow Days',
+        dates: [new Date(2019,0,30), new Date(2019,0,31)]
     }
 ]
 

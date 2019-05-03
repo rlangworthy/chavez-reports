@@ -4,6 +4,7 @@ import * as idb from 'idb-keyval'
 import { 
     getOnTrackScore,
     getCPSOnTrack,
+    convertAspGrades
 } from '../shared/utils'
 
 import {
@@ -11,12 +12,13 @@ import {
     ReportFiles, } from '../shared/report-types'
 
 import {
-    RawFileParse,
+    RawFileParse, ParseResult,
     } from '../shared/file-types'
 
 import {
     RawESCumulativeGradeExtractRow,
     RawStudentProfessionalSupportDetailsRow,
+    AspenESGradesRow
     } from '../shared/file-interfaces'
 
 export interface HomeRoom{
@@ -77,15 +79,30 @@ interface Tardies {
 }
 
 export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
-    let studentGradeObject = getStudentGrades(files.reportFiles[files.reportTitle.files[0].fileDesc]);
+    const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
+    const aspGrades = gr === null? null: gr.data as AspenESGradesRow[]
+    //FIXME: hardcoded quarter
+    const grades = aspGrades ? aspGrades.filter(g => g['Quarter']==='4').map(convertAspGrades): aspGrades
+    let studentGradeObject = getStudentGrades(grades);
+
     const sp = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult;
     const tr = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
     const spps = sp === null ? null: sp.data as RawStudentProfessionalSupportDetailsRow[];
     const tardies = tr === null ? null: tr.data as Tardies[];
     const opts = files.reportTitle.optionalFiles !== undefined;
-    const gradeHist = files.reportTitle.optionalFiles ? getStudentGrades(files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc]): {};
-    const tHist = files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc] ? files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult : null;
-    const tardiesHist = tHist === null ? null: tHist.data as Tardies[];
+    let gradeHist = {}
+    let tHist: ParseResult | null = null 
+    let tardiesHist: null | Tardies[] =  null
+    if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc]){
+        const ogr = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
+        const oaspGrades = ogr === null? null: ogr.data as AspenESGradesRow[]
+        //FIXME: hardcoded quarter
+        const ogrades = oaspGrades ? oaspGrades.filter(g => g['Quarter']==='4').map(convertAspGrades): oaspGrades
+        gradeHist = getStudentGrades(ogrades);
+        tHist = files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc] ? files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult : null;
+        tardiesHist = tHist === null ? null: tHist.data as Tardies[];
+
+    }
     
     if (spps !== null){spps.forEach(row => {
         if(studentGradeObject[row['Student ID']]!== undefined){
@@ -127,7 +144,7 @@ const mergeStudents = (current: Students, past: Students) => {
     })
 }
 
-const getStudentGrades = (file: RawFileParse): Students => {
+const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Students => {
     const getReadingGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
         const row = rows.find( r => r.SubjectName === 'CHGO READING FRMWK');
         if(row === undefined){return [-1, -1]}
@@ -177,7 +194,7 @@ const getStudentGrades = (file: RawFileParse): Students => {
         return normGrade.length > 0 ? normGrade.reduce(((a,b) => a+b), 0)/normGrade.length : 0
     }
 
-    if (file === undefined || file.parseResult === null){return {}}
+    if (file === null){return {}}
     const students = d3.nest<RawESCumulativeGradeExtractRow, Student>()
         .key( r => r.StudentID)
         .rollup( rs => {
@@ -206,7 +223,7 @@ const getStudentGrades = (file: RawFileParse): Students => {
                 totalDays: [],
                 onTrack: -1,
             }
-        }).object(file.parseResult.data as RawESCumulativeGradeExtractRow[])
+        }).object(file)
     
     return students;
 }

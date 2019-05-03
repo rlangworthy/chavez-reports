@@ -69,7 +69,7 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
                       </div>
                     }
                   </td>
-                  <td>{props.classes[c][cat].TPL==='TPL Yes' ? 'Yes':'No'}</td>
+                  <td>{props.classes[c][cat].TPL}</td>
                   <td>{assignments.length !== 0 ? stats.averageGrade.toFixed(0) : 'Unknown'}</td>
                   <td style={assignments.length === 0 ? invertedRedBGStyle : {}} className='category-warning'>
                     {assignments.length}

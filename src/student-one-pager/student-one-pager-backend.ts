@@ -1,7 +1,12 @@
 import * as d3 from 'd3'
+import {isAfter} from 'date-fns'
 
 import { 
-    getOnTrackScore
+    getOnTrackScore,
+    convertAspAsgns,
+    convertAspGrades,
+    stringToDate,
+    parseGrade
 } from '../shared/utils'
 
 import {
@@ -13,6 +18,8 @@ import {
 
 import {
     RawESCumulativeGradeExtractRow,
+    AspenESGradesRow,
+    AspenAssignmentRow
     } from '../shared/file-interfaces'
 
 export interface HSStudent {
@@ -97,10 +104,22 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const info = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
     const nwea = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
     const mz = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult;
+    //FIXME: hardcoded, should be a choice of the user
+    const currentTerm = '4';
+    const q4Start = new Date(2019, 3, 4)
 
-    let studentGradeObject = getStudentGrades(files.reportFiles[files.reportTitle.files[0].fileDesc]);
+    const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
+    const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
+    const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
+    const rawAllAssignments = aspAllAssignments.filter(a => parseGrade(a['Score'])===0 
+        && isAfter(stringToDate(a['Assigned Date']), q4Start))
+        .map(convertAspAsgns)
+
+
+
+    let studentGradeObject = getStudentGrades(rawESGrades);
     const tardies = at === null ? null: at.data as Tardies[];
-    const assignments = mz === null? null: mz.data as Assignment[];
+    const assignments = rawAllAssignments as Assignment[];
     if(tardies !== null){
         getAttendanceData(studentGradeObject, tardies);
     };
@@ -155,7 +174,7 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     }
 }
 
-const getStudentGrades = (file: RawFileParse): Students => {
+const getStudentGrades = (file: RawESCumulativeGradeExtractRow[]): Students => {
     const getReadingGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
         const row = rows.find( r => r.SubjectName === 'CHGO READING FRMWK');
         if(row === undefined){return [-1, -1]}
@@ -205,7 +224,6 @@ const getStudentGrades = (file: RawFileParse): Students => {
         return normGrade.length > 0 ? normGrade.reduce(((a,b) => a+b), 0)/normGrade.length : 0
     }
 
-    if (file.parseResult === null){return {}}
     const students = d3.nest<RawESCumulativeGradeExtractRow, Student>()
         .key( r => r.StudentID)
         .rollup( rs => {
@@ -234,7 +252,7 @@ const getStudentGrades = (file: RawFileParse): Students => {
                 onTrack: -1,
                 assignments: {}
             }
-        }).object(file.parseResult.data as RawESCumulativeGradeExtractRow[])
+        }).object(file)
     
     return students;
 }

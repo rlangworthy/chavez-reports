@@ -25,7 +25,7 @@ export class GradesByAssignmentRender extends React.PureComponent<GradesByAssign
         return (
             <>
                 <h3>Assignment Grades</h3>
-                {this.props.hasAsign.map( k => <ClassAssignmentBreakdown classes={this.props.classes} class={k}/>)}
+                {this.props.hasAsign.map( k => <ClassAssignmentBreakdown classes={this.props.classes} class={k} key={k}/>)}
             </>
         )
     }
@@ -83,12 +83,12 @@ const ClassAssignmentBreakdown: React.SFC<{classes: ClassCategories, class: stri
         rows.push(
             <tr key='total'>
                 <td colSpan={4} style={{textAlign: 'right'}} className='index-column'>Total</td>
-                <td>{totals.length}</td>
-                <td>{(totals.filter(g => g > 89).length/totals.length * 100).toFixed(1)}%</td>
-                <td>{(totals.filter(g => g > 79 && g < 90).length/totals.length * 100).toFixed(1)}%</td>
-                <td>{(totals.filter(g => g > 69 && g < 80).length/totals.length * 100).toFixed(1)}%</td>
-                <td>{(totals.filter(g => g > 59 && g < 70).length/totals.length * 100).toFixed(1)}%</td>
-                <td>{(totals.filter(g => g < 59).length/totals.length * 100).toFixed(1)}%</td>
+                <td className='index-column'>{totals.length}</td>
+                <td className='index-column'>{(totals.filter(g => g > 89).length/totals.length * 100).toFixed(1)}%</td>
+                <td className='index-column'>{(totals.filter(g => g > 79 && g < 90).length/totals.length * 100).toFixed(1)}%</td>
+                <td className='index-column'>{(totals.filter(g => g > 69 && g < 80).length/totals.length * 100).toFixed(1)}%</td>
+                <td className='index-column'>{(totals.filter(g => g > 59 && g < 70).length/totals.length * 100).toFixed(1)}%</td>
+                <td className='index-column'>{(totals.filter(g => g < 59).length/totals.length * 100).toFixed(1)}%</td>
             </tr>
     )
 
