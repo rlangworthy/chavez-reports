@@ -1,9 +1,9 @@
 export const DBNAME = 'reportFileStore'
 
 export enum FileTypes {
-    ES_GRADES_EXTRACT = 'ES Grades Extract',
-    ASSIGNMENTS_SLOW_LOAD = 'CPS All Assignments and Grades Extract (Slow Load)',
-    TEACHER_CATEGORIES_TPL = 'CPS Teacher Categories and Total Points Logic',
+    ES_GRADES_EXTRACT = 'Cumulative Grades Export',
+    ASSIGNMENTS_SLOW_LOAD = 'All Assignments and Grades Extract',
+    TEACHER_CATEGORIES_TPL = 'CPS Teacher Categories and Average Mode',
     TOTAL_STUDENTS_SPED_INSTRUCTION = 'Total Students Special Education Instruction Details',
     NWEA= 'NWEA Report Details',
     ATTENDENCE = '% Students Present, Not Present, Excused, or Tardy',
@@ -35,15 +35,15 @@ export interface FileDescripiton {
 export const FileDescriptions: {[fileType: string]: FileDescripiton} = {}
 FileDescriptions[FileTypes.ES_GRADES_EXTRACT] = {
     description: 'Located in the custom reports seciton of Gradebook',
-    link: 'https://docs.google.com/document/d/1DLJj9Mc_cURxHfljOBlxvj2Tlni1I2sszBnOGsQfhdc/edit?usp=sharing'
+    link: 'https://drive.google.com/open?id=17aDRWZrMfcyqlMUGHGD38Zz5E-yAFTks7L70nb0ynJY'
     }
 FileDescriptions[FileTypes.ASSIGNMENTS_SLOW_LOAD] = {
     description: 'Located in the custom reports seciton of Gradebook',
-    link: 'https://docs.google.com/document/d/10ogRhaEbHqsQiXpT5184oiycpo9CGOikSuKQzwhQqVA/edit?usp=sharing'
+    link: 'https://drive.google.com/open?id=17aDRWZrMfcyqlMUGHGD38Zz5E-yAFTks7L70nb0ynJY'
     }
 FileDescriptions[FileTypes.TEACHER_CATEGORIES_TPL] = {
     description: 'Located in the custom reports seciton of Gradebook',
-    link: 'https://docs.google.com/document/d/107Tyile6kCiNf7b7sTvmykpEJZMGjr-BAKoIobLB7SY/edit?usp=sharing'
+    link: 'https://drive.google.com/open?id=16sqAhCAEMqHf4Ep7QLl28KpT8c7HFitLLvL0U6oKLSU'
     }
 FileDescriptions[FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION] = {
     description: 'Dashboard, school IEP.',

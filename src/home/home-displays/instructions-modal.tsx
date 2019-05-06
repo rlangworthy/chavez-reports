@@ -33,8 +33,8 @@ export const InstructionModal: React.SFC<InstructionModalProps> = (props) => {
                     This site is a work in progress; more features will be added over time.
                 </p>
                 <ButtonToolbar>
-                    <Button onClick={() => window.open('https://drive.google.com/open?id=1o2cYPLVZBVKCmtQnSwoFK0CEdQbVpl1Z', '_blank')}>
-                        Gradebook Instructions
+                    <Button onClick={() => window.open('https://drive.google.com/open?id=1ImOdoG3b-yHEh5mHK4mCb1ChGIauE6EM', '_blank')}>
+                        Aspen Instructions
                     </Button>
                     <Button onClick={() => window.open('https://drive.google.com/open?id=1eceutsyzh2u0f_BNv_aP0YXqwiX9s14c', '_blank')}>
                         Dashboard Instructions

@@ -35,7 +35,7 @@ interface SingleAbsenceReportProps {
 
 export class StaffDisplayContainer extends React.PureComponent<StaffDisplayContainerProps> {
 
-    render () {
+    render(){
         const punchTimes=this.props.absenceData
         return (
             <>
@@ -72,7 +72,6 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
     );
     const getDays= (dates: Date[]): string => {
         const str = dates.map(d => d.toDateString().slice(3)).join(',')
-
         return str;
     }   
     var dates: Date [] = []

@@ -76,8 +76,7 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE}, 
                 {fileType: FileTypes.STUDENT_INFO,fileDesc: FileTypes.STUDENT_INFO}, 
                 {fileType: FileTypes.NWEA,fileDesc: FileTypes.NWEA},
-                {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: 'CPS Missing and Zero Point Assignments',
-                altLink: 'https://docs.google.com/document/d/1g9zLcYaq7nIGTCm1wA8C8-ps0-eGIaRiSF33DnJSP-Y/edit?usp=sharing'}],
+                {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}],
     },
     {
         title: 'Student Assignment Sheet',

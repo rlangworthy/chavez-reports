@@ -25,7 +25,8 @@ export const createStaffAbsenceReport = (files: ReportFiles): {punchTimes: Staff
 const punchcardParser = (files: ReportFiles): {punchTimes: StaffPunchTimes, positions: StaffPositions} => {
     const parse = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     if(parse === null)
-    {return {punchTimes:{}, positions:{}}}else{
+    {return {punchTimes:{}, positions:{}}}
+    else{
         const data = parse.data as RawPunchcardRow[]
         const staffTimes = d3.nest<RawPunchcardRow, PunchTimes>()
                             .key( r => r.PERSONFULLNAME)

@@ -53,6 +53,12 @@ export const holidayList: HolidayDate[] = [
     }
 ]
 
+export const irregularDayList: HolidayDate[] = [
+    {name: 'Q2 Report Card Distribution',
+    dates: [new Date(2019, 1,8)]},
+    {name: 'Q4 Report Card Distribution',
+    dates: [new Date(2019, 5, 18)]}]
+
 const winterBreak: Date[] = [new Date(2018,11,24), new Date(2019, 0,4)]
 const springBreak = [new Date(2018,11,24), new Date(2019, 0,4)]
 export const defaultStartDay1819 = new Date(2018, 7, 27)
