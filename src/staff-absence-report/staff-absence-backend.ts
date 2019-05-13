@@ -1,6 +1,9 @@
 import * as d3 from 'd3'
 import {uniq} from 'ramda'
-import {compareAsc} from 'date-fns'
+import {
+    compareAsc,
+    min,
+    max} from 'date-fns'
 
 import { 
     RawPunchcardRow } from '../shared/file-interfaces'
@@ -12,6 +15,10 @@ import {
     StaffPositions,
     StaffDates,
     PunchTimes,
+    PunchTime,
+    PayCodeDay,
+    isPunchTime,
+    Absences
     } from '../shared/staff-absence-types'
 
 interface SortedPunchcardRow extends RawPunchcardRow {
@@ -31,27 +38,23 @@ const punchcardParser = (files: ReportFiles): {punchTimes: StaffPunchTimes, posi
         const staffTimes = d3.nest<RawPunchcardRow, PunchTimes>()
                             .key( r => r.PERSONFULLNAME)
                             .rollup(rs => {
-                                const absences:{[code:string]:Date[]} = {};
+                                const absences:Absences = {};
                                 //sort dates by earliest, use map to preserve ordering + use date as key
                                 const dates = d3.nest<SortedPunchcardRow>()
                                     .key( r => r.parsedEventDate)
                                     .rollup( ks => {
-                                        return ks.map( r=> {
-                                            if(r.PAYCODENAME !== ''){
-                                                const code = r.PAYCODENAME.slice(0,3);
-                                                if(absences[code] !== undefined){
-                                                    absences[code] = absences[code].concat([punchcardStringToDate(r.EVENTDATE)])
-                                                } else {
-                                                    absences[code]= [punchcardStringToDate(r.EVENTDATE)]
-                                                }
-                                                return r.PAYCODENAME.slice(0,3)
-                                            }else{
-                                                return {
-                                                    in: punchcardStringToDate(r.PUNCHDTM), 
-                                                    out: r.ENDPUNCHDTM === '' ? null: punchcardStringToDate(r.ENDPUNCHDTM)
-                                                }
+                                        const parsedDate = punchcardDayParser(ks)
+                                        if(isPunchTime(parsedDate)){
+                                            return parsedDate
+                                        }else{
+                                            const code = parsedDate.payCode
+                                            if(absences[code] !== undefined){
+                                                absences[code] = absences[code].concat([parsedDate])
+                                            } else {
+                                                absences[code]= [parsedDate]
                                             }
-                                        })
+                                            return parsedDate
+                                        }
                                     }).map(rs.map( (s:RawPunchcardRow):SortedPunchcardRow => {
                                     return {...s, parsedEventDate: punchcardStringToDate(s.EVENTDATE)}}).sort(compareAsc));
                                 const dateMap: StaffDates = new Map();
@@ -75,3 +78,53 @@ const punchcardParser = (files: ReportFiles): {punchTimes: StaffPunchTimes, posi
     }
 }
 
+const punchcardDayParser = (events: SortedPunchcardRow[]): PayCodeDay|PunchTime => {
+    if(events.length === 1){
+        if(events[0].PAYCODENAME !== ''){
+            const code = events[0].PAYCODENAME.slice(0,3);
+            return {
+                date: punchcardStringToDate(events[0].EVENTDATE),
+                payCode: code,
+                halfDay: false,
+                ins:[],
+                outs:[]
+            }
+        } else {
+            return {
+                in: punchcardStringToDate(events[0].PUNCHDTM), 
+                out: events[0].ENDPUNCHDTM === '' ? null: punchcardStringToDate(events[0].ENDPUNCHDTM)
+            }
+        }
+    }else{
+        if(events.every( e => e.PAYCODENAME === '')){
+            const ins = events.map( e => punchcardStringToDate(e.PUNCHDTM))
+            const outs = events.map( e => punchcardStringToDate(e.ENDPUNCHDTM))
+            return {
+                in: min(...ins),
+                out: max(...outs)
+            }
+        }else if(events.every(e => e.PAYCODENAME === '' || 
+                                    e.PAYCODENAME.slice(0,3) ==='REG' ||
+                                    e.PAYCODENAME.slice(0,3) ==='UNS')){
+            //adjusted normal work day
+            return {
+                date: punchcardStringToDate(events[0].EVENTDATE),
+                payCode: 'REG',
+                halfDay: false,
+                ins: events.map(e=>e.PUNCHDTM).filter( e => e!== '').map(e=>punchcardStringToDate(e)),
+                outs: events.map(e=>e.ENDPUNCHDTM).filter( e => e!== '').map(e=>punchcardStringToDate(e))
+            }
+        }else{
+            const halfDay = events.some(e => (e.PAYCODENAME === '' || e.PAYCODENAME.slice(0,3) ==='REG') && parseInt(e.HOURS) > 0)
+            const codes = events.map(e => e.PAYCODENAME.slice(0,3)).filter(e => e!=='' && e!=='REG' && e!== 'UNS')
+            return {
+                date: punchcardStringToDate(events[0].EVENTDATE),
+                payCode: codes[0],
+                halfDay: halfDay,
+                ins: events.map(e=>e.PUNCHDTM).filter( e => e!== '').map(e=>punchcardStringToDate(e)),
+                outs: events.map(e=>e.ENDPUNCHDTM).filter( e => e!== '').map(e=>punchcardStringToDate(e))
+            }
+
+        }
+    }
+}

@@ -93,7 +93,8 @@ export interface RawPunchcardRow {
   EVENTDATE: string
   PAYCODENAME: string
   PUNCHDTM: string
-  ENDPUNCHDTM: string
+  ENDPUNCHDTM: string    
+  HOURS: string
 }
 
 export interface RawAssignmentsRow {
