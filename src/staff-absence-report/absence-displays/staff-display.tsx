@@ -10,7 +10,8 @@ import {
     StaffPunchTimes,
     PunchTimes,
     AbsencePaycodes,
-    PunchTime,} from '../../shared/staff-absence-types';
+    PunchTime,
+    PayCodeDay,} from '../../shared/staff-absence-types';
 
 import {
     isTardy } from '../../shared/utils'
@@ -70,22 +71,27 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
           <th>Friday</th>
         </tr>
     );
-    const getDays= (dates: Date[]): string => {
+    const getDays = (dates: Date[]): string => {
         const str = dates.map(d => d.toDateString().slice(3)).join(',')
         return str;
-    }   
-    var dates: Date [] = []
+    }
+
+    const getAbsenceDay = (pc : PayCodeDay) : string => {
+        return pc.date.toDateString().slice(3) + (pc.halfDay ? '(1/2)':'')
+    }
+
+    var dates: PayCodeDay[] = []
     var stats = ''
     codes.forEach(code => {
         dates = dates.concat(props.absences.absences[code]);
         const row = (
             <tr key={code}>
                 <td className='index-column'>{code}</td>
-                <td>{getDays(props.absences.absences[code].filter( r => r.getDay()===1))}</td>
-                <td>{getDays(props.absences.absences[code].filter( r => r.getDay()===2))}</td>
-                <td>{getDays(props.absences.absences[code].filter( r => r.getDay()===3))}</td>
-                <td>{getDays(props.absences.absences[code].filter( r => r.getDay()===4))}</td>
-                <td>{getDays(props.absences.absences[code].filter( r => r.getDay()===5))}</td>
+                <td>{props.absences.absences[code].filter( r => r.date.getDay()===1).map(getAbsenceDay).join(',')}</td>
+                <td>{props.absences.absences[code].filter( r => r.date.getDay()===2).map(getAbsenceDay).join(',')}</td>
+                <td>{props.absences.absences[code].filter( r => r.date.getDay()===3).map(getAbsenceDay).join(',')}</td>
+                <td>{props.absences.absences[code].filter( r => r.date.getDay()===4).map(getAbsenceDay).join(',')}</td>
+                <td>{props.absences.absences[code].filter( r => r.date.getDay()===5).map(getAbsenceDay).join(',')}</td>
             </tr>
         );
         rows.push(row);
@@ -117,19 +123,29 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
         
         const nDays = props.absences.attDays.length;
         const nTardies = props.absences.tardies.size;
-        const nCodes = dates.length;
+        var nInLate = 0;
+        var nOutEarly = 0;
+        props.absences.tardies.forEach( p => {
+            if(props.absences.startTime && props.absences.endTime){
+                const [inLate, outEarly] = isTardy(props.absences.startTime, props.absences.endTime, p.in, p.out)
+                nInLate += inLate? 1 : 0
+                nOutEarly +=outEarly? 1 : 0
+            }
+        })
+        const nCodes = dates.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
         stats = ((nDays-nCodes)*100/nDays).toFixed(2) + '% Attendance, ' 
-            + ((nDays-nTardies)*100/nDays).toFixed(2) + '% On Time'
+            + ((nDays-nInLate)*100/nDays).toFixed(2) + '% In On Time, '
+            + ((nDays-nOutEarly)*100/nDays).toFixed(2) + '% Out On Time'
     }
 
     const totalRow = (
         <tr key='totals'>
             <td className='index-column'>Total</td>
-            <td>{dates.filter( r => r.getDay()===1).length}</td>
-            <td>{dates.filter( r => r.getDay()===2).length}</td>
-            <td>{dates.filter( r => r.getDay()===3).length}</td>
-            <td>{dates.filter( r => r.getDay()===4).length}</td>
-            <td>{dates.filter( r => r.getDay()===5).length}</td>
+            <td>{dates.filter( r => r.date.getDay()===1).reduce( (a,b) => {return a + (b.halfDay ? .5 : 1)},0 )}</td>
+            <td>{dates.filter( r => r.date.getDay()===2).reduce( (a,b) => {return a + (b.halfDay ? .5 : 1)},0 )}</td>
+            <td>{dates.filter( r => r.date.getDay()===3).reduce( (a,b) => {return a + (b.halfDay ? .5 : 1)},0 )}</td>
+            <td>{dates.filter( r => r.date.getDay()===4).reduce( (a,b) => {return a + (b.halfDay ? .5 : 1)},0 )}</td>
+            <td>{dates.filter( r => r.date.getDay()===5).reduce( (a,b) => {return a + (b.halfDay ? .5 : 1)},0 )}</td>
         </tr>
     );
     rows.push(totalRow);
@@ -202,7 +218,7 @@ const TardiesTable: React.SFC<{tardies: Map<Date, PunchTime>, in:number, out:num
     Object.keys(tardiesByWeek).map( k => {
         const d:Date = tardiesByWeek[k][0].date;
         if(tardiesByWeek[k].length !== 1 || d.getDay()!==6){
-            const index:string = k + format(startOfWeek(d), ' (D/M-') + format(endOfWeek(d), 'D/M)')
+            const index:string = k + format(startOfWeek(d), ' (M/D-') + format(endOfWeek(d), 'M/D)')
             const row = (
             <tr key={k}>
                 <td className='index-column'>{index}</td>

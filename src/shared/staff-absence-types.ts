@@ -26,16 +26,28 @@ export interface PunchTime {
     out: Date | null
 }
 
-export type StaffDates = Map<Date, (PayCode | PunchTime)[]>
+export interface PayCodeDay {
+    payCode: string
+    halfDay: boolean
+    date: Date
+    ins: Date[]
+    outs: Date[]
+}
+
+export type StaffDates = Map<Date, PayCodeDay | PunchTime>
+
+export interface Absences {
+    [code:string]:PayCodeDay[]
+}
 
 export interface PunchTimes {
     name: string
     position: string
-    absences: {[code:string]:Date[]}
+    absences: Absences
     punchTimes: StaffDates
     tardies?: Map<Date, PunchTime>
     startTime?: number
-    endTime?:number
+    endTime?: number
     attDays?: Date[]
 }
 
@@ -62,4 +74,8 @@ export interface AbsenceDate{
     absences: {name: string
                 position: string
                 code: string}[]
+}
+
+export const isPunchTime = (val: PayCodeDay|PunchTime): val is PunchTime => {
+    return (val as PunchTime).in !== undefined
 }

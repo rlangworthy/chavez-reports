@@ -11,7 +11,9 @@ import {
     StaffPunchTimes,
     PunchTimes,
     AbsencePaycodes,
-    PunchTime,} from '../../shared/staff-absence-types';
+    PunchTime,
+    PayCodeDay,
+    Absences, } from '../../shared/staff-absence-types';
 import {
     defaultStartDay1819} from '../../shared/initial-school-dates'
 
@@ -23,11 +25,11 @@ interface AbsenceTotalsProps{
 }
 
 interface TotalDisplayProps {
-    totalAbsences: {[code:string]:Date[]}
+    totalAbsences: Absences
 }
 
 export const AbsenceTotals: React.SFC<AbsenceTotalsProps> = (props) => {
-    const totalAbsences: {[code:string]:Date[]} = {}
+    const totalAbsences: {[code:string]:PayCodeDay[]} = {}
     const names = props.staffNames.length===0 ? Object.keys(props.absenceData) : props.staffNames;
     const codes = props.codes.length===0 ? AbsencePaycodes : props.codes;
     names.forEach( name => {
@@ -200,11 +202,11 @@ const TotalsByWeek: React.SFC<TotalDisplayProps> = (props) => {
             <th>Friday</th>
         </tr>
     )
-    const byWeek:{[week: number]:{[code:string]:Date[]}} ={}
+    const byWeek:{[week: number]:Absences} ={}
     Object.keys(props.totalAbsences).forEach(code => {
         const dates= props.totalAbsences[code]
         dates.forEach( date =>{
-            const week = differenceInCalendarWeeks(date, defaultStartDay1819)
+            const week = differenceInCalendarWeeks(date.date, defaultStartDay1819)
             if(byWeek[week] === undefined ){
                 byWeek[week] = {[code]: [date]}
             } else if(byWeek[week][code] === undefined){
@@ -225,15 +227,15 @@ const TotalsByWeek: React.SFC<TotalDisplayProps> = (props) => {
                         <tr key={'dates'+k}>
                             <td rowSpan={Object.keys(byWeek[k]).length + 2}
                                      className='index-column'>
-                                {k + format(startOfWeek(byWeek[k][code][0]), ' (D/M-') + 
-                                format(endOfWeek(byWeek[k][code][0]), 'D/M)')}
+                                {k + format(startOfWeek(byWeek[k][code][0].date), ' (D/M-') + 
+                                format(endOfWeek(byWeek[k][code][0].date), 'D/M)')}
                             </td>
                             <td className='index-column'>Dates</td>
-                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),1), 'ddd(D/M)')}</td>
-                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),2), 'ddd(D/M)')}</td>
-                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),3), 'ddd(D/M)')}</td>
-                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),4), 'ddd(D/M)')}</td>
-                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0]),5), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0].date),1), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0].date),2), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0].date),3), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0].date),4), 'ddd(D/M)')}</td>
+                            <td className='index-column'>{format(addDays(startOfWeek(byWeek[k][code][0].date),5), 'ddd(D/M)')}</td>
                         </tr>)
                 }
                 const totals = getTotalDatesBy(byWeek[k][code], 'day');
@@ -278,13 +280,13 @@ const TotalsByWeek: React.SFC<TotalDisplayProps> = (props) => {
     )
 }
 
-const getTotalDatesBy = (dates: Date[], by: 'day' | 'month'):number[] => {
+const getTotalDatesBy = (dates: PayCodeDay[], by: 'day' | 'month'):number[] => {
     let ret:number[] = []
     switch(by) {
         case 'day':
             ret = [0,0,0,0,0]
             dates.forEach( d=> {
-                const day = d.getDay()
+                const day = d.date.getDay()
                 if(ret[day-1]!==undefined){
                     ret[day-1] = ret[day-1]+1
                 }
@@ -293,7 +295,7 @@ const getTotalDatesBy = (dates: Date[], by: 'day' | 'month'):number[] => {
         case 'month':
             ret = [0,0,0,0,0,0,0,0,0,0,0,0];
             dates.forEach( d=> {
-                const month = d.getMonth()
+                const month = d.date.getMonth()
                 if(ret[month]!==undefined){
                     ret[month] = ret[month]+1
                 }

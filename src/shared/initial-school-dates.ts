@@ -54,15 +54,17 @@ export const holidayList: HolidayDate[] = [
 ]
 
 export const irregularDayList: HolidayDate[] = [
-    {name: 'Q2 Report Card Distribution',
-    dates: [new Date(2019, 1,8)]},
-    {name: 'Q4 Report Card Distribution',
-    dates: [new Date(2019, 5, 18)]}]
+    {name: 'Report Card Distribution Days',
+    dates: [new Date(2019, 1,8),new Date(2019, 5, 18)]},
+    {name:'School Improement Days',
+    dates: [new Date(2018, 10, 2), new Date(2019, 1, 1), new Date(2019, 3, 5), new Date(2019, 5, 19)]},
+    {name: 'Parent-Teacher Conference Days',
+    dates: [new Date(2018, 10,14), new Date(2019, 3, 10)]}]
 
 const winterBreak: Date[] = [new Date(2018,11,24), new Date(2019, 0,4)]
 const springBreak = [new Date(2018,11,24), new Date(2019, 0,4)]
-export const defaultStartDay1819 = new Date(2018, 7, 27)
-export const defaultEndDay = new Date()
+export const defaultStartDay1819 = new Date(2018, 8, 3)
+export const defaultEndDay = new Date(2019, 5, 18)
 
 export const defaultSchoolYear = fns.eachDay(defaultStartDay1819, defaultEndDay).filter(d => {
     if(fns.isWeekend(d) || 
