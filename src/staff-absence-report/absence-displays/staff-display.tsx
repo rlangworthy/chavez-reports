@@ -123,7 +123,7 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
         
         const nDays = props.absences.attDays.length;
         const nTardies = props.absences.tardies.size;
-        const nCodes = dates.length;
+        const nCodes = dates.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
         stats = ((nDays-nCodes)*100/nDays).toFixed(2) + '% Attendance, ' 
             + ((nDays-nTardies)*100/nDays).toFixed(2) + '% On Time'
     }
@@ -208,7 +208,7 @@ const TardiesTable: React.SFC<{tardies: Map<Date, PunchTime>, in:number, out:num
     Object.keys(tardiesByWeek).map( k => {
         const d:Date = tardiesByWeek[k][0].date;
         if(tardiesByWeek[k].length !== 1 || d.getDay()!==6){
-            const index:string = k + format(startOfWeek(d), ' (D/M-') + format(endOfWeek(d), 'D/M)')
+            const index:string = k + format(startOfWeek(d), ' (M/D-') + format(endOfWeek(d), 'M/D)')
             const row = (
             <tr key={k}>
                 <td className='index-column'>{index}</td>

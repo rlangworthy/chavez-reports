@@ -6,7 +6,6 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import {del} from 'idb-keyval'
 import {
     isSameDay, 
     isWithinRange,
@@ -23,13 +22,16 @@ import {
     SchoolDatesModal } from '../absence-displays/school-dates-modal' 
 
 import { ReportFiles } from '../../shared/report-types'
+
 import {
     defaultSchoolYear,
     defaultEndDay,
     defaultStartDay1819,
     holidayList,
     irregularDayList} from '../../shared/initial-school-dates'
+
 import { createStaffAbsenceReport } from '../staff-absence-backend'
+
 import { MultiSelect } from '../../shared/components/multi-select'
 
 import { 
@@ -84,7 +86,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
 
     componentWillMount(){
         if(this.props.reportFiles){
-            const {punchTimes, positions} = createStaffAbsenceReport(this.props.reportFiles)
+            const {punchTimes, positions, endDate} = createStaffAbsenceReport(this.props.reportFiles)
             const teacherList = {}
             const nonTeacherList = {}
             Object.keys(positions).forEach( p => {
@@ -97,7 +99,9 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
             this.setState({
                 teacherList:teacherList, 
                 nonTeacherList:nonTeacherList,
-                punchTimes: punchTimes});
+                punchTimes: punchTimes,
+                endDate: endDate,
+                schoolDates: this.state.schoolDates.filter( d => isBefore(d, endDate))});
         }
     }
     startTime: HTMLInputElement | null = null
@@ -288,7 +292,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
                 const tardies = new Map<Date, PunchTime>()
                 const punchTimes:StaffDates = this.state.punchTimes[staff].punchTimes
                 punchTimes.forEach((val,key)=>{
-                    if(isPunchTime(val) && irregularDayList.every(d => d.dates.every(dd => isSameDay(key, dd)))){
+                    if(isPunchTime(val) && irregularDayList.map(d => d.dates).flat().every(d => !isSameDay(d,key))){
                         if(isTardy(inInt, outInt, val.in, val.out).some(a => a)){
                             tardies.set(key, val)
                             }
