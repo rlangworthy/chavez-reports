@@ -7,7 +7,8 @@ import {
     RawTeacherCategoriesAndTotalPointsLogicRow,
     AspenAssignmentRow,
     AspenCategoriesRow,
-    Score } from '../shared/file-interfaces'
+    Score,
+    StudentSearchListRow } from '../shared/file-interfaces'
 
 import { 
     convertAspAsgns,
@@ -21,6 +22,7 @@ interface StudentRawAsg extends RawAssignmentsRow {
     AssignedDate: string
     StuLName: string
     StuFName: string
+    GradeLevel: string
 }
 
 export interface StudentAssignments {
@@ -64,19 +66,21 @@ export interface Category {
 export const createAssignmentReports = (files: ReportFiles ): StudentAssignments =>{
     const asg = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const cats = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
+    const st = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult
     const aspAllAssignments = asg ? asg.data as AspenAssignmentRow[] : []
     const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
+    const studData = st? st.data as StudentSearchListRow[] : []
     const currentTerm = '4'
-    const q4Start = new Date(2019, 4, 5)
+    const q4Start = new Date(2019, 3, 5)
 
     const rawAllAssignments=aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), q4Start))
         .map((a:AspenAssignmentRow):StudentRawAsg => {return {
             ...convertAspAsgns(a),
             AssignedDate: a['Assigned Date'],
-            AssignmentDue: a['Assignment Due'],StuLName: a['Student Last Name'], StuFName: a['Student First Name']  
+            AssignmentDue: a['Assignment Due'],StuLName: a['Student Last Name'], StuFName: a['Student First Name'],
+            GradeLevel: a['Grade Level']  
         }})
-    const rawCats = aspCats.filter(c => c['CLS Cycle']===currentTerm).map(convertAspCategories)
-
+    const rawCats = aspCats.filter(c => c['CLS Cycle']===currentTerm || c['CLS Cycle'] === 'All Cycles').map(convertAspCategories)
     const classCats: ClassCategory = d3.nest<RawTeacherCategoriesAndTotalPointsLogicRow, Category>()
         .key( r=> r.ClassName)
         .key( r=> r.CategoryName)
@@ -88,15 +92,20 @@ export const createAssignmentReports = (files: ReportFiles ): StudentAssignments
             categoryAverage: -1,
             teacherName: rs[0].TeacherFirstName + ' ' + rs[0].TeacherLastName,
             totalPct: -1}})
-        .object(rawCats.filter(r=>r.CLSCycle === '3'))
+        .object(rawCats)
+    
+    const hrs = d3.nest<StudentSearchListRow>()
+        .key( r => r.STUDENT_ID)
+        .rollup( rs => rs[0].STUDENT_CURRENT_HOMEROOM)
+        .object(studData)
 
     const studentAssignments: StudentAssignments = d3.nest<StudentRawAsg, Student>()
         .key( r => r.StuStudentId)
         .rollup( (rs:StudentRawAsg[]): Student => {
             const name = rs[0].StuFName + ' ' + rs[0].StuLName
-            const hr = rs[0].ClassName.slice(rs[0].ClassName.indexOf('(') + 1,-1)
+            const hr = hrs[rs[0].StuStudentId] ? hrs[rs[0].StuStudentId] : 'no hr'
             const classes = d3.nest<StudentRawAsg, {assignments: Assignment[], stats: Category}>()
-                .key( r => r.ClassName)
+                .key( r => r.ClassName + ' ' + r.GradeLevel.slice(-1) + ' (' + hr + ')')
                 .key( r => r.CategoryName)
                 .rollup( (asgs: StudentRawAsg[]): {assignments: Assignment[], stats: Category}=> {
                     return {assignments: asgs.map(asg => {
@@ -126,7 +135,9 @@ export const createAssignmentReports = (files: ReportFiles ): StudentAssignments
                 classes: classes,
             }
         }).object(rawAllAssignments)
-
+    
+    console.log(studentAssignments)
+    console.log(classCats)
     const computedAssignments:StudentAssignments = {}
     Object.keys(studentAssignments).map( s => {
         computedAssignments[s] = {

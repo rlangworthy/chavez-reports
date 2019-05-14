@@ -56,7 +56,7 @@ export const createGradebookReports = (files: ReportFiles ) =>{
     const rawAllAssignments = aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), q4Start) 
         ).map(convertAspAsgns)
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
-     c['CLS Cycle'] ==='All Cycles').map(convertAspCategories)
+     c['CLS Cycle'] ==='All Cycles').map(r => { return {...convertAspCategories(r), ClassName: r["Class Name"].split(' ').slice(0,-2).join(' ')}})
 
     const distributions: TeacherGradeDistributions = getGradeDistributions(rawESGrades);
     const {categories, teachers} = getTeachersCategoriesAndAssignments(currentTerm, rawAllAssignments, rawCategoriesAndTPL);

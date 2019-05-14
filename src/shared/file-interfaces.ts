@@ -124,6 +124,15 @@ export interface RawTeacherCategoriesAndTotalPointsLogicRow {
   CategoryPercent: string
 }
 
+export interface StudentSearchListRow {
+  STUDENT_ID: string
+  STUDENT_NAME: string
+  STUDENT_ACTIVITY_INDICATOR: string
+  textbox8: string //grade level
+  STUDENT_CURRENT_HOMEROOM: string
+  STUDENT_RACE: string //sex
+  STUDENT_ESL_INDICATOR: string //race
+}
 
 export type RawNWEACDF = RawNWEACDFRow[];
 

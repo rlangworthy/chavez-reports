@@ -48,13 +48,12 @@ export const convertAspAsgns = (asgns: AspenAssignmentRow): RawAssignmentsRow =>
 }
 
 export const convertAspCategories = (cats: AspenCategoriesRow) : RawTeacherCategoriesAndTotalPointsLogicRow => {
-  const className = cats['Class Name'].split(' ')
   return {
     SchoolID: '',
     SchoolName: '',
     TeacherLastName: cats['Teacher Last Name'],
     TeacherFirstName: cats['Teacher First Name'],
-    ClassName: className.slice(0,className.length-2).join(' '),
+    ClassName: cats['Class Name'],
     CLSCycle: cats['CLS Cycle'],
     MultipleWeightMode: '',
     TotalPointsLogicSetting: cats['Average Mode Setting'],

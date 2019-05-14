@@ -83,6 +83,7 @@ export const ReportCards: ReportTitle[] = [
         description: 'All student assignments by class and category',
         link: '/reports/student-assignment-sheet/upload/',
         files: [{fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD},
-                {fileType: FileTypes.TEACHER_CATEGORIES_TPL, fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
+                {fileType: FileTypes.TEACHER_CATEGORIES_TPL, fileDesc: FileTypes.TEACHER_CATEGORIES_TPL},
+                {fileType: FileTypes.STUDENT_INFO, fileDesc: FileTypes.STUDENT_INFO}],
     }
 ]
