@@ -123,9 +123,19 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
         
         const nDays = props.absences.attDays.length;
         const nTardies = props.absences.tardies.size;
+        var nInLate = 0;
+        var nOutEarly = 0;
+        props.absences.tardies.forEach( p => {
+            if(props.absences.startTime && props.absences.endTime){
+                const [inLate, outEarly] = isTardy(props.absences.startTime, props.absences.endTime, p.in, p.out)
+                nInLate += inLate? 1 : 0
+                nOutEarly +=outEarly? 1 : 0
+            }
+        })
         const nCodes = dates.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
         stats = ((nDays-nCodes)*100/nDays).toFixed(2) + '% Attendance, ' 
-            + ((nDays-nTardies)*100/nDays).toFixed(2) + '% On Time'
+            + ((nDays-nInLate)*100/nDays).toFixed(2) + '% In On Time, '
+            + ((nDays-nOutEarly)*100/nDays).toFixed(2) + '% Out On Time'
     }
 
     const totalRow = (

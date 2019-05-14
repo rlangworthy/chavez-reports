@@ -47,7 +47,7 @@ export interface PunchTimes {
     punchTimes: StaffDates
     tardies?: Map<Date, PunchTime>
     startTime?: number
-    endTime?:number
+    endTime?: number
     attDays?: Date[]
 }
 
