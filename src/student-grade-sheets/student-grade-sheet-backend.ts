@@ -175,7 +175,7 @@ export const createAssignmentReports = (files: ReportFiles ): StudentAssignments
                             computedAssignments[s].classes[cn][cat].stats = {
                                 ...classCats[cn][cat],
                                 categoryAverage: computedAssignments[s].classes[cn][cat].assignments.reduce((a,b) =>
-                                  a + parseGrade(b.points)  ,0)/assignments.length,
+                                  a + (parseGrade(b.points)/b.pointsPossible*100)  ,0)/assignments.length,
                                 totalPct: total,
                             }
                         }
