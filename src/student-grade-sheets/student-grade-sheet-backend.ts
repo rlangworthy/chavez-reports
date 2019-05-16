@@ -81,6 +81,7 @@ export const createAssignmentReports = (files: ReportFiles ): StudentAssignments
             GradeLevel: a['Grade Level']  
         }})
     const rawCats = aspCats.filter(c => c['CLS Cycle']===currentTerm || c['CLS Cycle'] === 'All Cycles').map(convertAspCategories)
+    
     const classCats: ClassCategory = d3.nest<RawTeacherCategoriesAndTotalPointsLogicRow, Category>()
         .key( r=> r.ClassName)
         .key( r=> r.CategoryName)
@@ -138,17 +139,25 @@ export const createAssignmentReports = (files: ReportFiles ): StudentAssignments
     
     console.log(studentAssignments)
     console.log(classCats)
+    //doing gradebook calculations on students
     const computedAssignments:StudentAssignments = {}
     Object.keys(studentAssignments).map( s => {
+        //initialize the student's entry
         computedAssignments[s] = {
             studentName:studentAssignments[s].studentName,
             homeroom:studentAssignments[s].homeroom,
             classes: {}}
         Object.keys(studentAssignments[s].classes).map(cn=> {
+            //using the categories sheet for the source of truth on categories
             if(classCats[cn]){ 
                 computedAssignments[s].classes[cn] = {}
+                //check that a category has assignments and calculated total pct categories with assignments
                 const total = Object.keys(studentAssignments[s].classes[cn]).reduce( (a,b) => {
-                    return a + parseInt(studentAssignments[s].classes[cn][b].stats.weight)},0)
+                    if(studentAssignments[s].classes[cn][b].assignments.filter(a=>a.points!=='Exc').length>0){
+                        return a + parseInt(studentAssignments[s].classes[cn][b].stats.weight)
+                    }else{
+                        return a
+                    }},0)
                 //get assignment weights and category averages
                 Object.keys(classCats[cn]).map(cat => {
                     if(studentAssignments[s].classes[cn][cat]){
@@ -170,12 +179,12 @@ export const createAssignmentReports = (files: ReportFiles ): StudentAssignments
                             }
                         }else{
                             computedAssignments[s].classes[cn][cat].assignments = assignments.map( a => {
-                                return {...a, assignmentWeight: (1/assignments.length)*catWeight}
+                                return {...a, assignmentWeight: (100/assignments.length)*catWeight/total}
                             })
                             computedAssignments[s].classes[cn][cat].stats = {
                                 ...classCats[cn][cat],
                                 categoryAverage: computedAssignments[s].classes[cn][cat].assignments.reduce((a,b) =>
-                                  a + (parseGrade(b.points)/b.pointsPossible*100)  ,0)/assignments.length,
+                                  a + (parseGrade(b.points)/b.pointsPossible*100) ,0)/assignments.length,
                                 totalPct: total,
                             }
                         }
