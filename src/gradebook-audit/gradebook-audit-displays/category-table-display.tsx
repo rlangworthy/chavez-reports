@@ -34,7 +34,7 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
         <th>Subject Name</th>
         <th>CategoryName</th>
         <th>Category Weight</th>
-        <th>Total Points Logic?</th>
+        <th>Average Mode</th>
         <th>Average Score</th>
         <th>Num Assignments In Category</th>
         <th>Total Num Blank Grades</th>

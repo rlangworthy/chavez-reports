@@ -2,45 +2,47 @@ import * as React from 'react'
 
 
 import { 
-    GradeDistribution,
-    ClassCategories,
-    Assignment, 
-    AssignmentStats,
-    Teacher,
-    Category, } from '../gradebook-audit-interfaces'
+    GradeLogic,
+    Category,
+    AssignmentImpact, } from '../gradebook-audit-interfaces'
 
 interface GradesByAssignmentProps {
-    classes: ClassCategories
+    classes: {[className: string]: {
+        tpl: GradeLogic
+        assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
+        }
+    }
     hasAsign: string[]
 }
 
 export class GradesByAssignmentRender extends React.PureComponent<GradesByAssignmentProps> {
     constructor(props){
         super(props)
-
-
     }
-
     render(){
         return (
             <>
                 <h3>Assignment Grades</h3>
-                {this.props.hasAsign.map( k => <ClassAssignmentBreakdown classes={this.props.classes} class={k} key={k}/>)}
+                {this.props.hasAsign.map( k => <ClassAssignmentBreakdown classAssignments={this.props.classes[k]} class={k} key={k}/>)}
             </>
         )
     }
 
 }
 
-const ClassAssignmentBreakdown: React.SFC<{classes: ClassCategories, class: string, }> = (props) => {
+const ClassAssignmentBreakdown: React.SFC<{classAssignments: {
+    tpl: GradeLogic
+    assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
+    }, class: string}> = (props) => {
     
-    const cats = props.classes[props.class]
-    const totalWeight = 0 - Object.keys(cats).reduce( (a,b) => a - cats[b].weight,0)
+    const cats = props.classAssignments.assignments
+    const tpl = props.classAssignments.tpl
+    const weightStr = tpl === 'Categories only' ? 'Weight Per Asg' : 'Assignment Weight'
     const header=(
         <tr key='head'>
             <th>Category</th>
             <th>Weight</th>
-            <th>Weight Per Asg</th>
+            <th>{weightStr}</th>
             <th>Assignment</th>
             <th># Graded</th>
             <th>%A's</th>
@@ -51,11 +53,12 @@ const ClassAssignmentBreakdown: React.SFC<{classes: ClassCategories, class: stri
         </tr>
     )
 
-    const CatDisplay = (category: Category): JSX.Element => {
-        if(category.assignments.length === 0){return <React.Fragment key={category.name}/>}
+    const CatDisplay = (category: AssignmentImpact[], name: string, totalPoints?: number): JSX.Element => {
+        if(category.length === 0){return <React.Fragment key={name}/>}
+        const categoryPoints = totalPoints ? totalPoints : category.reduce((a,b) => a + b.maxPoints, 0)
         const rows: JSX.Element [] = []
         let totals: number[] = []
-        category.assignments.map( (a, i) => {
+        category.map( (a, i) => {
             if (a.stats.grades){
                 const total = a.stats.grades.length
                 totals = totals.concat(a.stats.grades);
@@ -63,13 +66,18 @@ const ClassAssignmentBreakdown: React.SFC<{classes: ClassCategories, class: stri
                     <tr key={a.assignmentName}>
                         {i===0? 
                         <>
-                            <td className='index-column' rowSpan={category.assignments.length}>{category.name}</td>
-                            <td rowSpan={category.assignments.length}>{category.weight}%</td>
-                            <td rowSpan={category.assignments.length}>
-                                {(category.weight/category.assignments.length * 100/totalWeight).toFixed(1) + '%'}
-                            </td>
+                            <td className='index-column' rowSpan={category.length}>{name}</td>
+                            <td rowSpan={category.length}>{category[0].categoryWeight}%</td>
+                            {tpl === 'Categories only' || 'Categories and assignments'? 
+                            <td rowSpan={category.length}>
+                                {a.impact.toFixed(2) + '%'}
+                            </td> : <></>}
                         </>
-                            : null} 
+                            : null}
+                        {tpl !== 'Categories only' ? 
+                            <td>
+                                {a.impact.toFixed(2) + '%'}
+                            </td>: <></>}
                         <td>{a.assignmentName}</td>
                         <td>{a.stats.grades.length}</td>
                         <td>{(a.stats.grades.filter(g => g > 89).length/total * 100).toFixed(1)}%</td>
@@ -93,7 +101,7 @@ const ClassAssignmentBreakdown: React.SFC<{classes: ClassCategories, class: stri
     )
 
         return (
-            <React.Fragment key={category.name}>
+            <React.Fragment key={name}>
                 {rows}
             </React.Fragment>
         )
@@ -107,7 +115,7 @@ const ClassAssignmentBreakdown: React.SFC<{classes: ClassCategories, class: stri
                     {header}
                 </thead>
                 <tbody>
-                    {Object.keys(cats).map(a => CatDisplay(cats[a]))}
+                    {Object.keys(cats).map(a => CatDisplay(cats[a], a))}
                 </tbody>
             </table>
         </React.Fragment>

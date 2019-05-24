@@ -2,6 +2,8 @@ import {
     Score,
     LetterGrade, } from '../shared/file-interfaces'
 
+export type GradeLogic = 'Categories only' | 'Categories and assignments' | 'Category total points' | 'Total points'
+
 export interface Teacher {
     firstName: string
     lastName: string
@@ -64,4 +66,12 @@ export interface AssignmentStats {
     medianGrade: number
     lowestGrade: number
     grades?:number[]
+}
+
+export interface AssignmentImpact extends Assignment{
+    categoryDivisor: number //either number of assignments, or number of points
+    impact: number
+    averageGrade: number
+    medianGrade: number
+    lowestGrade: number
 }

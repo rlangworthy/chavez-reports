@@ -16,9 +16,10 @@ import {
     AspenAssignmentRow,
     AspenCategoriesRow,
     AspenESGradesRow,
+    StudentSearchListRow,
     Score, 
     LetterGradeList,
-    LetterGrade } from '../shared/file-interfaces'
+    LetterGrade, } from '../shared/file-interfaces'
 
 import { 
     letterGradeToNorm,
@@ -36,7 +37,10 @@ import {
     TeacherClassCategories,
     Assignment, 
     AssignmentStats,
-    Teacher, } from './gradebook-audit-interfaces'
+    Teacher,
+    AssignmentImpact,
+    Category,
+    GradeLogic } from './gradebook-audit-interfaces'
 
 
 
@@ -44,9 +48,11 @@ export const createGradebookReports = (files: ReportFiles ) =>{
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const asg = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
     const cat = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult
+    const info = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = asg ? asg.data as AspenAssignmentRow[] : []
     const aspCategoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
+    const studentInfo = info ? info.data as StudentSearchListRow[] : []
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = '4';
     const q4Start = new Date(2019, 3, 4)
@@ -56,10 +62,13 @@ export const createGradebookReports = (files: ReportFiles ) =>{
     const rawAllAssignments = aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), q4Start) 
         ).map(convertAspAsgns)
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
-     c['CLS Cycle'] ==='All Cycles').map(r => { return {...convertAspCategories(r), ClassName: r["Class Name"].split(' ').slice(0,-2).join(' ')}})
+     c['CLS Cycle'] ==='All Cycles').map(convertAspCategories)
 
     const distributions: TeacherGradeDistributions = getGradeDistributions(rawESGrades);
-    const {categories, teachers} = getTeachersCategoriesAndAssignments(currentTerm, rawAllAssignments, rawCategoriesAndTPL);
+    const {categories, teachers} = getTeachersCategoriesAndAssignments(currentTerm, 
+            rawAllAssignments, 
+            rawCategoriesAndTPL,
+            studentInfo);
 
     return {distributions: distributions, 
             categories: categories,
@@ -97,7 +106,8 @@ const getGradeDistributions = (grades: RawESCumulativeGradeExtractRow[]):Teacher
 const getTeachersCategoriesAndAssignments = (
     term: string, 
     assignments: RawAssignmentsRow[], 
-    categories: RawTeacherCategoriesAndTotalPointsLogicRow[]): {categories: TeacherClassCategories, teachers: Teacher[]} => {
+    categories: RawTeacherCategoriesAndTotalPointsLogicRow[],
+    students: StudentSearchListRow[]): {categories: TeacherClassCategories, teachers: Teacher[]} => {
     
     let classCategories: TeacherClassCategories = d3.nest<RawTeacherCategoriesAndTotalPointsLogicRow, any>()
         .key( r => r.TeacherFirstName + r.TeacherLastName)
@@ -122,15 +132,22 @@ const getTeachersCategoriesAndAssignments = (
             }
         }).object(categories.filter(c => c.CLSCycle === term || c.CLSCycle === 'All Cycles'))
 
+    const studentHrs = d3.nest<StudentSearchListRow>()
+        .key(r => r.STUDENT_ID)
+        .rollup(rs=>{
+            return {hr: rs[0].STUDENT_CURRENT_HOMEROOM, gl: rs[0].textbox8}
+        })
+        .object(students)
     
     const classAssignments = d3.nest<RawAssignmentsRow>()
         .key( r => r.TeacherFirst + r.TeacherLast)
-        .key( r => r.ClassName)
+        .key( r => studentHrs[r.StuStudentId] ? r.ClassName + ' ' + studentHrs[r.StuStudentId].gl + ' (' + studentHrs[r.StuStudentId].hr + ')':
+            'UNDEFINED STUDENT HR')
         .key( r => r.CategoryName)
         .key( r => r.ASGName)
         .object(assignments)
     let teachers: Teacher[] = []
-    
+
     Object.keys(classCategories).map( teacher => {
         if(classAssignments[teacher]){
             Object.keys(classCategories[teacher]).map( className => {
@@ -147,7 +164,7 @@ const getTeachersCategoriesAndAssignments = (
                                     categoryName: category,
                                     categoryWeight: raws[0].CategoryWeight,
                                     grades: grades,
-                                    stats: getAssignmentStats(grades, parseInt(raws[0].ScorePossible) ,className + '-' + asg)
+                                    stats: getAssignmentStats(grades, parseInt(raws[0].ScorePossible) , classAssignments[teacher][className][category].TotalPointsLogicSetting,className + '-' + asg)
                                 }
                             })
                             classCategories[teacher][className][category].assignments = asgs;
@@ -194,7 +211,7 @@ export const getTotalAssignmentStats = (assignments: Assignment[]):AssignmentSta
     })
 }
 
-export const getAssignmentStats = (grades: Score[], scorePosible: number, name?: string):AssignmentStats => {
+export const getAssignmentStats = (grades: Score[], scorePosible: number, gradeLogic: string, name?: string ):AssignmentStats => {
     const blanks = grades.filter( g => g === '').length;
     const excused = grades.filter( g => g === 'Exc').length;
     const inc = grades.filter( g => g === 'Inc').length;
@@ -203,23 +220,6 @@ export const getAssignmentStats = (grades: Score[], scorePosible: number, name?:
     const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!=='')
         .map( g => parseGrade(g)/scorePosible*100)
         .filter(g => g >= 0);
-    /*
-    const letterGrades = grades.filter( g =>  LetterGradeList.includes(g));
-    if( numberGrades.length >0 && letterGrades.length >0){
-        console.log('Error: number and letter grades for same assignment');
-        name ? console.log(name): null;
-        console.log(numberGrades, letterGrades);
-        return {
-            numBlank: blanks,
-            numExcused: excused,
-            numIncomplete: inc,
-            numMissing: missing,
-            numZero: zeroes,
-            averageGrade:-1,
-            medianGrade:-1,
-            lowestGrade:-1,
-        }
-    }*/
     const gradeStats: {averageGrade: number,
         medianGrade: number,
         lowestGrade: number} = numberGradeStats(numberGrades)
@@ -256,3 +256,51 @@ lowestGrade: number | LetterGrade} => {
         lowestGrade: normToLetterGrade(Math.min(...norms)),
     }
 }
+
+
+export const getAssignmentImpacts = (c: {
+    [categoryName: string]: Category
+  }): {[categoryName:string]: AssignmentImpact[]} => {
+    const tpl = c[Object.keys(c)[0]].TPL
+    const zeroCatsFactor = tpl === 'Total points' ? 1 : -100/(Object.keys(c).reduce( (a,b) => a - (c[b].assignments.length > 0 ? c[b].weight:0), 0))
+    const totalPoints = tpl === 'Total points' ? 
+        0 - Object.keys(c)
+            .reduce( (a,b) => a - c[b].assignments.reduce( (a1,b1) => a1 + b1.maxPoints,0),0) : undefined
+
+    const classAsgns:{[categoryName:string]: AssignmentImpact[]} = {}
+    Object.keys(c).map( cat => {
+        //the divisor for assignment weight
+        const total = totalPoints ? totalPoints :
+            tpl === 'Categories only' ? c[cat].assignments.length : -c[cat].assignments.reduce((a,b) => a - b.maxPoints, 0)
+        
+            classAsgns[cat] = c[cat].assignments.map( (a):AssignmentImpact => {
+            const rawImpact = getImpact(tpl as GradeLogic, a, total);
+            return {
+                ...a,
+                categoryDivisor: total,
+                impact: (rawImpact*zeroCatsFactor),
+                averageGrade: a.stats.averageGrade,
+                medianGrade: a.stats.medianGrade,
+                lowestGrade: a.stats.lowestGrade,   
+            }
+            });
+    })  
+
+    return classAsgns
+  }
+  
+  const getImpact = (tpl: GradeLogic, a: Assignment, total: number): number =>{
+      if(tpl === 'Total points' || tpl ==='Category total points'){
+        return a.maxPoints/total * 100
+      }else{
+        return parseInt(a.categoryWeight)/total
+      }
+  }
+
+  export const getChartData = (assignments: AssignmentImpact[]):any => {
+    const percentOther = 100 - (-assignments.reduce((a,b) => a - b.impact, 0))
+    const data = [['Assignment Name', 'Assignment Weight'] as any]
+    assignments.forEach( (a, i) => data.push([(a.impact).toFixed(1) + '%', a.impact]))
+    data.push(['Others', percentOther])
+    return data;
+  }

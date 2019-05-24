@@ -3,7 +3,13 @@ import {partition} from 'ramda';
 
 import {del} from 'idb-keyval'
 import { ReportFiles } from '../../shared/report-types'
-import { createGradebookReports } from '../gradebook-audit-backend'
+import { 
+    createGradebookReports,
+    getAssignmentImpacts } from '../gradebook-audit-backend'
+import {
+    GradeLogic,
+    AssignmentImpact,
+    } from '../gradebook-audit-interfaces'
 import {
     GradeDistributionDisplay,
     CategoryTableRender,
@@ -37,6 +43,25 @@ export const GradebookAuditReport: React.SFC<GradebookAuditReportProps> = (props
             const hasAsgn: string[] = Object.keys(categories[tKey]).filter( cn => {
                 return Object.keys(categories[tKey][cn]).some( cat => categories[tKey][cn][cat].assignments.length > 0)
             })
+            const classes:{[className: string]: {
+                tpl: GradeLogic
+                assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
+                }
+            } = {}
+            const classAsgs:{[className: string]: {
+                tpl: GradeLogic
+                assignments : AssignmentImpact[] //sorted list of assignments
+                }
+            } = {}
+
+            hasAsgn.forEach( cName => { 
+                classes[cName] = {tpl: categories[tKey][cName][Object.keys(categories[tKey][cName])[0]].TPL as GradeLogic, assignments: getAssignmentImpacts(categories[tKey][cName])}
+                classAsgs[cName] = {
+                    tpl: classes[cName].tpl, 
+                    assignments: Object.keys(classes[cName].assignments)
+                        .reduce( (a:AssignmentImpact[],b) => a.concat(classes[cName].assignments[b]),[])
+                        .sort((a,b) => b.impact - a.impact)}
+            })
 
             return (
                 <div key={tKey} className='gradebook-audit-report'>
@@ -52,10 +77,10 @@ export const GradebookAuditReport: React.SFC<GradebookAuditReportProps> = (props
                         classes={distributions[tKey]}
                         hasGrades={hasGrades}/>
                     <HighImpactAssignmentsRender 
-                        classes={categories[tKey]}
+                        classes={classAsgs}
                         hasGrades={hasAsgn}/>
                     <GradesByAssignmentRender
-                        classes={categories[tKey]}
+                        classes={classes}
                         hasAsign={hasAsgn}/>
                 </div>
             )}
