@@ -60,7 +60,7 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
       backgroundColor: 'red',
       color: 'white',
       fontWeight: 'bold' as 'bold',
-      webkitPrintColorAdjust: 'exact',
+      WebkitPrintColorAdjust: 'exact',
 
     };
     topAssignments.forEach( (a, i) => {

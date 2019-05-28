@@ -271,9 +271,8 @@ export const getAssignmentImpacts = (c: {
     Object.keys(c).map( cat => {
         //the divisor for assignment weight
         const total = totalPoints ? totalPoints :
-            tpl === 'Categories only' ? c[cat].assignments.length : -c[cat].assignments.reduce((a,b) => a - b.maxPoints, 0)
-        
-            classAsgns[cat] = c[cat].assignments.map( (a):AssignmentImpact => {
+            tpl === 'Categories only' ? c[cat].assignments.length : Math.abs(c[cat].assignments.reduce((a,b) => a - b.maxPoints, 0))
+        classAsgns[cat] = c[cat].assignments.map( (a):AssignmentImpact => {
             const rawImpact = getImpact(tpl as GradeLogic, a, total);
             return {
                 ...a,
@@ -283,22 +282,25 @@ export const getAssignmentImpacts = (c: {
                 medianGrade: a.stats.medianGrade,
                 lowestGrade: a.stats.lowestGrade,   
             }
-            });
+        });
     })  
 
     return classAsgns
   }
   
   const getImpact = (tpl: GradeLogic, a: Assignment, total: number): number =>{
-      if(tpl === 'Total points' || tpl ==='Category total points'){
+      if(tpl === 'Total points'){
         return a.maxPoints/total * 100
+      }else if(tpl ==='Category total points'){
+        return (a.maxPoints/total) * parseInt(a.categoryWeight)
       }else{
         return parseInt(a.categoryWeight)/total
       }
   }
 
   export const getChartData = (assignments: AssignmentImpact[]):any => {
-    const percentOther = 100 - (-assignments.reduce((a,b) => a - b.impact, 0))
+    const percentOther = 100 + Math.abs(assignments.reduce((a,b) => a - b.impact, 0))
+    Math.sign(percentOther) === -0 || Math.sign(percentOther) === -1 ? console.log(percentOther):null
     const data = [['Assignment Name', 'Assignment Weight'] as any]
     assignments.forEach( (a, i) => data.push([(a.impact).toFixed(1) + '%', a.impact]))
     data.push(['Others', percentOther])
