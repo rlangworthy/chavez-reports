@@ -154,13 +154,13 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
                       (subject.quarterAvg !== '') ? parseInt(subject.quarterAvg, 10): null);
     if(grade === null){
       return grade;
-    }else if(grade > 90){
+    }else if(grade >= 89.5){
       return 'A';
-    }else if(grade > 80){
+    }else if(grade >= 79.5){
       return 'B';
-    }else if(grade > 70){
+    }else if(grade >= 69.5){
       return 'C';
-    }else if(grade > 60){
+    }else if(grade >= 59.5){
       return 'D';
     }else{
       return 'F';
