@@ -6,7 +6,8 @@ import {
     convertAspAsgns,
     convertAspGrades,
     stringToDate,
-    parseGrade
+    parseGrade,
+    convertAspCategories
 } from '../shared/utils'
 
 import {
@@ -19,7 +20,10 @@ import {
 import {
     RawESCumulativeGradeExtractRow,
     AspenESGradesRow,
-    AspenAssignmentRow
+    AspenAssignmentRow,
+    AspenCategoriesRow,
+    RawTeacherCategoriesAndTotalPointsLogicRow,
+    RawAssignmentsRow
     } from '../shared/file-interfaces'
 
 export interface HSStudent {
@@ -104,13 +108,16 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const info = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
     const nwea = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
     const mz = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult;
+    const cats = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = '4';
     const q4Start = new Date(2019, 3, 4)
 
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
+    const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
+    const rawCats = aspCats.map(convertAspCategories)
     const rawAllAssignments = aspAllAssignments.filter(a => parseGrade(a['Score'])===0 
         && isAfter(stringToDate(a['Assigned Date']), q4Start))
         .map(convertAspAsgns)
@@ -294,4 +301,4 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
             return rs;
         })
         .object(attData)
-}
+    }

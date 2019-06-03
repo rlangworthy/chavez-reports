@@ -9,6 +9,7 @@ import {
   AspenAssignmentRow,
   AspenCategoriesRow,
   AspenESGradesRow, } from './file-interfaces'
+
 import {
   getHours,
   getMinutes} from 'date-fns'
@@ -201,3 +202,4 @@ export const isTardy = (start: number, end: number, clockIn: Date, clockOut: Dat
   const timeOut:number | null = clockOut ? (getHours(clockOut) * 100 + getMinutes(clockOut)):null
   return [timeIn > start, timeOut !== null && timeOut < end]
 }
+
