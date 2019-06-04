@@ -6,21 +6,27 @@ import {
     convertAspAsgns,
     convertAspGrades,
     stringToDate,
-    parseGrade
+    parseGrade,
+    convertAspCategories
 } from '../shared/utils'
 
 import {
     ReportFiles, } from '../shared/report-types'
 
 import {
-    RawFileParse,
-    } from '../shared/file-types'
+    getStudentAssignments,
+    } from '../shared/student-assignment-utils'
+import {StudentClass} from '../shared/student-assignment-interfaces'
 
 import {
     RawESCumulativeGradeExtractRow,
     AspenESGradesRow,
-    AspenAssignmentRow
+    AspenAssignmentRow,
+    AspenCategoriesRow,
+    RawTeacherCategoriesAndTotalPointsLogicRow,
+    RawAssignmentsRow
     } from '../shared/file-interfaces'
+
 
 export interface HSStudent {
     homeRoom: string
@@ -42,7 +48,7 @@ export interface HSStudent {
     finalSocialScienceGrade: number
     GPA: number
     onTrack: number
-    assignments: {[className: string]: Assignment[]}
+    assignments: {[className: string]: StudentClass}
 }
 
 export interface Assignment {
@@ -71,7 +77,7 @@ interface Student {
     absences: number[]
     tardies: number[]
     onTrack: number
-    assignments: {[className: string]: Assignment[]}
+    assignments: {[className: string]: StudentClass}
 }
 
 interface Students {
@@ -104,18 +110,22 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const info = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
     const nwea = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
     const mz = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult;
+    const cats = files.reportFiles[files.reportTitle.files[5].fileDesc].parseResult
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = '4';
     const q4Start = new Date(2019, 3, 4)
 
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
+    const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
+    const rawCats = aspCats.map(convertAspCategories)
     const rawAllAssignments = aspAllAssignments.filter(a => parseGrade(a['Score'])===0 
         && isAfter(stringToDate(a['Assigned Date']), q4Start))
         .map(convertAspAsgns)
 
-
+    const studentAssignments = getStudentAssignments(aspESGrades, aspCats, 
+        aspAllAssignments.filter( a => isAfter(stringToDate(a['Assigned Date']), q4Start)))
 
     let studentGradeObject = getStudentGrades(rawESGrades);
     const tardies = at === null ? null: at.data as Tardies[];
@@ -124,13 +134,9 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
         getAttendanceData(studentGradeObject, tardies);
     };
     if(assignments !== null){
-        const assignmentObject = d3.nest<Assignment, Assignment[]>()
-            .key( r => r.StuStudentId)
-            .key( r => r.ClassName)
-            .object(assignments);
-        Object.keys(assignmentObject).map( id => {
+        Object.keys(studentAssignments).map( id => {
             if(studentGradeObject[id] !== undefined){
-                studentGradeObject[id].assignments = assignmentObject[id];
+                studentGradeObject[id].assignments = studentAssignments[id].classes;
             }
         })
     }
@@ -175,6 +181,8 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
 }
 
 const getStudentGrades = (file: RawESCumulativeGradeExtractRow[]): Students => {
+    
+    
     const getReadingGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
         const row = rows.find( r => r.SubjectName === 'CHGO READING FRMWK');
         if(row === undefined){return [-1, -1]}

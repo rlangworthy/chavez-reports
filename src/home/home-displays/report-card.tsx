@@ -20,7 +20,7 @@ export const ReportCard: React.SFC<ReportCardProps> = (props) => {
             return (
                 <Button variant='primary'
                         onClick={() => props.onClick(props.cardInfo.title)}>
-                    Upload Files
+                    Load Files
                 </Button>
             )
         }

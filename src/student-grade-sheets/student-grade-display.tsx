@@ -6,11 +6,12 @@ import Col from 'react-bootstrap/Col'
 
 import {
     StudentAssignments,
-    Category,
-    Assignment,} from './student-grade-sheet-backend'
+    StudentCategory,
+    StudentAssignment,} from '../shared/student-assignment-interfaces'
 import { ReportFiles } from '../shared/report-types'
 import { MultiSelect } from '../shared/components/multi-select'
 import { createAssignmentReports } from './student-grade-sheet-backend'
+import {parseGrade} from '../shared/utils'
 
 import './student-grade-display.css'
 
@@ -76,16 +77,18 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
                                     <div key={id} className={'student-assignments '.concat(visibility ? '': 'student-assignments-hidden')}>
                                         <h3>{student.studentName + ', ' + student.homeroom}</h3>
                                         {Object.keys(student.classes).map(cname => {
-                                            const stats = student.classes[cname][Object.keys(student.classes[cname])[0]].stats
+                                            const fg = student.classes[cname].finalGrade
                                             return (
                                                 <div key={cname} className='category-table'>
-                                                    <h4>{stats.teacherName + ', ' +cname + ', ' + stats.classGrade.toFixed(2)+ '%'}</h4>
-                                                    {Object.keys(student.classes[cname]).map(cat => 
-                                                        student.classes[cname][cat].assignments.length > 0 ? 
+                                                    <h4>{student.classes[cname].teacher + ', ' +cname + ', ' + 
+                                                        (fg !== undefined ? fg.toFixed(2):'')+ '%'}</h4>
+                                                    {Object.keys(student.classes[cname].categories).map(cat => 
+                                                        student.classes[cname].categories[cat].assignments.length > 0 ? 
                                                         <AssignmentStats 
                                                             key={cat} 
-                                                            assignments={student.classes[cname][cat].assignments}
-                                                            category={student.classes[cname][cat].stats}/> :
+                                                            assignments={student.classes[cname].categories[cat].assignments}
+                                                            category={student.classes[cname].categories[cat]}
+                                                            gradeLogic={student.classes[cname].gradeLoic}/> :
                                                         null)}
                                                 </div>
                                             )
@@ -102,14 +105,16 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
 }
 
 
-const AssignmentStats: React.SFC<{assignments: Assignment[], category: Category}> = (props) => {
+const AssignmentStats: React.SFC<{assignments: StudentAssignment[], category: StudentCategory, gradeLogic: string}> = (props) => {
+    const pts = props.gradeLogic === 'Total points' ||  props.gradeLogic === 'Category total points' 
+
     const header = (
         <tr key='head'>
             <th>Assignment</th>
             <th>Assigned</th>
             <th>Due</th>
             <th>Grade</th>
-            {props.category.tpl ? <th>Max Grade</th>:null}
+            {pts ? <th>Max Grade</th>:null}
             <th>% of Overall</th>
             <th>Impact</th>
         </tr>
@@ -118,21 +123,24 @@ const AssignmentStats: React.SFC<{assignments: Assignment[], category: Category}
     const rows: JSX.Element[] = []
     props.assignments.map( (asg, i) => {
         const nc = asg.points === '' || asg.points === 'Inc'
+        const weight = asg.assignmentWeight
+        const impact = asg.impact
         rows.push((
         <tr key={i}>
             <td>{asg.assignmentName}</td>
             <td>{asg.assigned}</td>
             <td>{asg.due}</td>
-            <td>{asg.points}</td>
-            {props.category.tpl ? <td>{asg.pointsPossible}</td> : null}
-            <td>{nc ? '' :(asg.assignmentWeight * 100).toFixed(2) + '%'}</td>
-            <td>{nc ? '' :(asg.impact).toFixed(2)+ '%'}</td>
+            <td>{pts ? asg.points: (parseGrade(asg.points)/asg.pointsPossible * 100).toFixed(2) + '%'}</td>
+            {pts  
+            ? <td>{asg.pointsPossible}</td> : null}
+            <td>{nc || weight === undefined? '' :(weight).toFixed(2) + '%'}</td>
+            <td>{nc || impact === undefined? '' :(impact).toFixed(2)+ '%'}</td>
         </tr>))
     })
     rows.push(
         <tr key='total'>
             <td colSpan={3}> Category Average</td>
-            <td>{props.category.categoryAverage.toFixed(2)}</td>
+            <td>{props.category.categoryGrade ? props.category.categoryGrade.toFixed(2) + '%': ''}</td>
             <td colSpan={3}></td>
         </tr>
     )

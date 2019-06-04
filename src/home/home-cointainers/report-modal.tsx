@@ -151,7 +151,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
                 <Modal.Footer>
                     <Button onClick={this.uploadSubmit} 
                             disabled={this.hideUpload()}>
-                        {this.state.isLoading? 'Loading...' : 'Upload Files'}
+                        {this.state.isLoading? 'Loading...' : 'Load Files'}
                     </Button>
                     <Button onClick={this.generateSubmit} disabled={this.hideGenerate()}>
                         Generate Report

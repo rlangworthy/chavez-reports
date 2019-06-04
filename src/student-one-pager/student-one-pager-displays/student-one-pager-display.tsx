@@ -8,6 +8,8 @@ import Col from 'react-bootstrap/Col'
 import {del} from 'idb-keyval'
 import { ReportFiles } from '../../shared/report-types'
 import { createStudentOnePagers } from '../student-one-pager-backend'
+import { isCoreClass } from '../../shared/utils'
+import { getHighImpactStudentAssignments } from '../../shared/student-assignment-utils'
 import './student-one-pager-display.css'
 
 interface StudentOnePagerProps{
@@ -109,21 +111,29 @@ export const StudentOnePagers: React.SFC<StudentOnePagerProps> = props => {
                         </div>
                         
                         <div className='page'>
-                            <h2>Missing Assignments and Zeroes</h2>
+                            <h2>Highest Impact Assignments</h2>
                             <Table size="sm">
                             {Object.keys(assignments).map( (className,i) => {
-                                return (
-                                    <React.Fragment key={i}>
-                                        <tbody>
-                                            <tr><th colSpan={2}>{className}</th></tr>
-                                            {assignments[className].map( (asg, j) => {
-                                                return (<tr key={j}>
-                                                            <td>{asg.ASGName}</td>
-                                                            <td>{asg.Score}</td>
-                                                        </tr>)})}
-                                        </tbody>
-                                    </React.Fragment>
-                                )
+                                if(isCoreClass(className)){
+                                    return (
+                                        <React.Fragment key={i}>
+                                            <tbody>
+                                                <tr>
+                                                    <th colSpan={2}>{className + ', ' + assignments[className].teacher}</th>
+                                                    <th>Score</th>
+                                                    <th>Impact</th>
+                                                </tr>
+                                                {getHighImpactStudentAssignments(assignments[className])
+                                                    .slice(0,5)
+                                                    .map( (asg, j) => {
+                                                    return (<tr key={j}>
+                                                                <td>{asg.assignmentName}</td>
+                                                                <td>{asg.points}</td>
+                                                                <td>{(asg.impact !== undefined ? asg.impact.toFixed(2):'n/a') + '%'}</td>
+                                                            </tr>)})}
+                                            </tbody>
+                                        </React.Fragment>
+                                )}
                             })}
                             </Table>        
                         </div>

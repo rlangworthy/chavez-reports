@@ -9,9 +9,12 @@ import {
   AspenAssignmentRow,
   AspenCategoriesRow,
   AspenESGradesRow, } from './file-interfaces'
+
 import {
   getHours,
   getMinutes} from 'date-fns'
+
+export const CoreClassList = ['SCIENCE  STANDARDS', 'SOCIAL SCIENCE STD', 'MATHEMATICS STD', 'ALGEBRA', 'CHGO READING FRMWK']
 
 export const convertAspGrades = (grades: AspenESGradesRow):RawESCumulativeGradeExtractRow => {
   return {
@@ -189,7 +192,7 @@ export const parseGrade = (g: string): number => {
   if(g==='F'||g==='f'){
     return 59;
   }
-  if(g==='Msg'){
+  if(g==='Msg' || g === ''){
     return 0;
   }
   console.log('Invalid Grade ' + g)
@@ -200,4 +203,8 @@ export const isTardy = (start: number, end: number, clockIn: Date, clockOut: Dat
   const timeIn:number = (getHours(clockIn) * 100 + getMinutes(clockIn)) 
   const timeOut:number | null = clockOut ? (getHours(clockOut) * 100 + getMinutes(clockOut)):null
   return [timeIn > start, timeOut !== null && timeOut < end]
+}
+
+export const isCoreClass = (cName: string):boolean => {
+  return CoreClassList.some(c => cName.includes(c))
 }

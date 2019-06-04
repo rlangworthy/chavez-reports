@@ -34,15 +34,15 @@ export interface FileDescripiton {
 
 export const FileDescriptions: {[fileType: string]: FileDescripiton} = {}
 FileDescriptions[FileTypes.ES_GRADES_EXTRACT] = {
-    description: 'Located in the custom reports seciton of Gradebook',
+    description: 'Located in Grade Input section of the Aspen School view Grades tab',
     link: 'https://drive.google.com/open?id=17aDRWZrMfcyqlMUGHGD38Zz5E-yAFTks7L70nb0ynJY'
     }
 FileDescriptions[FileTypes.ASSIGNMENTS_SLOW_LOAD] = {
-    description: 'Located in the custom reports seciton of Gradebook',
+    description: 'Located in Grade Input section of the Aspen School view Grades tab',
     link: 'https://drive.google.com/open?id=17aDRWZrMfcyqlMUGHGD38Zz5E-yAFTks7L70nb0ynJY'
     }
 FileDescriptions[FileTypes.TEACHER_CATEGORIES_TPL] = {
-    description: 'Located in the custom reports seciton of Gradebook',
+    description: 'Located in the Reports dropdown of the Aspen School view Grades tab',
     link: 'https://drive.google.com/open?id=16sqAhCAEMqHf4Ep7QLl28KpT8c7HFitLLvL0U6oKLSU'
     }
 FileDescriptions[FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION] = {
