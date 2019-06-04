@@ -3,7 +3,8 @@ import * as d3 from 'd3'
 import {
     AspenAssignmentRow,
     AspenCategoriesRow,
-    AspenESGradesRow, } from './file-interfaces'
+    AspenESGradesRow,
+    StudentSearchListRow, } from './file-interfaces'
 
 import {
     StudentAssignments,
@@ -13,16 +14,14 @@ import {
     StudentAssignment, } from './student-assignment-interfaces'
 import { parseGrade } from './utils';
 
-const getStudentAssignments = (
+export const getStudentAssignments = (
     grades: AspenESGradesRow[],
     categories: AspenCategoriesRow[],
     assignments: AspenAssignmentRow[],
-    ) => {
-    const currentQuarter = '4'
+    ):StudentAssignments => {
     const hrs = d3.nest<AspenESGradesRow>()
         .key(r => r['Student ID'])
         .object(grades)
-    
     const cats = d3.nest<AspenCategoriesRow>()
         .key(r => r['Class Name'])
         .object(categories)
@@ -30,19 +29,19 @@ const getStudentAssignments = (
     const asgns = d3.nest<AspenAssignmentRow>()
         .key(r => r['Student ID'])
         .object(assignments)
-    
     const consolidatedStudents: StudentAssignments = {}
     Object.keys(asgns).forEach( id => {
         const stuName = asgns[id][0]['Student First Name'] + ' ' + asgns[id][0]['Student Last Name']
         const homeroom = hrs[id] ? hrs[id][0]['Homeroom'] : 'UNDEFINED STUDENT HOMEROOM'
-        const gl = hrs[id] ? hrs[id][0]['Grade Level'] : 'UNDEFINED STUDENT GRADE LEVEL'
+        const gl = hrs[id] ? hrs[id][0]['Grade Level'].slice(-1) : 'UNDEFINED STUDENT GRADE LEVEL'
         const classObj = d3.nest<AspenAssignmentRow>()
             .key(r => r['Class Name'] + ' ' + gl + ' (' + homeroom + ')')
             .key(r => r['Category Name'])
             .object(asgns[id])
         const classes: {[className: string]: StudentClass} = {}
         Object.keys(classObj).forEach(cname => {
-            const currentClassCats: AspenCategoriesRow[] = cats[cname] ? cats[cname].filter(c => c['CLS Cycle'] === currentQuarter || c['CLS Cycle'] === 'All Cycles') : []
+            const currentClassCats: AspenCategoriesRow[] = cats[cname] ? cats[cname] : []
+            console.log(cats[cname])
             const gradeLogic = currentClassCats[0] ? currentClassCats[0]['Average Mode Setting'] : 'UNDEFINED CLASS'
             const teacherName = cats[cname] ? cats[cname][0]['Teacher First Name'] + ' ' + cats[cname][0]['Teacher Last Name'] : 'UNDEFINED CLASS'
             
@@ -70,6 +69,11 @@ const getStudentAssignments = (
             classes: classes
         }
     })
+    Object.keys(consolidatedStudents).forEach(id => {
+        Object.keys(consolidatedStudents[id].classes).forEach( cName => 
+            calculateGrades(consolidatedStudents[id].classes[cName]))
+    })
+    return consolidatedStudents
 }
 
 const convertAsgn = (asgn: AspenAssignmentRow): StudentAssignment => {
@@ -80,13 +84,13 @@ const convertAsgn = (asgn: AspenAssignmentRow): StudentAssignment => {
         assigned: asgn['Assigned Date'],
         due: asgn['Assignment Due'],
         entered: asgn['Grade entered on'],
-
     }
 }
 
 const calculateGrades = (studentClass: StudentClass) => {
     const gradeLogic = studentClass.gradeLoic
     const categories = studentClass.categories
+    const pts = gradeLogic === 'Total points' || gradeLogic === 'Category total points'
     
     //get percentage weight of each category
     Object.keys(categories).forEach(a => categories[a].hasAssignments = categories[a].assignments.map(includeGrade).some(a=>a))
@@ -95,7 +99,7 @@ const calculateGrades = (studentClass: StudentClass) => {
     Object.keys(categories).forEach(a => categories[a].percent = parseInt(categories[a].weight) * 100/totalWeight)
     
     //get total points if necessary
-    if(gradeLogic === 'Total points' || gradeLogic === 'Category total points'){
+    if(pts){
         Object.keys(categories).forEach(a => {
             const assignments = categories[a].assignments.filter(includeGrade)
             categories[a].categoryTotalPoints = assignments.reduce((a,b) => a + b.pointsPossible, 0)
@@ -112,9 +116,9 @@ const calculateGrades = (studentClass: StudentClass) => {
                 }, 0)
         }
     }
-
+    const total = studentClass.classTotalPoints
     //calculate assignment weights and impact
-    if(gradeLogic === 'Categories only' || gradeLogic === 'UNDEFINED CLASS' || gradeLogic === 'Categories and Assignments'){
+    if(!pts){
         Object.keys(categories).forEach(a => {
             if(categories[a].hasAssignments) {
                 const nValid = categories[a].assignments.filter(includeGrade).length
@@ -139,17 +143,16 @@ const calculateGrades = (studentClass: StudentClass) => {
             }
         })
     }else{ //if overall total points exists, use that, otherwise category total points
-        const total = studentClass.classTotalPoints
         Object.keys(categories).forEach(a => {
             const catTotal = total ? total : categories[a].categoryTotalPoints
-            const catPercent = gradeLogic === 'Total points' ? 1 : categories[a].percent
-            if(categories[a].hasAssignments){
+            const catPercent = gradeLogic === 'Total points' ? 100 : categories[a].percent
+            if(categories[a].hasAssignments && catTotal !== undefined && catPercent !== undefined){
                 categories[a].assignments = categories[a].assignments.map(a => {
                     if(includeGrade(a)){
                         return {
                             ...a,
-                            assignmentWeight: a.pointsPossible
-                            
+                            assignmentWeight: a.pointsPossible,
+                            impact: (parseGrade(a.points) -a.pointsPossible) * (catPercent/catTotal)
                         }
                     }else{
                         return a
@@ -158,7 +161,37 @@ const calculateGrades = (studentClass: StudentClass) => {
             }
         })
     }
+    studentClass.finalGrade = pts ? Object.keys(studentClass.categories).reduce( (a,b) => {
+        const catTotal = total ? total : studentClass.categories[b].categoryTotalPoints
+        if(catTotal !== undefined){
+            return a + catTotal
+        }else{
+            return a;
+        }},0): Object.keys(studentClass.categories).reduce((a,b)=> {
+            const catGrade = studentClass.categories[b].categoryGrade
+            const catPct = studentClass.categories[b].percent
+            if(catGrade !== undefined && catPct !== undefined){
+                return a + (catGrade * (catPct/100))
+            }else {
+                return a
+            }},0)
+}
 
+export const studentSearchToGrade = (student : StudentSearchListRow): AspenESGradesRow => {
+    return {
+        'Student Last Name': '',
+        'Student First Name': '',
+        'Student ID' : student.STUDENT_ID,
+        'Grade Level' : student.textbox8,
+        'Homeroom' : student.STUDENT_CURRENT_HOMEROOM,
+        'Quarter' : '',
+        'Course Name' : '',
+        'Teacher Last Name' : '',
+        'Teacher First Name' : '',
+        'Term Average' : '',
+        'Term Grade' : '',
+        'Final Average' : '',
+    }
 }
 
 const includeGrade = (assignment: StudentAssignment): boolean => {
@@ -167,4 +200,20 @@ const includeGrade = (assignment: StudentAssignment): boolean => {
     }else{
       return true
     }
-  }
+}
+
+//returns a sorted list of assignments by impact
+export const getHighImpactStudentAssignments = (studentClass: StudentClass): StudentAssignment[] => {
+    const assignments = Object.keys(studentClass.categories).reduce((a:StudentAssignment[],b) => {
+        return a.concat(studentClass.categories[b].assignments)
+    }, []).filter(a => a.impact !== undefined)
+    return assignments.sort((a,b) => {
+        const aImpact = a.impact
+        const bImpact = b.impact
+        if(aImpact !== undefined && bImpact !== undefined){
+            return aImpact-bImpact
+        }else{
+            return 0
+        }
+    })
+}
