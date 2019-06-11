@@ -9,13 +9,12 @@ import {
 import {
   convertAspGrades
 } from '../shared/utils'
-
-type RawESCumulativeGradeExtract = RawESCumulativeGradeExtractRow[]
   
 import {
-  ReportFiles,
-  ReportTitle,
-  } from '../shared/report-types'
+  ReportFiles, } from '../shared/report-types'
+
+  type RawESCumulativeGradeExtract = RawESCumulativeGradeExtractRow[]
+
 /*
 interface AspenSummerschoolRawData {
   nweaCY: RawNWEACDF
@@ -100,8 +99,8 @@ export const createSummerSchoolReportFromFiles = ( files: ReportFiles) => {
     });
 
     const summerschoolData = createSummerschoolReport(students);
-    return (summerschoolData.sort((a,b)=> a.studentHomeroom.concat(a.status).
-      localeCompare(b.studentHomeroom.concat(b.status))));
+    return (summerschoolData.sort((a,b)=> a.studentHomeroom.concat(a.status)
+      .localeCompare(b.studentHomeroom.concat(b.status))));
   } else {
     return []
   }
@@ -295,10 +294,6 @@ export const createSummerschoolReport = (students: Student[]): SummerschoolRepor
   const getSummerschoolStatus = (s: Student): {status: SummerschoolStatus, description: string} => {
     // find the highest NWEA Math percentile from current year and previous year
     // and the highest NWEA Read percentile from current year and previous year.
-    const max = (...xs: (number|null)[]): number => {
-      const dropNull = arr => arr.filter( x => x !== null );
-      return Math.max(...dropNull(xs));
-    };
     const highNWEAMath = s.lyNWEAMath !== null ? s.lyNWEAMath: -1;
     const highNWEARead = s.lyNWEARead !== null? s.lyNWEARead: -1;
     const missingNWEAMath = s.lyNWEAMath === null && s.cyNWEAMath === null;
@@ -382,10 +377,6 @@ export const createSummerschoolReport = (students: Student[]): SummerschoolRepor
   const getSummerschoolWarning = (s: Student): {status: SummerschoolWarning, description: string} => {
     // find the highest NWEA Math percentile from current year and previous year
     // and the highest NWEA Read percentile from current year and previous year.
-    const max = (...xs: (number|null)[]): number => {
-      const dropNull = arr => arr.filter( x => x !== null );
-      return Math.max(...dropNull(xs));
-    };
     const highNWEAMath = s.lyNWEAMath !== null ? s.lyNWEAMath: -1;
     const highNWEARead = s.lyNWEARead !== null? s.lyNWEARead: -1;
     const missingNWEAMath = s.lyNWEAMath === null && s.cyNWEAMath === null;
@@ -487,20 +478,3 @@ const compareLetterGrade = (a: LetterGrade, b: LetterGrade): -1 | 0 | 1 => {
   }
 
 }
-
-const convertToString = (file: File): Promise<string> => {
-  return new Promise( (resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsText(file);
-    reader.onload = (ev: any) => {
-      if (reader.error) {
-        reject(reader.error);
-      }
-      if (ev.target && ev.target.result) {
-        resolve(ev.target.result);
-      } else {
-        reject(reader.error);
-      }
-    }
-  });
-};

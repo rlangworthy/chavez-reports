@@ -5,7 +5,6 @@ import * as idb from 'idb-keyval'
 import Table from 'react-bootstrap/Table'
 
 import {createOnePagers} from '../weekly-one-pager-backend'
-import {HomeRoom} from '../weekly-one-pager-backend'
 import { ReportFiles } from '../../shared/report-types'
 import './weekly-one-pagers-display.css'
 

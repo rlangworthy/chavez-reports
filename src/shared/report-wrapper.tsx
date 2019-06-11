@@ -1,5 +1,4 @@
 import * as React from 'react'
-import * as idb from 'idb-keyval'
 
 import {ReportFiles} from './report-types'
 

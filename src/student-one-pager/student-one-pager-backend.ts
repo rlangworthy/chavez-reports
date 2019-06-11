@@ -7,7 +7,6 @@ import {
     convertAspGrades,
     stringToDate,
     parseGrade,
-    convertAspCategories
 } from '../shared/utils'
 
 import {
@@ -23,8 +22,6 @@ import {
     AspenESGradesRow,
     AspenAssignmentRow,
     AspenCategoriesRow,
-    RawTeacherCategoriesAndTotalPointsLogicRow,
-    RawAssignmentsRow
     } from '../shared/file-interfaces'
 
 
@@ -119,7 +116,6 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
     const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
-    const rawCats = aspCats.map(convertAspCategories)
     const rawAllAssignments = aspAllAssignments.filter(a => parseGrade(a['Score'])===0 
         && isAfter(stringToDate(a['Assigned Date']), q4Start))
         .map(convertAspAsgns)
@@ -134,7 +130,7 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
         getAttendanceData(studentGradeObject, tardies);
     };
     if(assignments !== null){
-        Object.keys(studentAssignments).map( id => {
+        Object.keys(studentAssignments).forEach( id => {
             if(studentGradeObject[id] !== undefined){
                 studentGradeObject[id].assignments = studentAssignments[id].classes;
             }
@@ -267,12 +263,6 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[]): Students => {
 
 const getAttendanceData = (students: Students, attData: Tardies[]) => {
 
-    const getPresent = (rs: Tardies[]):number =>{
-        const p = rs.find(r=>r.Attended ==='Present');
-        if(p !== undefined){return parseInt(p.Absences)}
-        return 0;
-    }
-
     const getTardies = (rs: Tardies[]):number =>{
         const t = rs.find(r=>r.Attended ==='Tardy');
         if(t !== undefined){return parseInt(t.Absences)}
@@ -285,12 +275,11 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
                                                     parseInt(b.Absences)/2 : parseInt(b.Absences))}, 0)
     }
 
-    const attObject = d3.nest<Tardies, Tardies[]>()
+    d3.nest<Tardies, Tardies[]>()
         .key( r => r['Student ID'])
         .rollup( rs => {
             if(students[rs[0]['Student ID']]!==undefined){
                 const total = rs.reduce((a,b) => a + parseInt(b.Absences),0);
-                const present = getPresent(rs);
                 const tardy = getTardies(rs);
                 const absent = getAbsences(rs);
                 const pct = (total-absent)/total * 100;

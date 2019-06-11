@@ -92,9 +92,9 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         for(var card in cards){
             if(cards[card].clientHeight > max){max=cards[card].clientHeight}
         }
-        for(var card in cards){
-            if(cards[card].style){
-               cards[card].style.height = max + 'px'
+        for(var card2 in cards){
+            if(cards[card2].style){
+               cards[card2].style.height = max + 'px'
             }
         }
     }
@@ -237,13 +237,13 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         switch(action) {
             case 'Delete':
                 return this.deleteFile(file);
-                break;
             case 'Rename':
                 if(name){
-                return this.renameFile(file, name);}
+                    return this.renameFile(file, name);
+                }
+                return new Promise((resolve, reject) => {});
             case 'Save':
                 return this.saveFile(file);
-                break;
             default:
                 return new Promise((resolve, reject) => {});
         }

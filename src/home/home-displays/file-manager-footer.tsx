@@ -18,7 +18,7 @@ export const FileManagerFooter: React.SFC<FileManagerFooterProps> = (props) => {
         <FileContextConsumer>
             {({fileList, savedFiles, addFile, modifyFile}) => {
                 const saveList = (files: RawFileParse[]) => {
-                    files.map(file => {
+                    files.forEach(file => {
                         if(savedFiles.every( f => f.fileType !== file.fileType || f.fileName !== file.fileName)){
                             modifyFile(file,'Save');
                         }
@@ -35,7 +35,7 @@ export const FileManagerFooter: React.SFC<FileManagerFooterProps> = (props) => {
                     if(props.fileType){
                         saveList(fileList[props.fileType])
                     } else {
-                        Object.values(FileTypes).map( type => {
+                        Object.values(FileTypes).forEach( type => {
                             saveList(fileList[type]);
                         })
                     }
@@ -45,7 +45,7 @@ export const FileManagerFooter: React.SFC<FileManagerFooterProps> = (props) => {
                     if(props.fileType){
                         deleteList(fileList[props.fileType])
                     } else {
-                        Object.values(FileTypes).map( type => {
+                        Object.values(FileTypes).forEach( type => {
                             deleteList(fileList[type]);
                         })
                     }

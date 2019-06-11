@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import * as idb from 'idb-keyval'
 
 import { 
     getOnTrackScore,
@@ -8,11 +7,10 @@ import {
 } from '../shared/utils'
 
 import {
-    ReportCards,
     ReportFiles, } from '../shared/report-types'
 
 import {
-    RawFileParse, ParseResult,
+    ParseResult,
     } from '../shared/file-types'
 
 import {
@@ -89,7 +87,6 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
     const tr = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
     const spps = sp === null ? null: sp.data as RawStudentProfessionalSupportDetailsRow[];
     const tardies = tr === null ? null: tr.data as Tardies[];
-    const opts = files.reportTitle.optionalFiles !== undefined;
     let gradeHist = {}
     let tHist: ParseResult | null = null 
     let tardiesHist: null | Tardies[] =  null
@@ -266,16 +263,6 @@ const flattenStudents = (students: Students): HomeRoom[] => {
 //Mutates data, like if you cry every time
 const getAttendanceData = (students: Students, attData: Tardies[]) => {
 
-    const getPresentAndTardy = (rs: Tardies[]):number =>{
-        const p = rs.find(r=>r.Attended ==='Present');
-        const t = rs.find(r=>r.Attended === 'Tardy');
-        if(p !== undefined){
-            if(t !== undefined){return parseInt(p.Absences)+parseInt(t.Absences)}
-            else {return parseInt(p.Absences)}
-        }
-        return 0;
-    }
-
     const getTardies = (rs: Tardies[]):number =>{
         const t = rs.find(r=>r.Attended ==='Tardy');
         if(t !== undefined){return parseInt(t.Absences)}
@@ -288,12 +275,11 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
                                                     parseInt(b.Absences)/2.0 : parseInt(b.Absences))}, 0)
     }
 
-    const attObject = d3.nest<Tardies, Tardies[]>()
+    d3.nest<Tardies, Tardies[]>()
         .key( r => r['Student ID'])
         .rollup( rs => {
             if(students[rs[0]['Student ID']]!==undefined){
                 const total = rs.reduce((a,b) => a + parseInt(b.Absences),0);
-                const present = getPresentAndTardy(rs);
                 const tardy = getTardies(rs);
                 const absent = getAbsences(rs);
                 const pct = (total-absent)/total * 100;

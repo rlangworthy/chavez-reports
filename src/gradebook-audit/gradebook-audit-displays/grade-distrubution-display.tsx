@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {partition} from 'ramda';
 
 import {
   GradeDistribution

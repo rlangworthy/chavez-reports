@@ -5,7 +5,6 @@ import Collapse from 'react-bootstrap/Collapse'
 import saveIcon from '../../shared/icons/save-icon.svg'
 
 import { 
-    FileList,
     RawFileParse,
     FileTypes } from '../../shared/file-types'
 import {
@@ -45,7 +44,7 @@ export const FileTypeDisplay: React.SFC<FileTypeDisplayProps> = (props) => {
                                         f.fileType === file.fileType)
                                     return (
                                         <ListGroup.Item key={file.fileName}>
-                                            {saved? <img src={saveIcon} style={{width:'24px', height:'24px', marginRight:'24px'}}/>:null}    
+                                            {saved? <img alt={'Saved'}src={saveIcon} style={{width:'24px', height:'24px', marginRight:'24px'}}/>:null}    
                                             {file.fileName}
                                             <FileDropdownWidget
                                                 onClick={modifyFile}

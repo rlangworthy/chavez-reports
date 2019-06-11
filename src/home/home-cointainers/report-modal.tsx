@@ -1,5 +1,4 @@
 import * as React from 'react'
-import * as idb from 'idb-keyval'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
@@ -8,8 +7,7 @@ import {
     ReportTitle,
     ReportFiles, } from '../../shared/report-types'
 import { 
-    FileList,
-    FileTypes, } from '../../shared/file-types'
+    FileList,} from '../../shared/file-types'
 
 import {
     FileInputs
@@ -35,14 +33,16 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         super(props);
         var selected = {}
         //fileList keyed on type of file, selected files keyed on this reports descriptions
-        this.props.report.files.map( f => {
+        this.props.report.files.forEach( f => {
             const list = this.props.fileList[f.fileType];
             selected[f.fileDesc] = list.length > 0 ? list[list.length-1].fileName :'Upload New File';
         })
+        /* eslint-disable */
         this.props.report.optionalFiles ? this.props.report.optionalFiles.map( f => {
             const list = this.props.fileList[f.fileType];
             selected[f.fileDesc] = list.length > 0 ? list[list.length-1].fileName :'Upload New File';
         }) : null
+        /* eslint-enable */
         if(this.props.report.optionalFiles){
             this.state={selectedValues:selected, isLoading: false}
         }else{
@@ -57,7 +57,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
 
     private handleHide = () => {
         const selected = {}
-        Object.keys(this.state.selectedValues).map( key => {
+        Object.keys(this.state.selectedValues).forEach( key => {
             selected[key] = 'Upload New File';
         });
         this.setState({selectedValues: selected});
@@ -80,7 +80,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
 
     private generateSubmit = () => {
         var selectedFiles = {}
-        this.fileTypes.map( t => {
+        this.fileTypes.forEach( t => {
             const file = this.props.fileList[t.fileType].find( f => f.fileName === this.state.selectedValues[t.fileDesc])
             if(file !== undefined){
                 //return object keyed on unique description
@@ -98,7 +98,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
     }
 
     private uploadSubmit = () => {
-        this.fileTypes.map( t => {
+        this.fileTypes.forEach( t => {
             if (this.fileRefs[t.fileDesc] !== null){
                 const ref:HTMLInputElement = this.fileRefs[t.fileDesc] as HTMLInputElement;
                 if(ref.files !== null && ref.files[0] !== undefined){

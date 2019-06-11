@@ -7,14 +7,14 @@ import Col from 'react-bootstrap/Col'
 import {
     StudentAssignments,
     StudentCategory,
-    StudentAssignment,} from '../shared/student-assignment-interfaces'
+    StudentAssignment,
+    Student} from '../shared/student-assignment-interfaces'
 import { ReportFiles } from '../shared/report-types'
 import { MultiSelect } from '../shared/components/multi-select'
 import { createAssignmentReports } from './student-grade-sheet-backend'
 import {parseGrade} from '../shared/utils'
 
 import './student-grade-display.css'
-
 
 interface StudentGradeState {
     asgs: StudentAssignments
@@ -57,53 +57,84 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
         }
     }
 
+    Student:React.FunctionComponent<{index:number}> = (props) => {
+        const id = Object.keys(this.state.asgs)[props.index]
+        const student = this.state.asgs[id]
+        const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
+        return (
+            <div key={id} className={`student-assignments ${visibility ? '': 'student-assignments-hidden'}`}>
+                <StudentClassDisplay student={student}/>
+            </div>
+        )
+    }
+
     render(){
+
+
         return (
             <Container>
                 <Row>
                     <Col className='assignments-filter-container'>
                         <MultiSelect
-                            items={this.state.HRs}
+                            items={this.state.HRs}  
                             selected={this.state.selectedHRs}
                             handleClick={this.handleClick}
                             title={'Homerooms'}/>
                     </Col>
                     <Col className={'assignments-display-container'}>
-                        {this.state.asgs && Object.keys(this.state.asgs).sort((a,b) => this.state.asgs[a].homeroom.localeCompare(this.state.asgs[b].homeroom)).map(id => {
-                            if(this.state.asgs){
-                                const student = this.state.asgs[id]
-                                const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
-                                return (
-                                    <div key={id} className={'student-assignments '.concat(visibility ? '': 'student-assignments-hidden')}>
-                                        <h3>{student.studentName + ', ' + student.homeroom}</h3>
-                                        {Object.keys(student.classes).map(cname => {
-                                            const fg = student.classes[cname].finalGrade
-                                            return (
-                                                <div key={cname} className='category-table'>
-                                                    <h4>{student.classes[cname].teacher + ', ' +cname + ', ' + 
-                                                        (fg !== undefined ? fg.toFixed(2):'')+ '%'}</h4>
-                                                    {Object.keys(student.classes[cname].categories).map(cat => 
-                                                        student.classes[cname].categories[cat].assignments.length > 0 ? 
-                                                        <AssignmentStats 
-                                                            key={cat} 
-                                                            assignments={student.classes[cname].categories[cat].assignments}
-                                                            category={student.classes[cname].categories[cat]}
-                                                            gradeLogic={student.classes[cname].gradeLoic}/> :
-                                                        null)}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )
-                        }})}
+                        {Object.keys(this.state.sortedKeys).map( id => {
+                            const student = this.state.asgs[id]
+                            const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
+                            if(visibility){
+                                return <this.StudentDisplay id={id} key={id}/>}
+                            else{return <></>}
+                        })}
                     </Col>
                 </Row>
             </Container>
             )
     }
+
+    StudentDisplay = React.memo((props:{id:string}) => {
+        const student = this.state.asgs[props.id]
+        const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
+        return (
+            <div key={props.id} className={`student-assignments ${visibility ? '': 'student-assignments-hidden'}`}>
+                <StudentClassDisplay student={student}/>
+            </div>
+        )
+    })
         
 }
 
+class StudentClassDisplay extends React.PureComponent<{student: Student}> {
+
+    render(){
+        const student = this.props.student
+            return(
+            <>
+                <h3>{student.studentName + ', ' + student.homeroom}</h3>
+                    {Object.keys(student.classes).map(cname => {
+                        const fg = student.classes[cname].finalGrade
+                        return (
+                            <div key={cname} className='category-table'>
+                                <h4>{student.classes[cname].teacher + ', ' +cname + ', ' + 
+                                    (fg !== undefined ? fg.toFixed(2):'')+ '%'}</h4>
+                                {Object.keys(student.classes[cname].categories).map(cat => 
+                                    student.classes[cname].categories[cat].assignments.length > 0 ? 
+                                    <AssignmentStats 
+                                        key={cat} 
+                                        assignments={student.classes[cname].categories[cat].assignments}
+                                        category={student.classes[cname].categories[cat]}
+                                        gradeLogic={student.classes[cname].gradeLoic}/> :
+                                    null)}
+                            </div>
+                        )
+                    })}
+            </>
+        )   
+    }
+}
 
 const AssignmentStats: React.SFC<{assignments: StudentAssignment[], category: StudentCategory, gradeLogic: string}> = (props) => {
     const pts = props.gradeLogic === 'Total points' ||  props.gradeLogic === 'Category total points' 
@@ -121,7 +152,7 @@ const AssignmentStats: React.SFC<{assignments: StudentAssignment[], category: St
     )
 
     const rows: JSX.Element[] = []
-    props.assignments.map( (asg, i) => {
+    props.assignments.forEach( (asg, i) => {
         const nc = asg.points === '' || asg.points === 'Inc'
         const weight = asg.assignmentWeight
         const impact = asg.impact

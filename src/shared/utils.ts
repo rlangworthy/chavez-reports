@@ -1,4 +1,3 @@
-import * as Papa from 'papaparse'
 import { 
   RawFileParse, } from '../shared/file-types'
 import { 
@@ -68,12 +67,50 @@ export const convertAspCategories = (cats: AspenCategoriesRow) : RawTeacherCateg
 }
 
 export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
-    const scores = [[1,1,2,2,3], [1,2,2,3,3], [2,2,3,3,4], [2,3,4,5,5], [2,3,4,5,5]];
-    if(attendancePCT>=98){return scores[Math.floor(GPA)][4];}
-    if(attendancePCT>=95){return scores[Math.floor(GPA)][3];}
-    if(attendancePCT>=90){return scores[Math.floor(GPA)][2];}
-    if(attendancePCT>=80){return scores[Math.floor(GPA)][1];}
-    return scores[Math.floor(GPA)][0];
+    if(attendancePCT < 85){
+      return 1
+    }
+
+    if(GPA >= 2){
+      if(attendancePCT>=97.5){
+        return (GPA >= 2.5 ? 5:4)
+      }
+      
+      if(attendancePCT>=95){
+        if(GPA >= 3){
+          return 5
+        }else if(GPA >=2.5){
+          return 4
+        }else{return 3}
+      }
+
+      if(attendancePCT>=92.5){
+        if(GPA >= 3.5){
+          return 5
+        }else if(GPA >=2.5){
+          return 4
+        }else{return 3}
+      }
+
+      if(attendancePCT>=90){
+        if(GPA >= 3.5){
+          return 5
+        }else if(GPA >= 3){
+          return 4
+        }else if(GPA >= 2.5){
+          return 3
+        }else{return 2}
+      }
+
+      if(attendancePCT>=87.5){
+        if(GPA >= 33){
+          return 4
+        }else if(GPA >=2.5){
+          return 4
+        }else{return 3}
+      }
+    }
+    return 2
   }
   
 export const getCPSOnTrack = (math: number, reading: number, attendancePCT: number): boolean => {

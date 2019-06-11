@@ -1,5 +1,4 @@
 import * as React from 'react'
-import {HSStudent} from '../student-one-pager-backend'
 import Table from 'react-bootstrap/Table'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -133,7 +132,7 @@ export const StudentOnePagers: React.SFC<StudentOnePagerProps> = props => {
                                                             </tr>)})}
                                             </tbody>
                                         </React.Fragment>
-                                )}
+                                )}else{return null}
                             })}
                             </Table>        
                         </div>

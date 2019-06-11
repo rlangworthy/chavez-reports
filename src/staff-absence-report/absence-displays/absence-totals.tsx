@@ -9,9 +9,7 @@ import {
 
 import {
     StaffPunchTimes,
-    PunchTimes,
     AbsencePaycodes,
-    PunchTime,
     PayCodeDay,
     Absences, } from '../../shared/staff-absence-types';
 import {

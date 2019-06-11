@@ -18,7 +18,7 @@ export class CustomToggle extends React.PureComponent<any> {
     render() {
       return (
         <div>
-            <img src={gear} style={{height:'24px', width:'24px'}} onClick={this.handleClick}/>
+            <img src={gear} style={{height:'24px', width:'24px'}} onClick={this.handleClick} alt={''}/>
             {this.props.children}
         </div>
       );

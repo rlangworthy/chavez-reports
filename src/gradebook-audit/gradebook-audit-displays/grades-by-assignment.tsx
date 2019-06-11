@@ -3,7 +3,6 @@ import * as React from 'react'
 
 import { 
     GradeLogic,
-    Category,
     AssignmentImpact, } from '../gradebook-audit-interfaces'
 
 interface GradesByAssignmentProps {
@@ -16,9 +15,7 @@ interface GradesByAssignmentProps {
 }
 
 export class GradesByAssignmentRender extends React.PureComponent<GradesByAssignmentProps> {
-    constructor(props){
-        super(props)
-    }
+
     render(){
         return (
             <>
@@ -55,10 +52,9 @@ const ClassAssignmentBreakdown: React.SFC<{classAssignments: {
 
     const CatDisplay = (category: AssignmentImpact[], name: string, totalPoints?: number): JSX.Element => {
         if(category.length === 0){return <React.Fragment key={name}/>}
-        const categoryPoints = totalPoints ? totalPoints : category.reduce((a,b) => a + b.maxPoints, 0)
         const rows: JSX.Element [] = []
         let totals: number[] = []
-        category.map( (a, i) => {
+        category.forEach( (a, i) => {
             if (a.stats.grades){
                 const total = a.stats.grades.length
                 totals = totals.concat(a.stats.grades);

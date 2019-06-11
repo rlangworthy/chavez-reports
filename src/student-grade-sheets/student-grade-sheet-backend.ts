@@ -1,19 +1,11 @@
-import * as d3 from 'd3'
-
 import {isAfter} from 'date-fns'
 
 import {
-    RawAssignmentsRow,
-    RawTeacherCategoriesAndTotalPointsLogicRow,
     AspenAssignmentRow,
     AspenCategoriesRow,
-    Score,
     StudentSearchListRow } from '../shared/file-interfaces'
 
-import { 
-    convertAspAsgns,
-    convertAspCategories,
-    parseGrade,
+import {
     stringToDate } from '../shared/utils'
 import { ReportFiles } from '../shared/report-types'
 

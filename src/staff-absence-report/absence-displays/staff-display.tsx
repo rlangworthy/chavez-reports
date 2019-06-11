@@ -4,7 +4,7 @@ import {
     format,
     startOfWeek,
     endOfWeek,
-    isDate} from 'date-fns'
+    } from 'date-fns'
 
 import {
     StaffPunchTimes,
@@ -122,7 +122,6 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
         }
         
         const nDays = props.absences.attDays.length;
-        const nTardies = props.absences.tardies.size;
         var nInLate = 0;
         var nOutEarly = 0;
         props.absences.tardies.forEach( p => {
@@ -215,7 +214,7 @@ const TardiesTable: React.SFC<{tardies: Map<Date, PunchTime>, in:number, out:num
             }
         })
     }
-    Object.keys(tardiesByWeek).map( k => {
+    Object.keys(tardiesByWeek).forEach( k => {
         const d:Date = tardiesByWeek[k][0].date;
         if(tardiesByWeek[k].length !== 1 || d.getDay()!==6){
             const index:string = k + format(startOfWeek(d), ' (M/D-') + format(endOfWeek(d), 'M/D)')

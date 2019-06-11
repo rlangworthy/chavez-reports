@@ -5,9 +5,7 @@ import {
     median} from 'ramda'
 
 import {
-    isAfter,
-    isBefore
-    } from 'date-fns'
+    isAfter, } from 'date-fns'
 
 import {
     RawESCumulativeGradeExtractRow,
@@ -17,13 +15,9 @@ import {
     AspenCategoriesRow,
     AspenESGradesRow,
     StudentSearchListRow,
-    Score, 
-    LetterGradeList,
-    LetterGrade, } from '../shared/file-interfaces'
+    Score,  } from '../shared/file-interfaces'
 
-import { 
-    letterGradeToNorm,
-    normToLetterGrade,
+import {
     parseGrade,
     convertAspAsgns,
     convertAspCategories,
@@ -56,7 +50,6 @@ export const createGradebookReports = (files: ReportFiles ) =>{
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = '4';
     const q4Start = new Date(2019, 3, 4)
-    const q3Start = new Date(2019, 1, 1)
 
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
     const rawAllAssignments = aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), q4Start) 
@@ -148,11 +141,11 @@ const getTeachersCategoriesAndAssignments = (
         .object(assignments)
     let teachers: Teacher[] = []
 
-    Object.keys(classCategories).map( teacher => {
+    Object.keys(classCategories).forEach( teacher => {
         if(classAssignments[teacher]){
-            Object.keys(classCategories[teacher]).map( className => {
+            Object.keys(classCategories[teacher]).forEach( className => {
                 if(classAssignments[teacher][className]){
-                    Object.keys(classCategories[teacher][className]).map( category => {
+                    Object.keys(classCategories[teacher][className]).forEach( category => {
                         if(classAssignments[teacher][className][category]){
                             const asgs: Assignment[] = Object.keys(classAssignments[teacher][className][category]).map( asg => {
                                 const raws: RawAssignmentsRow[] = classAssignments[teacher][className][category][asg]
@@ -245,19 +238,6 @@ const numberGradeStats = (grades: number[]):
     }
 }
 
-const letterGradeStats = (grades: string[]):
-{averageGrade: number | LetterGrade,
-medianGrade: number | LetterGrade,
-lowestGrade: number | LetterGrade} => {
-    const norms = grades.map(letterGradeToNorm);
-    return {
-        averageGrade: normToLetterGrade(mean(norms)),
-        medianGrade: normToLetterGrade(median(norms)),
-        lowestGrade: normToLetterGrade(Math.min(...norms)),
-    }
-}
-
-
 export const getAssignmentImpacts = (c: {
     [categoryName: string]: Category
   }): {[categoryName:string]: AssignmentImpact[]} => {
@@ -268,7 +248,7 @@ export const getAssignmentImpacts = (c: {
             .reduce( (a,b) => a - c[b].assignments.reduce( (a1,b1) => a1 + b1.maxPoints,0),0) : undefined
 
     const classAsgns:{[categoryName:string]: AssignmentImpact[]} = {}
-    Object.keys(c).map( cat => {
+    Object.keys(c).forEach( cat => {
         //the divisor for assignment weight
         const total = totalPoints ? totalPoints :
             tpl === 'Categories only' ? c[cat].assignments.length : Math.abs(c[cat].assignments.reduce((a,b) => a - b.maxPoints, 0))
@@ -300,7 +280,6 @@ export const getAssignmentImpacts = (c: {
 
   export const getChartData = (assignments: AssignmentImpact[]):any => {
     const percentOther = 100 + Math.abs(assignments.reduce((a,b) => a - b.impact, 0))
-    Math.sign(percentOther) === -0 || Math.sign(percentOther) === -1 ? console.log(percentOther):null
     const data = [['Assignment Name', 'Assignment Weight'] as any]
     assignments.forEach( (a, i) => data.push([(a.impact).toFixed(1) + '%', a.impact]))
     data.push(['Others', percentOther])

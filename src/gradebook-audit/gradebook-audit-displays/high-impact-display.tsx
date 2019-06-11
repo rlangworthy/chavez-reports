@@ -4,9 +4,7 @@ import Chart from 'react-google-charts';
 import { WarningIcon } from '../../shared/icons';
 
 import {
-    Assignment,
     AssignmentImpact,
-    Category,
     GradeLogic,
 } from '../gradebook-audit-interfaces';
 

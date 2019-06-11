@@ -137,6 +137,7 @@ interface SelectDropdownWidgetProps {
     items: string[] | {[key:string]:string[]}
 }
 
+/* eslint-disable */
 const SelectDropdownWidget: React.SFC<SelectDropdownWidgetProps> = (props) => {
     return (
         <Dropdown style={{float:'right'}}>
@@ -152,3 +153,4 @@ const SelectDropdownWidget: React.SFC<SelectDropdownWidgetProps> = (props) => {
         </Dropdown>
     )
 }
+/* eslint-enable */

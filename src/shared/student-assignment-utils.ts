@@ -8,7 +8,6 @@ import {
 
 import {
     StudentAssignments,
-    Student,
     StudentClass,
     StudentCategory,
     StudentAssignment, } from './student-assignment-interfaces'
@@ -216,4 +215,17 @@ export const getHighImpactStudentAssignments = (studentClass: StudentClass): Stu
             return 0
         }
     })
+}
+
+//returns an object with homeroom keys and a list of student names
+export const getStudentHrObject = (students: StudentAssignments): {[hr: string]: string[]}=> {
+    const hrObj: {[hr: string]: string[]}= {}
+    Object.values(students).forEach( student => {
+        if(hrObj[student.homeroom] === undefined){
+            hrObj[student.homeroom] = [student.studentName]
+        } else {
+            hrObj[student.homeroom] = hrObj[student.homeroom].concat([student.studentName])
+         }
+    })
+    return hrObj
 }

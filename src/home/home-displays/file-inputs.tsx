@@ -5,8 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import { 
     FileDescripiton, 
-    FileDescriptions, 
-    FileTypes, } from '../../shared/file-types';
+    FileDescriptions,  } from '../../shared/file-types';
 import { 
     ReportTitle,
     ReportTitleFile } from '../../shared/report-types';
