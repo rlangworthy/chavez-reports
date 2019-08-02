@@ -122,6 +122,7 @@ export const stringToDate = (s: string): Date => {
   return new Date(d[2], d[0]-1, d[1])
 }
 
+//parses dates of the form mm-dd-yyyy tt:tt:tt AM/PM
 export const punchcardStringToDate = (s: string): Date => {
   const d = s.split(' ')
   if(d.length === 1){
@@ -210,7 +211,7 @@ export const normToLetterGrade = (g: number):LetterGrade => {
 }
 
 export const parseGrade = (g: string): number => {
-  const numberGrade = parseInt(g);
+  const numberGrade = parseFloat(g);
   if(numberGrade || numberGrade === 0){
     return numberGrade
   }

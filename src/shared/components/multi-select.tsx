@@ -1,8 +1,8 @@
 import * as React from 'react'
-import Collapse from 'react-bootstrap/Collapse'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Dropdown from 'react-bootstrap/Dropdown'
 import { CustomToggle } from '../../shared/components/custom-toggle'
+import { CustomCollapse } from '../../shared/components/custom-collapse'
 import './multi-select.css'
 import Button from 'react-bootstrap/Button';
 //takes a handler, either an array of values or 
@@ -15,13 +15,24 @@ export interface MultiSelectProps {
 }
 export interface MultiSelectState {
     open: boolean
-    subHeaders: string[]
+    subHeaders: {[key: string]:boolean}
 }
 
 export class MultiSelect extends React.PureComponent<MultiSelectProps, MultiSelectState> {
     constructor(props) {
         super(props)
-        this.state= {subHeaders:[], open:false};
+        this.state= {subHeaders:{}, open:true};
+    }
+    
+    componentWillMount(){
+        if(!Array.isArray(this.props.items)){
+            const subheads = {}
+            Object.keys(this.props.items).forEach( key => {
+                subheads[key] = true
+            })
+            this.setState({subHeaders: subheads})
+            this.forceUpdate()
+        }
     }
 
     selectAll = (items: string[] | {[key:string]: string[]}): void => {
@@ -39,7 +50,16 @@ export class MultiSelect extends React.PureComponent<MultiSelectProps, MultiSele
     render(){
         return (
             <ListGroup>
-                <ListGroup.Item onClick={() => this.setState({open: !this.state.open})}>
+                <ListGroup.Item onClick={() => {
+                    if(Array.isArray(this.props.items)){
+                        this.setState({open: !this.state.open})
+                    }else{
+                        const subheads = {}
+                        Object.keys(this.props.items).forEach( key => {
+                            subheads[key] = !this.state.open
+                        })
+                        this.setState({subHeaders: subheads, open: !this.state.open})
+                    }}}>
                     {this.props.title}
                     <div className='multi-select-header-controls'>
                         <span className={`multi-select-down-caret ${this.state.open ? 'multi-select-open-caret':''}`}/>
@@ -52,32 +72,34 @@ export class MultiSelect extends React.PureComponent<MultiSelectProps, MultiSele
                 </ListGroup.Item>
                 <ListGroup>
                     {Array.isArray(this.props.items) ? 
-                    this.props.items.map(item => {
-                        return (
-                            <CollapseListItem
-                                in={this.state.open || this.props.selected.includes(item)} key={item}
-                                active={this.props.selected.includes(item)}
-                                onClick={this.props.handleClick}
-                                item={item}
-                                disabled={this.props.disabled !== undefined && this.props.disabled.includes(item)}/>
-                        )}): Object.keys(this.props.items).map(group => {
+                        <>
+                        {this.props.items.map(item => {
+                            return (
+                                <CollapseListItem
+                                    in={this.state.open}
+                                    key={item}
+                                    active={this.props.selected.includes(item)}
+                                    onClick={this.props.handleClick}
+                                    item={item}
+                                    disabled={this.props.disabled !== undefined && this.props.disabled.includes(item)}/>
+                            )})}
+                        </>
+                        : Object.keys(this.props.items).map(group => {
                             return(
                                 <React.Fragment key={group}>
-                                    <Collapse in={this.state.open || 
-                                        this.props.items[group].some(s => this.props.selected.includes(s))}>
                                         <div>
                                             <ListGroup.Item 
                                             className='multi-select-list-sub-header'
                                             onClick={()=> {
-                                                const h = this.state.subHeaders.includes(group) ? 
-                                                    this.state.subHeaders.filter(g=> g!== group) :
-                                                    this.state.subHeaders.concat([group])
+                                                const h = this.state.subHeaders
+                                                h[group] = !h[group]
                                                 this.setState({subHeaders: h})
+                                                this.forceUpdate()
                                             }}>
                                                     {group}
                                                 <div className='multi-select-header-controls'>
                                                     <span className={`multi-select-down-caret 
-                                                    ${!this.state.subHeaders.includes(group) ? 'multi-select-open-caret':''}`}/>
+                                                    ${this.state.subHeaders[group] ? 'multi-select-open-caret':''}`}/>
                                                     <Button size='sm' onClick={(ev: React.MouseEvent)=>{
                                                         ev.stopPropagation()
                                                         this.selectAll(this.props.items[group])}}
@@ -86,13 +108,11 @@ export class MultiSelect extends React.PureComponent<MultiSelectProps, MultiSele
                                                 </div>
                                             </ListGroup.Item>
                                         </div>
-                                    </Collapse>
                                     {this.props.items[group].map(item => {
                                         return (
                                             <CollapseListItem
-                                                in={(this.state.open && 
-                                                    !this.state.subHeaders.includes(group)) ||
-                                                     this.props.selected.includes(item)} key={item}
+                                                in={this.state.subHeaders[group]}
+                                                key={item}
                                                 active={this.props.selected.includes(item)}
                                                 onClick={this.props.handleClick}
                                                 item={item}
@@ -114,20 +134,20 @@ interface CollapseListProps {
     disabled: boolean
 }
 
-class CollapseListItem extends React.PureComponent<CollapseListProps> {
+export class CollapseListItem extends React.PureComponent<CollapseListProps> {
     render(){
         return (
-            <Collapse in={this.props.in}>
-                <div>
-                    <ListGroup.Item className='multi-select-list-group-item'
-                        action
-                        disabled={this.props.disabled}
-                        active={this.props.active}
-                        onClick={()=> this.props.onClick(this.props.item)}>
-                        {this.props.item}
-                    </ListGroup.Item>
+                <div key={this.props.item}>
+                    <CustomCollapse in={this.props.in || this.props.active}>
+                        <ListGroup.Item className={`multi-select-list-group-item ${this.props.active? 'multi-select-list-group-item-active show' : ''}`}
+                            action
+                            disabled={this.props.disabled}
+                            active={this.props.active}
+                            onClick={()=> this.props.onClick(this.props.item)}>
+                            {this.props.item}
+                        </ListGroup.Item>
+                    </CustomCollapse>
                 </div>
-            </Collapse>
         )
     }
 }

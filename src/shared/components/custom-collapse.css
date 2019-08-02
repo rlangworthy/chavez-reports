@@ -1,0 +1,100 @@
+.lbl-toggle {
+display: block;
+
+font-weight: bold;
+font-family: monospace;
+font-size: 1.2rem;
+text-transform: uppercase;
+text-align: center;
+
+padding: 1rem;
+
+color: #A77B0E;
+background: #FAE042;
+
+cursor: pointer;
+
+border-radius: 7px;
+transition: all 0.25s ease-out;
+}
+
+.lbl-toggle:hover {
+color: #7C5A0B;
+}
+
+.lbl-toggle::before {
+content: ' ';
+display: inline-block;
+
+border-top: 5px solid transparent;
+border-bottom: 5px solid transparent;
+border-left: 5px solid currentColor;
+vertical-align: middle;
+margin-right: .7rem;
+transform: translateY(-2px);
+
+transition: transform .2s ease-out;
+}
+
+.collapsible-content {
+max-height: 0px;
+padding: 0px;
+overflow: hidden;
+border: 0px;
+transition: all .35s ease-in-out;
+}
+
+.collapsed :not(.show) {
+    max-height: 0px;
+    visibility: hidden;
+    padding: 0px;
+    overflow: hidden;
+    border: 0px;
+    transition: all .35s ease-in-out;
+}
+
+.show {
+    transition: all .35s ease-in-out;
+    visibility: visible;
+}
+
+.multi-select-list-group-item {
+    font-size: .8rem;
+    text-align: right;
+    padding: 4px;
+}
+
+
+.multi-select-list-sub-header {
+    padding: 8px;
+    font-size: .9rem;
+    text-align: center;
+}
+
+.multi-select-header-controls {
+    float: right;
+}
+
+.multi-select-sub-header-button {
+    padding: 0px 8px;
+}
+
+.multi-select-down-caret {
+    margin-right: .3rem;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 5px 0 5px;
+    border-color: #000 transparent transparent transparent;
+    display: inline-block;
+    margin-left: 6px;
+    top: -3px;
+    position: relative;
+    transform: rotate(-90deg);
+    transition: all .25s ease-in;
+  }
+
+.multi-select-open-caret {
+    transform: rotate(0deg);
+    transition: all .25s ease-out;
+}

@@ -40,7 +40,6 @@ export const getStudentAssignments = (
         const classes: {[className: string]: StudentClass} = {}
         Object.keys(classObj).forEach(cname => {
             const currentClassCats: AspenCategoriesRow[] = cats[cname] ? cats[cname] : []
-            console.log(cats[cname])
             const gradeLogic = currentClassCats[0] ? currentClassCats[0]['Average Mode Setting'] : 'UNDEFINED CLASS'
             const teacherName = cats[cname] ? cats[cname][0]['Teacher First Name'] + ' ' + cats[cname][0]['Teacher Last Name'] : 'UNDEFINED CLASS'
             

@@ -155,7 +155,7 @@ const getTeachersCategoriesAndAssignments = (
                                     maxPoints: parseInt(raws[0].ScorePossible),
                                     assignmentName: asg,
                                     categoryName: category,
-                                    categoryWeight: raws[0].CategoryWeight,
+                                    categoryWeight: classCategories[teacher][className][category].weight.toString(),
                                     grades: grades,
                                     stats: getAssignmentStats(grades, parseInt(raws[0].ScorePossible) , classAssignments[teacher][className][category].TotalPointsLogicSetting,className + '-' + asg)
                                 }

@@ -4,6 +4,14 @@
     padding: 4px;
 }
 
+.multi-select-list-group-item-active {
+    font-size: .8rem;
+    text-align: right;
+    padding: 4px;
+    overflow: visible;
+    visibility: visible;
+}
+
 .multi-select-list-sub-header {
     padding: 8px;
     font-size: .9rem;
@@ -31,8 +39,9 @@
     position: relative;
     transform: rotate(-90deg);
     transition: all .25s ease-in;
-  }
-    .multi-select-open-caret {
-      transform: rotate(0deg);
-      transition: all .25s ease-out;
-    }
+}
+
+.multi-select-open-caret {
+    transform: rotate(0deg);
+    transition: all .25s ease-out;
+}

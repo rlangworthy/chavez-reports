@@ -3,6 +3,12 @@ import {uniq} from 'ramda'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import {
+    List, 
+    AutoSizer, 
+    CellMeasurerCache, 
+    CellMeasurer, 
+    Grid }from 'react-virtualized'
 
 import {
     StudentAssignments,
@@ -14,6 +20,7 @@ import { MultiSelect } from '../shared/components/multi-select'
 import { createAssignmentReports } from './student-grade-sheet-backend'
 import {parseGrade} from '../shared/utils'
 
+
 import './student-grade-display.css'
 
 interface StudentGradeState {
@@ -21,22 +28,31 @@ interface StudentGradeState {
     selectedHRs: string[]
     HRs: string[]
     sortedKeys: string[]
+    cache: CellMeasurerCache
+    sortedStudents: JSX.Element[]
 }
 
 export class StudentGradeSheets extends React.PureComponent<{reportFiles?: ReportFiles}, StudentGradeState> {
     constructor(props){
         super(props)
-        this.state = {asgs: {}, selectedHRs:[], sortedKeys:[], HRs: []}
+        const cache = new CellMeasurerCache({
+            fixedWidth: true,
+            defaultHeight: 100
+        })
+        this.state = {asgs: {}, selectedHRs:[], sortedKeys:[], HRs: [], cache: cache, sortedStudents: []}
     }
+
     componentWillMount(){
         if(this.props.reportFiles){
             const asgs = createAssignmentReports(this.props.reportFiles)
             const sk = Object.keys(asgs).sort((a,b) => asgs[a].homeroom.localeCompare(asgs[b].homeroom))
             const hrs = uniq(sk.map(k => asgs[k].homeroom))
+            const ss = sk.map( id => <StudentClassDisplay student={asgs[id]}/>)
             this.setState({
                 asgs: asgs,
                 HRs: hrs,
-                sortedKeys: sk
+                sortedKeys: sk,
+                sortedStudents: ss
             });
         }
     }
@@ -57,17 +73,6 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
         }
     }
 
-    Student:React.FunctionComponent<{index:number}> = (props) => {
-        const id = Object.keys(this.state.asgs)[props.index]
-        const student = this.state.asgs[id]
-        const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
-        return (
-            <div key={id} className={`student-assignments ${visibility ? '': 'student-assignments-hidden'}`}>
-                <StudentClassDisplay student={student}/>
-            </div>
-        )
-    }
-
     render(){
 
 
@@ -82,13 +87,19 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
                             title={'Homerooms'}/>
                     </Col>
                     <Col className={'assignments-display-container'}>
-                        {Object.keys(this.state.sortedKeys).map( id => {
-                            const student = this.state.asgs[id]
-                            const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
-                            if(visibility){
-                                return <this.StudentDisplay id={id} key={id}/>}
-                            else{return <></>}
-                        })}
+                        <AutoSizer>
+                        {({ height, width }) => (
+                            <List
+                                deferredMeasurementCache={this.state.cache}
+                                height={height}
+                                rowCount={this.state.sortedKeys.length}
+                                rowHeight={20}
+                                rowRenderer={this.Student}
+                                width={width}
+                                overscanRowCount={10}
+                            />
+                        )}
+                        </AutoSizer>
                     </Col>
                 </Row>
             </Container>
@@ -96,7 +107,7 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
     }
 
     StudentDisplay = React.memo((props:{id:string}) => {
-        const student = this.state.asgs[props.id]
+        const student = this.state.asgs[Object.keys(this.state.asgs)[props.id]]
         const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
         return (
             <div key={props.id} className={`student-assignments ${visibility ? '': 'student-assignments-hidden'}`}>
@@ -104,6 +115,22 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
             </div>
         )
     })
+
+    Student:React.FunctionComponent<{index:number, parent: Grid, key: string, style: any}> = (props) => {
+        //const id = Object.keys(this.state.asgs)[props.index]
+        //const student = this.state.asgs[id]
+        return (
+            <CellMeasurer
+                cache={this.state.cache}
+                columnIndex={0}
+                parent={props.parent}
+                rowIndex={props.index}>
+                <div key={props.index} className={`student-assignments`}>
+                    {this.state.sortedStudents[props.index]}
+                </div>
+            </CellMeasurer>
+        )
+    }
         
 }
 

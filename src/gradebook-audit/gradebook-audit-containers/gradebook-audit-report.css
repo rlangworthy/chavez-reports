@@ -189,7 +189,40 @@ table.data-table td div.cell-icon {
   display: inline-block;
 }
 
+
+@media (min-width: 768px){
+  .gpa-filter-container {
+    position: absolute;
+    top: 0px;
+    bottom: 0;
+    left: 0;
+    width: 25%;
+    overflow-y: scroll; 
+  }
+
+  .gpa-display-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    overflow-y: scroll;
+    width: 75%;
+  }
+}
+
 @media print {
+  .gpa-filter-container {
+    display: none;
+    width: 0%;
+    height:0%;
+  }
+
+  .gpa-display-container {
+    position: relative;
+    overflow: visible;
+    width: 100%;  
+  }
+
   .bar-a {
     background-color: green;
     -webkit-print-color-adjust: exact;
