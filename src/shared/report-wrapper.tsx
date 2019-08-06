@@ -11,8 +11,16 @@ interface ReportWrapperState {
     channel: BroadcastChannel
 }
 
-//ReportWrapper assumes each child will have a prop for report files
 
+
+/*
+ReportWrapper assumes each child will have an optional prop called reportFiles.
+This is enforced in the type definition for ReportTitle.  ReportWrapper opens a
+broadcast channel with the title of the report, sends a message to let the
+channel know the report is ready to recieve files, and then waits for those
+files.
+
+*/
 export class ReportWrapper extends React.Component<ReportWrapperProps, ReportWrapperState> {
     constructor(props){
         super(props);

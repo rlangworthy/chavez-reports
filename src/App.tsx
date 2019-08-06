@@ -3,47 +3,46 @@ import { ReportHome } from './home/home-cointainers/home'
 import './App.css';
 import {Route} from 'react-router';
 import { createBrowserHistory } from 'history';
-import {HROnePagers} from './weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 import {ReportWrapper} from './shared/report-wrapper'
 import {ReportCards} from './shared/report-types'
-import { SummerschoolReportDownload } from './summerschool-report/summerschool-report-download'
-import { StudentOnePagers } from './student-one-pager/student-one-pager-displays/student-one-pager-display'
-import { StaffAbsenceReport } from './staff-absence-report/absence-containers/staff-absence-download'
-import { GradebookAuditReport } from './gradebook-audit/gradebook-audit-containers/gradebook-audit-container'
-import { StudentGradeSheets } from './student-grade-sheets/student-grade-display'
+
 
 export const history = createBrowserHistory({});
 
-//ReportWrapper assumes 
+//FIXME add report component to ReportCards 
+/*
+ReportWrapper assumes each child will have a prop for report files
+
+Each report has its information stored in the ReportCards array.  New reports 
+can be added there.
+The ReportCards array is an array of ReportTitles that contain all the 
+information needed to create an info card in the ReportHome component as well
+as the component used to display the report and the list of files needed to
+generate it.
+
+Submitting files from the report home modal triggers the opening of a new
+tab containing a ReportWrapper around the target report component.
+The modal opens a broadcast channel and waits for a message from the open tab.
+Once open, the new tab sends a message to the modal to let it know the channel
+is open.  The modal then sends the appropriate files to the new tab at which
+point the ReportWrapper renders the report using the newly sent files.
+
+*/
 class App extends Component {
   render() {
     return (
       <React.Fragment>
         <Route exact={true} path='/' component={ReportHome} />
-        <Route path={ReportCards[0].link} render={() => 
-          <ReportWrapper reportTitle={ReportCards[0].title}>
-            <GradebookAuditReport/>
-          </ReportWrapper>}/>
-        <Route path={ReportCards[1].link} render={() => 
-          <ReportWrapper reportTitle={ReportCards[1].title}>
-            <SummerschoolReportDownload/>
-          </ReportWrapper>}/>
-          <Route path={ReportCards[2].link} render={() => 
-            <ReportWrapper reportTitle={ReportCards[2].title}>
-              <StaffAbsenceReport/>
-            </ReportWrapper>}/>
-        <Route path={ReportCards[4].link} render={() => 
-          <ReportWrapper reportTitle={ReportCards[4].title}>
-            <HROnePagers/>
-          </ReportWrapper>}/>
-        <Route path={ReportCards[5].link} render={() => 
-          <ReportWrapper reportTitle={ReportCards[5].title}>
-            <StudentOnePagers/>
-        </ReportWrapper>}/>
-        <Route path={ReportCards[6].link} render={() => 
-          <ReportWrapper reportTitle={ReportCards[6].title}>
-            <StudentGradeSheets/>
-        </ReportWrapper>}/>
+        {ReportCards.map( report => {
+          const Component = report.component
+          return (
+            <Route path={report.link} 
+              key={report.title} render={() =>
+              <ReportWrapper reportTitle={report.title}>
+                <Component/>
+              </ReportWrapper>}/>
+          )
+        })}
       </React.Fragment>
     );
   }

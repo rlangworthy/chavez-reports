@@ -87,8 +87,9 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
                 selectedFiles[t.fileDesc] = file;
             }
         });
-        const reportFiles: ReportFiles = {reportTitle: this.props.report, reportFiles: selectedFiles};
-        console.log(reportFiles)
+        //FIXME copies component correctly so broadcast works.  Seems unnecessary.
+        const report = JSON.parse(JSON.stringify(this.props.report))
+        const reportFiles: ReportFiles = {reportTitle: report, reportFiles: selectedFiles};
         const channel = new BroadcastChannel(reportFiles.reportTitle.title)
         channel.onmessage = (message: MessageEvent) => {
             channel.postMessage(reportFiles)

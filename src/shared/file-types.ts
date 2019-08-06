@@ -11,22 +11,36 @@ export enum FileTypes {
     STUDENT_INFO = 'Student Search List Report',
 }
 
+/*
+Interface for accessing the different kinds of files used by the report.
+
+Stores one list of file parses for each fileType in the FileTypes enum.
+*/
 export interface FileList {
     [fileType: string]: RawFileParse[]
 }
 
+/*
+    fileType: one from the FileTypes enum
+    fileName: unique file name of this file type guaranteed by getUniqueFileName
+    parseResult: output from the papaParse parse of input file
+*/
 export interface RawFileParse {
     fileType: string
     fileName: string
     parseResult: ParseResult | null
 }
 
+/*
+    continer for output from a papaParse parse
+*/
 export interface ParseResult {
     data: any
     errors: any[]
     meta: any
 }
-//link is to instructions
+
+//link is to google doc instructions for downloading that type of file
 export interface FileDescripiton {
     description: string
     link?: string

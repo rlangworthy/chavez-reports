@@ -66,6 +66,9 @@ export const convertAspCategories = (cats: AspenCategoriesRow) : RawTeacherCateg
   }
 }
 
+/*
+  CPS on track score for 2020 school year
+*/
 export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
     if(attendancePCT < 85){
       return 1
@@ -111,12 +114,18 @@ export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
       }
     }
     return 2
-  }
-  
+}
+
+/*
+  CPS on track pre-2020 school year
+*/
 export const getCPSOnTrack = (math: number, reading: number, attendancePCT: number): boolean => {
   return (math >= 70 && reading >= 70 && attendancePCT >= 95);
 }
 
+/*
+  formats strings from the all assignments extracts into date objects
+*/
 export const stringToDate = (s: string): Date => {
   const d = s.split('/').map(a => parseInt(a))
   return new Date(d[2], d[0]-1, d[1])
@@ -145,14 +154,19 @@ export const fileListHas = (files: RawFileParse[], file: RawFileParse): boolean 
   return files.some(f => f.fileName === file.fileName && f.fileType === file.fileType);
 }
 
-//both sets and check for unique file logic, only has to be internally consistent
+/*
+both sets and check for unique file logic, only has to be internally consistent
+*/
 export const getUniqueFileName = (fileName: string, files: RawFileParse[]): string => {
+  //search for files that start with the same name
   const prefFiles = files.filter( f => f.fileName.startsWith(fileName))
+  //get everything after the fileName
   const posts = prefFiles.map( f => {return f.fileName.slice(fileName.length + 1)})
   /*
    * grabs the ones that have a numeric postfix in the style this uses
    * checks for the lowest unoccupied number and uses that for the name
    */
+
   const prevNames = posts
                   .filter( s => s.indexOf('(') === 0 && s.lastIndexOf(')') === s.length - 1)
                   .map( s => {return s.slice(1, s.length-1)})
@@ -210,6 +224,7 @@ export const normToLetterGrade = (g: number):LetterGrade => {
   
 }
 
+//Letter to number based on gradebook calculations
 export const parseGrade = (g: string): number => {
   const numberGrade = parseFloat(g);
   if(numberGrade || numberGrade === 0){
@@ -237,6 +252,7 @@ export const parseGrade = (g: string): number => {
   return -1;
 }
 
+//returns two boolean values for getting in late and getting out early
 export const isTardy = (start: number, end: number, clockIn: Date, clockOut: Date | null) : boolean[] => {
   const timeIn:number = (getHours(clockIn) * 100 + getMinutes(clockIn)) 
   const timeOut:number | null = clockOut ? (getHours(clockOut) * 100 + getMinutes(clockOut)):null

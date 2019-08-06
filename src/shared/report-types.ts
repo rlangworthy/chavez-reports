@@ -1,3 +1,12 @@
+import React from 'react'
+import { SummerschoolReportDownload } from '../summerschool-report/summerschool-report-download'
+import { StudentOnePagers } from '../student-one-pager/student-one-pager-displays/student-one-pager-display'
+import { StaffAbsenceReport } from '../staff-absence-report/absence-containers/staff-absence-download'
+import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-containers/gradebook-audit-container'
+import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
+import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
+
+
 import { 
     FileTypes,
     RawFileParse, } from './file-types'
@@ -7,6 +16,7 @@ export interface ReportTitle {
     description: string
     link: string
     files: ReportTitleFile[]
+    component:  React.ComponentClass<{reportFiles?: ReportFiles}> | React.FunctionComponent<{reportFiles?: ReportFiles}>
     optionalFiles?: {fileType: FileTypes, fileDesc: string}[]
     externalLink?: string
     moreInfoLink?: string
@@ -31,6 +41,7 @@ export const ReportCards: ReportTitle[] = [
         title: 'Gradebook Audit Report',
         description: 'Analyze gradebook by classroom (for Admin).',
         link: '/reports/gradebook-audit/upload/',
+        component: GradebookAuditReport,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT, fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL},
@@ -41,6 +52,7 @@ export const ReportCards: ReportTitle[] = [
         title: 'Summerschool Report',
         description: 'Monitor which students are likely to need summer school and are at risk of being retained (for Admin).',
         link: '/reports/summerschool/upload/',
+        component: SummerschoolReportDownload,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.NWEA,fileDesc: FileTypes.NWEA + ' Current Year'}, 
                 {fileType: FileTypes.NWEA,fileDesc: FileTypes.NWEA + ' Previous Year'}, 
@@ -50,12 +62,14 @@ export const ReportCards: ReportTitle[] = [
         title: 'Staff Absence Report',
         description: 'Review employee attendance (for Admin).',
         link: '/reports/staff-absence/upload/',
+        component: StaffAbsenceReport,
         files: [{fileType: FileTypes.KRONOS_DATA,fileDesc: FileTypes.KRONOS_DATA}],
     },
     {
         title: 'NWEA Summarizer',
         description: 'Spring-Spring growth and attainment by classroom (for Admin).',
         link: '/NWEA-summarizer/',
+        component: React.Fragment,
         files: [],
         externalLink: 'https://chavez.shinyapps.io/NWEA-Summary/'
     },
@@ -63,6 +77,7 @@ export const ReportCards: ReportTitle[] = [
         title: 'Weekly One Pager',
         description: 'Review student on-track informaiton by classroom (for teachers).',
         link: '/reports/weekly-one-pager/upload/',
+        component: HROnePagers,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION,fileDesc: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION}, 
                 {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE}],
@@ -73,6 +88,7 @@ export const ReportCards: ReportTitle[] = [
         title: 'Student One Pager',
         description: 'Progress report for students to use with Chavez HS Planner (for students).',
         link: '/reports/student-one-pager/upload/',
+        component: StudentOnePagers,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE}, 
                 {fileType: FileTypes.STUDENT_INFO,fileDesc: FileTypes.STUDENT_INFO}, 
@@ -84,6 +100,7 @@ export const ReportCards: ReportTitle[] = [
         title: 'Student Assignment Sheet',
         description: 'All student assignments by class and category',
         link: '/reports/student-assignment-sheet/upload/',
+        component: StudentGradeSheets,
         files: [{fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD},
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL, fileDesc: FileTypes.TEACHER_CATEGORIES_TPL},
                 {fileType: FileTypes.STUDENT_INFO, fileDesc: FileTypes.STUDENT_INFO}],
