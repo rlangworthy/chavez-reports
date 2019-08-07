@@ -4,7 +4,7 @@ import * as idb from 'idb-keyval'
 
 import Table from 'react-bootstrap/Table'
 
-import {createOnePagers} from '../weekly-one-pager-backend'
+import {createOnePagers, HomeRoom} from '../weekly-one-pager-backend'
 import { ReportFiles } from '../../shared/report-types'
 import './weekly-one-pagers-display.css'
 
@@ -15,6 +15,13 @@ interface OnePageProps {
 interface OnePageState {
 }
 
+const printGrade = (quarter: number, final: number) => {
+    if (quarter < 0 && final < 0 ){ return '--'}
+    return '(' + ((quarter > 0 ) ? quarter: '-') + ', ' + ((final > 0 ) ? final: '-') + ')';
+}
+
+const dateString= dateFns.format(new Date(), 'Do MMM, YYYY');
+
 export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
     constructor(props){
         super(props)
@@ -22,19 +29,29 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
         this.state = {homeRooms: []}
     }
 
-    private dateString= dateFns.format(new Date(), 'Do MMM, YYYY');
-    private printGrade = (quarter: number, final: number) => {
-        if (quarter < 0 && final < 0 ){ return '--'}
-        return '(' + ((quarter > 0 ) ? quarter: '-') + ', ' + ((final > 0 ) ? final: '-') + ')';
-    }
+    private 
+
     render() {
         const homeRooms = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : []
         return (
             <React.Fragment>
                 {homeRooms.map( hr => {return (
-                    <div key={hr.room} className='weekly-wrapper'>
-                        <h1>{'Weekly HR One Pager - ' + hr.room}</h1>
-                        <h3>{this.dateString}</h3>
+                    <WeeklyOnePager hr={hr} key={hr.room}/>
+                    )})}
+            </React.Fragment>
+        )}
+}
+
+class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom}> {
+    render(){
+        const hr = this.props.hr
+        return (
+            <div className='weekly-wrapper'>
+                        <span>
+                            <h1 className='inline'>{'Weekly HR One Pager - ' + hr.room}</h1>
+                            <h3 className='inline'>{dateString}</h3>
+                        </span>
+                        <h4>Average OT Score: {hr.OT ? hr.OT.toFixed(1):''}, worth {hr.SQRP} of 5 SQRP points</h4>
                         <Table striped bordered size="sm">
                             <tbody>
                                 <tr>
@@ -48,15 +65,15 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
                                     <td>Tardies</td>
                                     <td>Attendance</td>
                                 </tr>
-                                {hr.students.map( student => {
+                                {hr.students.map( (student, i) => {
                                     return (
-                                        <tr key={student.fullName}>
+                                        <tr key={student.fullName + hr.room + i}>
                                             <td>{student.ELL === 'N/A' ? '' : student.ELL}</td>
                                             <td>{student.fullName + ' ('+ student.onTrack + ', ' + (student.CPSonTrack? 'Yes': 'No') + ')'}</td>
-                                            <td>{this.printGrade(student.quarterReadingGrade, student.finalReadingGrade)}</td>
-                                            <td>{this.printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>
-                                            <td>{this.printGrade(student.quarterScienceGrade, student.finalScienceGrade)}</td>
-                                            <td>{this.printGrade(student.quarterSocialScienceGrade, student.finalSocialScienceGrade)}</td>
+                                            <td>{printGrade(student.quarterReadingGrade, student.finalReadingGrade)}</td>
+                                            <td>{printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>
+                                            <td>{printGrade(student.quarterScienceGrade, student.finalScienceGrade)}</td>
+                                            <td>{printGrade(student.quarterSocialScienceGrade, student.finalSocialScienceGrade)}</td>
                                             <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(2):
                                                 student.finalGPA[0].toFixed(2) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(2)+')'}</td>
                                             <td>{student.tardies[0] === student.tardies[1] ? student.tardies[0]:
@@ -72,10 +89,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
 
                         </Table>
                     </div>
-                    )})}
-            </React.Fragment>
-        )}
+        )
+    }
 }
-
-
 

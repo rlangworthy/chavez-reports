@@ -22,6 +22,8 @@ import {
 export interface HomeRoom{
     room: string
     students: HRStudent[]
+    OT?: number
+    SQRP?: number
 }
 
 export interface HRStudent {
@@ -227,7 +229,7 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
 
 const flattenStudents = (students: Students): HomeRoom[] => {
     const studentArray: Student[] = Object.keys(students).map( s => students[s]);
-    const homeRoomsObject= d3.nest<Student, HomeRoom>()
+    const homeRoomsObject: {[hr: string]: HomeRoom}= d3.nest<Student, HomeRoom>()
         .key( r => r.HR)
         .rollup( rs => {
             return {
@@ -255,12 +257,39 @@ const flattenStudents = (students: Students): HomeRoom[] => {
                 })
             }
         }).object(studentArray);
+    const homeRooms = Object.keys(homeRoomsObject)
+                            .map( hr => homeRoomsObject[hr])
+                            .map(hr => {
+                                const OT = getHROT(hr.students)
+                                const SQRP = getOTSQRP(OT)
+                                return {...hr, OT:OT, SQRP:SQRP}
+                            })
     
-    return Object.keys(homeRoomsObject).map( hr => homeRoomsObject[hr]);
+
+    return homeRooms;
 
 }
 
-//Mutates data, like if you cry every time
+const getHROT = (students: HRStudent[]): number => {
+    const ot = students.map(student => student.onTrack)
+    const avg = ot.reduce((a,b) => a+b)/ot.length
+    return avg * 10
+}
+
+const getOTSQRP = (OT: number): number => {
+    if(OT >= 44.5){
+        return 5
+    }else if(OT >= 42){
+        return 4
+    }else if(OT >= 39){
+        return 3
+    }else if(OT >= 37){
+        return 2
+    }
+    return 1
+}
+
+//FIXME: Mutates data
 const getAttendanceData = (students: Students, attData: Tardies[]) => {
 
     const getTardies = (rs: Tardies[]):number =>{

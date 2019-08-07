@@ -2,3 +2,7 @@
     padding: 1cm;
     page-break-after: always;
 }
+.inline {
+    display: inline-block;
+    margin-right: 1.5rem;
+}
