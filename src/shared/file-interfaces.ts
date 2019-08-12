@@ -125,6 +125,18 @@ export interface RawTeacherCategoriesAndTotalPointsLogicRow {
   CategoryPercent: string
 }
 
+export interface ThresholdReport {
+  'Student ID': string
+  'Student Name': string
+  'Grade Level': string
+  'Course ID': string
+  'Section': string
+  'Period': string
+  'Course Name': string
+  'Cavg': string
+  'Teacher Name': string
+}
+
 export interface StudentSearchListRow {
   STUDENT_ID: string
   STUDENT_NAME: string

@@ -20,6 +20,7 @@ export interface GradeDistribution {
         studentName: string
         quarterGrade: number
     }[]
+    students?: string[] //array of student id's
 }
 
 export interface TeacherGradeDistributions { 
