@@ -32,7 +32,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "aws s3 sync build/ s3://chavez-reports.com --acl public-read"
+    "deploy": "sudo rm -r /var/www/reports; sudo cp -avr /home/rlangworthy/repos/chavez-reports/build/* /var/www/reports; sudo restorecon -Rv /var/www/reports"
   },
   "eslintConfig": {
     "extends": "react-app"
