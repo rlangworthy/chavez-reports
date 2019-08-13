@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { ReportHome } from './home/home-cointainers/home'
 import './App.css';
 import {Route} from 'react-router';
+import {Router} from 'react-router';
 import { createBrowserHistory } from 'history';
 import {ReportWrapper} from './shared/report-wrapper'
 import {ReportCards} from './shared/report-types'
@@ -31,7 +32,7 @@ point the ReportWrapper renders the report using the newly sent files.
 class App extends Component {
   render() {
     return (
-      <React.Fragment>
+      <Router basename={'/reports'}>
         <Route exact={true} path='/' component={ReportHome} />
         {ReportCards.map( report => {
           const Component = report.component
@@ -43,7 +44,7 @@ class App extends Component {
               </ReportWrapper>}/>
           )
         })}
-      </React.Fragment>
+      </Router>
     );
   }
 }
