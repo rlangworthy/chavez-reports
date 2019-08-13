@@ -32,7 +32,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "rm -r /var/www/reports/*; cp -avr /home/rlangworthy/repos/chavez-reports/build/* /var/www/reports; restorecon -Rv /var/www/reports"
+    "deploy": "rm -r /var/www/reports/*; cp -ar /home/rlangworthy/repos/chavez-reports/build/* /var/www/reports; restorecon -R /var/www/reports"
   },
   "eslintConfig": {
     "extends": "react-app"
