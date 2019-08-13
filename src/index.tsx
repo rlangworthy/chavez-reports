@@ -6,7 +6,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Router } from 'react-router-dom';
 import { history } from './App';
-
+console.log('puburl : ' + process.env.PUBLIC_URL)
 ReactDOM.render(
     <Router history={history} basename={process.env.PUBLIC_URL}>
         <App />
