@@ -32,7 +32,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "sudo rm -r /var/www/reports; sudo cp -avr /home/rlangworthy/repos/chavez-reports/build/* /var/www/reports; sudo restorecon -Rv /var/www/reports"
+    "deploy": "rm -r /var/www/reports/*; cp -avr /home/rlangworthy/repos/chavez-reports/build/* /var/www/reports; restorecon -Rv /var/www/reports"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -46,5 +46,6 @@
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-plugin-react": "^7.13.0"
-  }
+  },
+  "homepage": "https://co-ps-chavez-sites-w01.cps.k12.il.us/reports/"
 }
