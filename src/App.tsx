@@ -32,11 +32,11 @@ class App extends Component {
   render() {
     return (
       <>
-        <Route exact={true} path={process.env.PUBLIC_URL +'/'} component={ReportHome} />
+        <Route exact={true} path={process.env.PUBLIC_URL + '/'} component={ReportHome} />
         {ReportCards.map( report => {
           const Component = report.component
           return (
-            <Route path={report.link} 
+            <Route path={process.env.PUBLIC_URL + report.link} 
               key={report.title} render={() =>
               <ReportWrapper reportTitle={report.title}>
                 <Component/>
