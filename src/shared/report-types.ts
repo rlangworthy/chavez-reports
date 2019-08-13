@@ -40,7 +40,7 @@ export const ReportCards: ReportTitle[] = [
     {
         title: 'Gradebook Audit Report',
         description: 'Analyze gradebook by classroom (for Admin).',
-        link: '/reports/gradebook-audit/upload/',
+        link: '/gradebook-audit/upload/',
         component: GradebookAuditReport,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT, fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
@@ -51,7 +51,7 @@ export const ReportCards: ReportTitle[] = [
     {
         title: 'Summerschool Report',
         description: 'Monitor which students are likely to need summer school and are at risk of being retained (for Admin).',
-        link: '/reports/summerschool/upload/',
+        link: '/summerschool/upload/',
         component: SummerschoolReportDownload,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.NWEA,fileDesc: FileTypes.NWEA + ' Current Year'}, 
@@ -61,7 +61,7 @@ export const ReportCards: ReportTitle[] = [
     {
         title: 'Staff Absence Report',
         description: 'Review employee attendance (for Admin).',
-        link: '/reports/staff-absence/upload/',
+        link: '/staff-absence/upload/',
         component: StaffAbsenceReport,
         files: [{fileType: FileTypes.KRONOS_DATA,fileDesc: FileTypes.KRONOS_DATA}],
     },
@@ -76,7 +76,7 @@ export const ReportCards: ReportTitle[] = [
     {
         title: 'Weekly One Pager',
         description: 'Review student on-track informaiton by classroom (for teachers).',
-        link: '/reports/weekly-one-pager/upload/',
+        link: '/weekly-one-pager/upload/',
         component: HROnePagers,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION,fileDesc: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION}, 
@@ -87,7 +87,7 @@ export const ReportCards: ReportTitle[] = [
     {
         title: 'Student One Pager',
         description: 'Progress report for students to use with Chavez HS Planner (for students).',
-        link: '/reports/student-one-pager/upload/',
+        link: '/student-one-pager/upload/',
         component: StudentOnePagers,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE}, 
@@ -99,7 +99,7 @@ export const ReportCards: ReportTitle[] = [
     {
         title: 'Student Assignment Sheet',
         description: 'All student assignments by class and category',
-        link: '/reports/student-assignment-sheet/upload/',
+        link: '/student-assignment-sheet/upload/',
         component: StudentGradeSheets,
         files: [{fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD},
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL, fileDesc: FileTypes.TEACHER_CATEGORIES_TPL},
