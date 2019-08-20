@@ -108,7 +108,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 savedFiles: this.state.savedFiles,
                 modifyFile: this.modifyFile,}}>
                 <Navbar>
-                    <Navbar.Brand>Chavez Report Suite V1.0</Navbar.Brand>
+                    <Navbar.Brand>Chavez Report Suite</Navbar.Brand>
                 </Navbar>
                 <ButtonToolbar className='home-btn-toolbar'>
                     <Button onClick={() => this.activateModal('Instructions')}>
