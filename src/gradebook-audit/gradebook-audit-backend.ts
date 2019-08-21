@@ -38,7 +38,7 @@ import {
 
 
 
-export const createGradebookReports = (files: ReportFiles ) =>{
+export const createGradebookReports = (files: ReportFiles ) => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const asg = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
     const cat = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult
@@ -65,13 +65,13 @@ export const createGradebookReports = (files: ReportFiles ) =>{
 
     return {distributions: distributions, 
             categories: categories,
-            teachers: uniqBy( (a:Teacher) => a.firstName + a.lastName, teachers)
-                        .sort((a,b) => (a.lastName+a.firstName).localeCompare(b.lastName+b.firstName))};
+            teachers: uniqBy( (a:Teacher) => a.firstName + ' ' + a.lastName, teachers)
+                        .sort((a,b) => (a.lastName+ ' ' + a.firstName).localeCompare(b.lastName + ' ' + b.firstName))};
 }
 
 const getGradeDistributions = (grades: RawESCumulativeGradeExtractRow[]):TeacherGradeDistributions => {
     const distributions:TeacherGradeDistributions = d3.nest<RawESCumulativeGradeExtractRow, GradeDistribution>()
-        .key( r => r.TeacherFirstName + r.TeacherLastName)
+        .key( r => r.TeacherFirstName + ' ' + r.TeacherLastName)
         .key( (r:RawESCumulativeGradeExtractRow) => r.SubjectName + ' ' + r.StudentGradeLevel.slice(-1) + ' (' + r.StudentHomeroom + ')')
         .rollup( (rs):GradeDistribution => {
             const failingStudents = rs.filter(r => r.QuarterAvg !== '' && r.QuarterAvg < 60)
@@ -103,7 +103,7 @@ const getTeachersCategoriesAndAssignments = (
     students: StudentSearchListRow[]): {categories: TeacherClassCategories, teachers: Teacher[]} => {
     
     let classCategories: TeacherClassCategories = d3.nest<RawTeacherCategoriesAndTotalPointsLogicRow, any>()
-        .key( r => r.TeacherFirstName + r.TeacherLastName)
+        .key( r => r.TeacherFirstName + ' ' + r.TeacherLastName)
         .key( r => r.ClassName)
         .key( r => r.CategoryName)
         .rollup( rs => {
@@ -133,7 +133,7 @@ const getTeachersCategoriesAndAssignments = (
         .object(students)
     
     const classAssignments = d3.nest<RawAssignmentsRow>()
-        .key( r => r.TeacherFirst + r.TeacherLast)
+        .key( r => r.TeacherFirst + ' ' + r.TeacherLast)
         .key( r => studentHrs[r.StuStudentId] ? r.ClassName + ' ' + studentHrs[r.StuStudentId].gl + ' (' + studentHrs[r.StuStudentId].hr + ')':
             'UNDEFINED STUDENT HR')
         .key( r => r.CategoryName)

@@ -13,6 +13,9 @@ import {
 import {
     GradeLogic,
     AssignmentImpact,
+    TeacherGradeDistributions,
+    TeacherClassCategories,
+    Teacher,
     } from '../gradebook-audit-interfaces'
 import {
     GradeDistributionDisplay,
@@ -20,90 +23,136 @@ import {
     FailingGradesRender,
     HighImpactAssignmentsRender,
     GradesByAssignmentRender,} from '../gradebook-audit-displays'
+import {
+    MultiSelect
+    } from '../../shared/components/multi-select'
 
 import './gradebook-audit-report.css'
 
 interface GradebookAuditReportProps{
     reportFiles?: ReportFiles
 }
-
-export const GradebookAuditReport: React.SFC<GradebookAuditReportProps> = (props) => {
-    window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')});
-    //expects sorted teachers
-    const {distributions, categories, teachers} = props.reportFiles ? createGradebookReports(props.reportFiles): {distributions:{}, categories:{}, teachers:[]}
-    return (
-        <Container>
-            <Row>
-                <Col className='gpa-filter-container'>
-                    
-                </Col>
-                <Col className='gpa-display-container'>
-                    <React.Fragment>
-                    {teachers.map( teacher => {
-                        const tKey: string = teacher.firstName + teacher.lastName
-                        if(distributions[tKey] && categories[tKey]){
-                            const [hasGrades, noGrades]: string[][] = partition( (cn: string) => {
-                                const gd = distributions[tKey][cn]
-                                return (gd.A > 0 || 
-                                        gd.B > 0 || 
-                                        gd.C > 0 || 
-                                        gd.D > 0 ||
-                                        gd.F > 0)}, Object.keys(distributions[tKey]))
-                            
-                            const hasAsgn: string[] = Object.keys(categories[tKey]).filter( cn => {
-                                return Object.keys(categories[tKey][cn]).some( cat => categories[tKey][cn][cat].assignments.length > 0)
-                            })
-                            const classes:{[className: string]: {
-                                tpl: GradeLogic
-                                assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
-                                }
-                            } = {}
-                            const classAsgs:{[className: string]: {
-                                tpl: GradeLogic
-                                assignments : AssignmentImpact[] //sorted list of assignments
-                                }
-                            } = {}
-
-                            hasAsgn.forEach( cName => { 
-                                classes[cName] = {tpl: categories[tKey][cName][Object.keys(categories[tKey][cName])[0]].TPL as GradeLogic, assignments: getAssignmentImpacts(categories[tKey][cName])}
-                                classAsgs[cName] = {
-                                    tpl: classes[cName].tpl, 
-                                    assignments: Object.keys(classes[cName].assignments)
-                                        .reduce( (a:AssignmentImpact[],b) => a.concat(classes[cName].assignments[b]),[])
-                                        .sort((a,b) => b.impact - a.impact)}
-                            })
-
-                            return (
-                                <div key={tKey} className='gradebook-audit-report'>
-                                    <h1>{teacher.firstName + ' ' + teacher.lastName}</h1>
-                                    <GradeDistributionDisplay 
-                                        classes={distributions[tKey]}
-                                        hasGrades={hasGrades}
-                                        noGrades={noGrades}/>
-                                    <CategoryTableRender 
-                                        classes={categories[tKey]}
-                                        hasGrades={hasAsgn}/>
-                                    <FailingGradesRender 
-                                        classes={distributions[tKey]}
-                                        hasGrades={hasGrades}/>
-                                    <HighImpactAssignmentsRender 
-                                        classes={classAsgs}
-                                        hasGrades={hasAsgn}/>
-                                    <GradesByAssignmentRender
-                                        classes={classes}
-                                        hasAsign={hasAsgn}/>
-                                </div>
-                            )
-                        }else{return null}
-                    })}
-                    </React.Fragment>
-                </Col>
-            </Row>
-        </Container>
-    )
-
+interface GradebookAuditReportState{
+    selectedTeachers: string[]
+    distributions: TeacherGradeDistributions
+    categories: TeacherClassCategories
+    teachers: string[]
+    
 }
 
+export class GradebookAuditReport extends React.PureComponent<GradebookAuditReportProps, GradebookAuditReportState>{
+    
+    componentWillMount(){
+        const {distributions, categories, teachers} = this.props.reportFiles ? createGradebookReports(this.props.reportFiles): {distributions:{}, categories:{}, teachers:[]}
+        const selectedTeachers = teachers.map(teacher => teacher.firstName + ' ' + teacher.lastName)
+        this.setState({
+            selectedTeachers:[],
+            distributions: distributions,
+            categories:categories,
+            teachers: selectedTeachers
+        })
+    }
+
+    render(){
+        window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')});
+        //expects sorted teachers
+        const distributions = this.state.distributions
+        const categories = this.state.categories
+        const teachers = this.state.selectedTeachers.length === 0 ? this.state.teachers : this.state.selectedTeachers
+
+        return (
+            <Container>
+                <Row>
+                    <Col className='gpa-filter-container'>
+                        <MultiSelect
+                            items={this.state.teachers}
+                            selected={this.state.selectedTeachers}
+                            title='Teachers'
+                            handleClick={this.handleTeacherClick}
+                        />
+                    </Col>
+                    <Col className='gpa-display-container'>
+                        <React.Fragment>
+                        {teachers.map( teacher => {
+                            const tKey: string = teacher
+                            if(distributions[tKey] && categories[tKey]){
+                                const [hasGrades, noGrades]: string[][] = partition( (cn: string) => {
+                                    const gd = distributions[tKey][cn]
+                                    return (gd.A > 0 || 
+                                            gd.B > 0 || 
+                                            gd.C > 0 || 
+                                            gd.D > 0 ||
+                                            gd.F > 0)}, Object.keys(distributions[tKey]))
+                                
+                                const hasAsgn: string[] = Object.keys(categories[tKey]).filter( cn => {
+                                    return Object.keys(categories[tKey][cn]).some( cat => categories[tKey][cn][cat].assignments.length > 0)
+                                })
+                                const classes:{[className: string]: {
+                                    tpl: GradeLogic
+                                    assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
+                                    }
+                                } = {}
+                                const classAsgs:{[className: string]: {
+                                    tpl: GradeLogic
+                                    assignments : AssignmentImpact[] //sorted list of assignments
+                                    }
+                                } = {}
+
+                                hasAsgn.forEach( cName => { 
+                                    classes[cName] = {tpl: categories[tKey][cName][Object.keys(categories[tKey][cName])[0]].TPL as GradeLogic, assignments: getAssignmentImpacts(categories[tKey][cName])}
+                                    classAsgs[cName] = {
+                                        tpl: classes[cName].tpl, 
+                                        assignments: Object.keys(classes[cName].assignments)
+                                            .reduce( (a:AssignmentImpact[],b) => a.concat(classes[cName].assignments[b]),[])
+                                            .sort((a,b) => b.impact - a.impact)}
+                                })
+
+                                return (
+                                    <div key={tKey} className='gradebook-audit-report'>
+                                        <h1>{tKey}</h1>
+                                        <GradeDistributionDisplay 
+                                            classes={distributions[tKey]}
+                                            hasGrades={hasGrades}
+                                            noGrades={noGrades}/>
+                                        <CategoryTableRender 
+                                            classes={categories[tKey]}
+                                            hasGrades={hasAsgn}/>
+                                        <FailingGradesRender 
+                                            classes={distributions[tKey]}
+                                            hasGrades={hasGrades}/>
+                                        <HighImpactAssignmentsRender 
+                                            classes={classAsgs}
+                                            hasGrades={hasAsgn}/>
+                                        <GradesByAssignmentRender
+                                            classes={classes}
+                                            hasAsign={hasAsgn}/>
+                                    </div>
+                                )
+                            }else{return null}
+                        })}
+                        </React.Fragment>
+                    </Col>
+                </Row>
+            </Container>
+        )
+    }
+
+    handleTeacherClick = (staff: string[] | string): void => {
+        const selected=this.state.selectedTeachers;
+        if(Array.isArray(staff)){
+            if(staff.every(s => selected.includes(s))){
+                this.setState({selectedTeachers: selected.filter(f=> !staff.includes(f))})
+            }else{
+                const newSelected = selected.concat(staff.filter(s=> !selected.includes(s)))
+                this.setState({selectedTeachers:newSelected})
+            }
+        }else{
+            selected.includes(staff) ? 
+                this.setState({selectedTeachers: selected.filter(f => f!==staff)}):
+                this.setState({selectedTeachers: selected.concat([staff])})
+        }
+    }
+}
 
 
 
