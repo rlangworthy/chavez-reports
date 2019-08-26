@@ -8,6 +8,23 @@ export interface Teacher {
     firstName: string
     lastName: string
 }
+/*
+  HS backend generates a TeacherClasses object
+
+*/
+
+export interface TeacherClasses {
+    [teacherName: string]: {[className: string]: TeacherClass}
+}
+
+export interface TeacherClass {
+    categories: {[categoryName: string]: Category}
+    distribuiton: GradeDistribution
+}
+
+/*
+ ES Gradebook backend generates two objects, a TeacherGradeDistributions and a TeacherClassCategories
+*/
 
 export interface GradeDistribution {
     A : number
@@ -22,6 +39,8 @@ export interface GradeDistribution {
     }[]
     students?: string[] //array of student id's
 }
+
+
 
 export interface TeacherGradeDistributions { 
     [teacher: string] : {
@@ -66,7 +85,7 @@ export interface AssignmentStats {
     averageGrade: number
     medianGrade: number
     lowestGrade: number
-    grades?:number[]
+    grades?:number[] //not used in the category
 }
 
 export interface AssignmentImpact extends Assignment{

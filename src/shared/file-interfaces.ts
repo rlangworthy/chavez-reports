@@ -18,6 +18,18 @@ export interface AspenESGradesRow {
   'Final Average' : string
 }
 
+export interface AspenHSThresholdRow {
+  'Student ID': string
+  'Student Name': string
+  'Grade Level':string
+  'Section':string
+  'Period':string
+  'Course Name':string
+  'Cavg':string
+  'Teacher Name':string
+  
+}
+
 export interface AspenAssignmentRow {
   'Student Last Name': string
   'Student First Name': string
