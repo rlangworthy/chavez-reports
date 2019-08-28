@@ -8,8 +8,10 @@ import Col from 'react-bootstrap/Col'
 import {del} from 'idb-keyval'
 import { ReportFiles } from '../../shared/report-types'
 import { 
-    createGradebookReports,
+    createESGradebookReports,
     getAssignmentImpacts } from '../gradebook-audit-backend'
+import { 
+    createHSGradebookReports, } from '../hs-gradebook-audit-backend'
 import {
     GradeLogic,
     AssignmentImpact,
@@ -154,5 +156,11 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
     }
 }
 
+const createGradebookReports = (reportFiles: ReportFiles) => {
+    if(reportFiles.reportTitle.title === 'HS Gradebook Audit Report'){
+        return createHSGradebookReports(reportFiles)
+    }else{
+        return createESGradebookReports(reportFiles)
+    }
 
-
+}

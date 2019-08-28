@@ -38,7 +38,7 @@ import {
 
 
 
-export const createGradebookReports = (files: ReportFiles ) => {
+export const createESGradebookReports = (files: ReportFiles ) => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const asg = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
     const cat = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult

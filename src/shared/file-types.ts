@@ -1,5 +1,7 @@
 export const DBNAME = 'reportFileStore'
 
+
+//remember to add file descripiton for every new file type
 export enum FileTypes {
     ES_GRADES_EXTRACT = 'Cumulative Grades Export',
     ASSIGNMENTS_SLOW_LOAD = 'All Assignments and Grades Extract',
@@ -9,6 +11,7 @@ export enum FileTypes {
     ATTENDENCE = '% Students Present, Not Present, Excused, or Tardy',
     KRONOS_DATA = 'Kronos Data',
     STUDENT_INFO = 'Student Search List Report',
+    HS_THRESHOLD = 'HS Threshold Report',
 }
 
 /*
@@ -79,3 +82,7 @@ FileDescriptions[FileTypes.STUDENT_INFO] = {
     description: 'Dashboard Student search list report',
     link: 'https://docs.google.com/document/d/1slRclThy3aCkQrKUp7rnFIw6Gdh3NSW33AiXZLTirfQ/edit?usp=sharing'
     }
+FileDescriptions[FileTypes.HS_THRESHOLD] = {
+    description: 'Located in Grade Input section of the Aspen School view Grades tab',
+    //link: 'https://drive.google.com/open?id=17aDRWZrMfcyqlMUGHGD38Zz5E-yAFTks7L70nb0ynJY'
+}

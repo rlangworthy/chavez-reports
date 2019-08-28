@@ -5,6 +5,7 @@
   "dependencies": {
     "@types/jest": "24.0.5",
     "@types/node": "11.9.4",
+    "@types/ramda": "^0.26.21",
     "@types/react": "^16.8.3",
     "@types/react-dom": "16.8.1",
     "bootstrap": "^4.3.1",
@@ -32,7 +33,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy-aws":  "aws s3 sync build/ s3://chavez-reports.com --acl public-read",
+    "deploy-aws": "aws s3 sync build/ s3://chavez-reports.com --acl public-read",
     "deploy": "ssh rlangworthy@10.129.210.11 'rm -r /var/www/reports/* && rsync -rtv /home/rlangworthy/repos/chavez-reports/build/ /var/www/reports/ && restorecon -R /var/www/reports'",
     "deploy-remote": "ssh -t rlangworthy@10.129.210.11 'sudo rm -r /var/www/reports/* /home/rlangworthy/repos/chavez-reports/build/*' && scp -r ./build/* rlangworthy@10.129.210.11:/home/rlangworthy/repos/chavez-reports/build && ssh -t rlangworthy@10.129.210.11 'sudo rsync -rtv /home/rlangworthy/repos/chavez-reports/build/ /var/www/reports/ && sudo restorecon -R /var/www/reports'"
   },

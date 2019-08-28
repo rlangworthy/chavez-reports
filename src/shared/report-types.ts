@@ -25,7 +25,7 @@ export interface ReportTitle {
 export interface ReportTitleFile {
     fileType: FileTypes
     fileDesc: string
-     altLink?: string
+    altLink?: string
 }
 
 //reportFiles indexed on unique descriptions: this is the object passed to report generators
@@ -44,8 +44,17 @@ export const ReportCards: ReportTitle[] = [
         component: GradebookAuditReport,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT, fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
-                {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL},
-                {fileType: FileTypes.STUDENT_INFO, fileDesc: FileTypes.STUDENT_INFO}],
+                {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
+        moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
+    },
+    {
+        title: 'HS Gradebook Audit Report',
+        description: 'Analyze gradebook by classroom (for Admin).',
+        link: process.env.PUBLIC_URL + '/hs-gradebook-audit/upload/',
+        component: GradebookAuditReport,
+        files: [{fileType: FileTypes.HS_THRESHOLD, fileDesc: FileTypes.HS_THRESHOLD}, 
+                {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
+                {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
         moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
     },
     {
