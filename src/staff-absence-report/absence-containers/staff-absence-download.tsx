@@ -25,10 +25,7 @@ import { ReportFiles } from '../../shared/report-types'
 
 import {
     defaultSchoolYear,
-    defaultEndDay,
-    defaultStartDay1819,
-    holidayList,
-    irregularDayList} from '../../shared/initial-school-dates'
+    SY_CURRENT } from '../../shared/initial-school-dates'
 
 import { createStaffAbsenceReport } from '../staff-absence-backend'
 
@@ -75,10 +72,10 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
             selectedCodes: [],
             selectedTeachers: [],
             selectedNonTeachers: [],
-            schoolDates: defaultSchoolYear,
-            disabledDates: holidayList.reduce( (a:Date[], b)=> a.concat(b.dates), []),
-            startDate: defaultStartDay1819,
-            endDate: defaultEndDay,
+            schoolDates: defaultSchoolYear(SY_CURRENT),
+            disabledDates: SY_CURRENT.holidays.reduce( (a:Date[], b)=> a.concat(b.dates), []),
+            startDate: SY_CURRENT.startDate,
+            endDate: SY_CURRENT.endDate,
             dateModal: false,
         }
         //window.addEventListener('beforeunload', () => {del('Staff Absence Report')});
@@ -184,7 +181,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
             startDate={this.state.startDate}
             endDate={this.state.endDate}
             show={this.state.dateModal}
-            holidays={holidayList}
+            holidays={SY_CURRENT.holidays}
             handleHolidayClick={this.handleDateList}
           />
         </>
@@ -292,7 +289,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
                 const tardies = new Map<Date, PunchTime>()
                 const punchTimes:StaffDates = this.state.punchTimes[staff].punchTimes
                 punchTimes.forEach((val,key)=>{
-                    if(isPunchTime(val) && irregularDayList.map(d => d.dates).flat().every(d => !isSameDay(d,key))){
+                    if(isPunchTime(val) && SY_CURRENT.irregularDays.map(d => d.dates).flat().every(d => !isSameDay(d,key))){
                         if(isTardy(inInt, outInt, val.in, val.out).some(a => a)){
                             tardies.set(key, val)
                             }

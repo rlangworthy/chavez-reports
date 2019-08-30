@@ -16,7 +16,7 @@ import {
 import {
     isTardy } from '../../shared/utils'
 import {
-    defaultStartDay1819} from '../../shared/initial-school-dates'
+    SY_CURRENT} from '../../shared/initial-school-dates'
 
 import './staff-display.css'
 
@@ -170,7 +170,7 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
 }
 
 const TardiesTable: React.SFC<{tardies: Map<Date, PunchTime>, in:number, out:number}> = (props)=> {
-    const startDate = defaultStartDay1819
+    const startDate = SY_CURRENT.startDate
     const headRow = (
         <tr key={'Absences Header'}>
           <th>Week Number</th>

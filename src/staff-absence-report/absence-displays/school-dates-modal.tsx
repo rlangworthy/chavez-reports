@@ -6,7 +6,7 @@ import ListGroup from 'react-bootstrap/ListGroup'
 import DayPicker from 'react-day-picker/DayPicker'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 
-import {HolidayDate, holidayList} from '../../shared/initial-school-dates'
+import {HolidayDate, SY_CURRENT} from '../../shared/initial-school-dates'
 
 import './school-dates-modal.css'
 
@@ -72,7 +72,7 @@ export class SchoolDatesModal extends React.PureComponent<SchoolDatesModalProps,
                         </Col>
                         <Col md='auto'>
                             <ListGroup variant='flush'>
-                                {holidayList.map( holiday => {
+                                {SY_CURRENT.holidays.map( holiday => {
                                     return (
                                     <ListGroup.Item key={holiday.name} action
                                         active={this.state.selectedHolidays.includes(holiday.name)}

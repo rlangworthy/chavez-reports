@@ -13,7 +13,7 @@ import {
     PayCodeDay,
     Absences, } from '../../shared/staff-absence-types';
 import {
-    defaultStartDay1819} from '../../shared/initial-school-dates'
+    SY_CURRENT} from '../../shared/initial-school-dates'
 
 interface AbsenceTotalsProps{
     absenceData: StaffPunchTimes
@@ -204,7 +204,7 @@ const TotalsByWeek: React.SFC<TotalDisplayProps> = (props) => {
     Object.keys(props.totalAbsences).forEach(code => {
         const dates= props.totalAbsences[code]
         dates.forEach( date =>{
-            const week = differenceInCalendarWeeks(date.date, defaultStartDay1819)
+            const week = differenceInCalendarWeeks(date.date, SY_CURRENT.startDate)
             if(byWeek[week] === undefined ){
                 byWeek[week] = {[code]: [date]}
             } else if(byWeek[week][code] === undefined){
