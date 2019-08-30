@@ -42,11 +42,9 @@ export const createESGradebookReports = (files: ReportFiles ) => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const asg = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
     const cat = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult
-    const info = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = asg ? asg.data as AspenAssignmentRow[] : []
     const aspCategoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
-    const studentInfo = info ? info.data as StudentSearchListRow[] : []
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = '4';
     const q4Start = new Date(2019, 3, 4)
@@ -61,7 +59,7 @@ export const createESGradebookReports = (files: ReportFiles ) => {
     const {categories, teachers} = getTeachersCategoriesAndAssignments(currentTerm, 
             rawAllAssignments, 
             rawCategoriesAndTPL,
-            studentInfo);
+            rawESGrades);
 
     return {distributions: distributions, 
             categories: categories,
@@ -100,7 +98,7 @@ const getTeachersCategoriesAndAssignments = (
     term: string, 
     assignments: RawAssignmentsRow[], 
     categories: RawTeacherCategoriesAndTotalPointsLogicRow[],
-    students: StudentSearchListRow[]): {categories: TeacherClassCategories, teachers: Teacher[]} => {
+    grades: RawESCumulativeGradeExtractRow[]): {categories: TeacherClassCategories, teachers: Teacher[]} => {
     
     let classCategories: TeacherClassCategories = d3.nest<RawTeacherCategoriesAndTotalPointsLogicRow, any>()
         .key( r => r.TeacherFirstName + ' ' + r.TeacherLastName)
@@ -125,12 +123,12 @@ const getTeachersCategoriesAndAssignments = (
             }
         }).object(categories.filter(c => c.CLSCycle === term || c.CLSCycle === 'All Cycles'))
 
-    const studentHrs = d3.nest<StudentSearchListRow>()
-        .key(r => r.STUDENT_ID)
+    const studentHrs = d3.nest<RawESCumulativeGradeExtractRow>()
+        .key(r => r.StudentID)
         .rollup(rs=>{
-            return {hr: rs[0].STUDENT_CURRENT_HOMEROOM, gl: rs[0].textbox8}
+            return {hr: rs[0].StudentHomeroom}
         })
-        .object(students)
+        .object(grades)
     
     const classAssignments = d3.nest<RawAssignmentsRow>()
         .key( r => r.TeacherFirst + ' ' + r.TeacherLast)
