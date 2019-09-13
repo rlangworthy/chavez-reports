@@ -56,7 +56,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom}> {
                             <tbody>
                                 <tr>
                                     <td>ELL</td>
-                                    <td>Full Name (Chavez OT, CPS OT)</td>
+                                    <td>Full Name (On Track)</td>
                                     <td>Read(Q,F)</td>
                                     <td>Math(Q,F)</td>
                                     <td>Sci(Q,F)</td>
@@ -69,7 +69,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom}> {
                                     return (
                                         <tr key={student.fullName + hr.room + i}>
                                             <td>{student.ELL === 'N/A' ? '' : student.ELL}</td>
-                                            <td>{student.fullName + ' ('+ student.onTrack + ', ' + (student.CPSonTrack? 'Yes': 'No') + ')'}</td>
+                                            <td>{student.fullName + ' ('+ student.onTrack + ')'}</td>
                                             <td>{printGrade(student.quarterReadingGrade, student.finalReadingGrade)}</td>
                                             <td>{printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>
                                             <td>{printGrade(student.quarterScienceGrade, student.finalScienceGrade)}</td>

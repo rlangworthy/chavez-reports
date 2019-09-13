@@ -37,8 +37,15 @@ interface UniqueClasses {
 }
 
 //ClassLists list the classes and sections each student has a grade in
-interface ClassLists {
+interface StudentClassLists {
     [id: string]: string[]
+}
+
+//Intermediate structure for gathering class categories
+interface CategoryLists {
+    [teacher: string]:{
+        [className: string]: AspenCategoriesRow[]
+    }
 }
 
 
@@ -52,9 +59,11 @@ export const createHSGradebookReports = (files: ReportFiles ) => {
     const categoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
     const classes: UniqueClasses = getUniqueClasses(grades)
     const {teacherClasses, studentClasses} = invertUniqueClasses(classes)
+    const categories = getCategoryLists(categoriesAndTPL)
     console.log(teacherClasses)
     console.log(studentClasses)
     console.log(classes)
+    console.log(categories)
     return {distributions:{}, categories:{}, teachers:[]}
 }
 
@@ -71,15 +80,23 @@ const getUniqueClasses = (grades: AspenHSThresholdRow[]): UniqueClasses => {
     return uniques
 }
 
+const getCategoryLists = (categories: AspenCategoriesRow[]):CategoryLists => {
+    const categoryList: CategoryLists = d3.nest<AspenCategoriesRow[]>()
+        .key(r => r['Teacher Last Name'] + ', ' + r['Teacher First Name'])
+        .key(r => r['Class Name'])
+        .object(categories)
+    return categoryList
+}
+
 //gets a unique class name by appending the section number to the class name
 const getUniqueClassName = (row: AspenHSThresholdRow): string => {
     return row['Course Name'] + ' ' + row['Section']
 }
 
 //takes the UniqueClasses struct and turns it into a mostly blank TeacherClasses
-const invertUniqueClasses = (classes: UniqueClasses): {teacherClasses: TeacherClasses, studentClasses: ClassLists} => {
+const invertUniqueClasses = (classes: UniqueClasses): {teacherClasses: TeacherClasses, studentClasses: StudentClassLists} => {
     const teacherClasses: TeacherClasses = {}
-    const studentClasses: ClassLists = {}
+    const studentClasses: StudentClassLists = {}
     Object.keys(classes).forEach(unique => {
         classes[unique].teachers.forEach(teacher => {
             if(teacherClasses[teacher]===undefined){

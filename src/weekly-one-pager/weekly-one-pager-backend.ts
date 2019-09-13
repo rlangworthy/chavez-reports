@@ -82,7 +82,7 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const aspGrades = gr === null? null: gr.data as AspenESGradesRow[]
     //FIXME: hardcoded quarter
-    const grades = aspGrades ? aspGrades.filter(g => g['Quarter']==='4').map(convertAspGrades): aspGrades
+    const grades = aspGrades ? aspGrades.filter(g => g['Quarter']==='1').map(convertAspGrades): aspGrades
     let studentGradeObject = getStudentGrades(grades);
 
     const sp = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult;
