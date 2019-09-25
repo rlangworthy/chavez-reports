@@ -59,6 +59,7 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
 
     };
     topAssignments.forEach( (a, i) => {
+      console.log(props.classes[c].className)
       const row = (
         <tr key={c+ '-' + a.assignmentName + ' ' +  i.toString()}>
           { i === 0 &&

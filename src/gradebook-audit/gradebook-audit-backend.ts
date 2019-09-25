@@ -330,9 +330,8 @@ const getImpact = (tpl: GradeLogic, a: Assignment, total: number): number =>{
   }
 
 export const getChartData = (assignments: AssignmentImpact[]):any => {
-    const percentOther = 100 + Math.abs(assignments.reduce((a,b) => a - b.impact, 0))
+    const percentOther = 100 - Math.abs(assignments.reduce((a,b) => a - b.impact, 0))
     const data = [['Assignment Name', 'Assignment Weight'] as any]
-    console.log(assignments)
     assignments.forEach( (a, i) => data.push([(a.impact).toFixed(1) + '%', a.impact]))
     data.push(['Others', percentOther])
     return data;
