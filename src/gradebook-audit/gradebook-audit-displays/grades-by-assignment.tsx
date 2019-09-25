@@ -58,7 +58,7 @@ const ClassAssignmentBreakdown: React.SFC<{classAssignments: TeacherClass, class
                         <>
                             <td className='index-column' rowSpan={category.length}>{name}</td>
                             <td rowSpan={category.length}>{category[0].categoryWeight}%</td>
-                            {tpl === 'Categories only' || 'Categories and assignments'? 
+                            {tpl === 'Categories only' || tpl === 'Categories and assignments'? 
                             <td rowSpan={category.length}>
                                 {a.impact.toFixed(2) + '%'}
                             </td> : <></>}
