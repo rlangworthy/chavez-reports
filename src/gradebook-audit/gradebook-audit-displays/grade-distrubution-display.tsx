@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 import {
-  GradeDistribution
+  GradeDistribution,
+  TeacherClass
 } from '../gradebook-audit-interfaces';
 
 interface GradeDistributionProps {
@@ -9,7 +10,7 @@ interface GradeDistributionProps {
   className: string
 }
 interface GradeDistributionDisplayProps{
-  classes: {[className: string]: GradeDistribution}
+  classes: {[className: string]: TeacherClass}
   hasGrades: string[]
   noGrades: string[]
 }
@@ -57,10 +58,11 @@ export const GradeDistributionDisplay : React.SFC<GradeDistributionDisplayProps>
   return (
         <div>
           <h3>Grade Distributions</h3>
-          {props.noGrades.length > 0 ? <div style={{fontStyle:'italic'}}>{'No Grades: ' + props.noGrades.toString()}<hr/></div> : null}
+          {props.noGrades.length > 0 ? <div style={{fontStyle:'italic'}}>{'No Grades: ' + props.noGrades.map(gr => props.classes[gr].className)}<hr/></div> : null}
           <div className='grade-distributions'>
           { props.hasGrades.map( (className, i) => {
-              return <GradeDistributionRender distribution={props.classes[className]} className={className} key={i}/>
+              return <GradeDistributionRender distribution={props.classes[className].distribution} 
+                className={props.classes[className].className} key={i}/>
             })
           }
           </div>

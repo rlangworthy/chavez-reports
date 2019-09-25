@@ -2,7 +2,9 @@ import * as React from 'react';
 
 import {
     Assignment, 
-    AssignmentStats, } from '../gradebook-audit-interfaces';
+    AssignmentStats,
+    Category,
+    TeacherClass } from '../gradebook-audit-interfaces';
 
 import { 
   hasCategoryWeightsNot100 } from '../gradebook-audit-backend'
@@ -11,15 +13,7 @@ import { WarningIcon } from '../../shared/icons';
 
 interface CategoryTableRenderProps{
   classes:{
-      [className: string]: {
-          [categoryName: string]: {
-              name: string
-              weight: number
-              TPL: string
-              assignments: Assignment[]
-              assignmentStats: AssignmentStats
-          }   
-      }
+      [className: string]: TeacherClass
   }
   hasGrades:string[]
 }
@@ -50,26 +44,26 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
       fontWeight: 'bold' as 'bold',
     };
     props.hasGrades.forEach( c => {
-        const badCategoryWeight = hasCategoryWeightsNot100(props.classes[c]);
+        const badCategoryWeight = hasCategoryWeightsNot100(props.classes[c].categories);
         let i = 0;
-        Object.keys(props.classes[c]).forEach( cat => {
-            const assignments = props.classes[c][cat].assignments;
-            const stats = props.classes[c][cat].assignmentStats;
+        Object.keys(props.classes[c].categories).forEach( cat => {
+            const assignments = props.classes[c].categories[cat].assignments
+            const stats = props.classes[c].categories[cat].assignmentStats;
             const row = (
                 <tr  key={c + '-' + cat}>
                   { i === 0 &&
-                  <td className='index-column' rowSpan={Object.keys(props.classes[c]).length}>{c}</td>
+                  <td className='index-column' rowSpan={Object.keys(props.classes[c].categories).length}>{props.classes[c].className}</td>
                   }
                   <td>{cat}</td>
                   <td className={ badCategoryWeight ? 'warning' : '' }>
-                    {props.classes[c][cat].weight}
+                    {props.classes[c].categories[cat].weight}
                     { badCategoryWeight && 
                       <div className='cell-icon'>
                         <WarningIcon className='warning-icon' />
                       </div>
                     }
                   </td>
-                  <td>{props.classes[c][cat].TPL}</td>
+                  <td>{props.classes[c].categories[cat].TPL}</td>
                   <td>{assignments.length !== 0 ? stats.averageGrade.toFixed(0) : 'Unknown'}</td>
                   <td style={assignments.length === 0 ? invertedRedBGStyle : {}} className='category-warning'>
                     {assignments.length}

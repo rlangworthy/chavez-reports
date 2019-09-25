@@ -7,14 +7,19 @@ import {
     convertAspGrades,
     stringToDate,
     parseGrade,
+    getCurrentQuarter,
+    getCurrentQuarterDate,
 } from '../shared/utils'
 
 import {
     ReportFiles, } from '../shared/report-types'
 
+import {SY_CURRENT} from '../shared/initial-school-dates'
+
 import {
     getStudentAssignments,
     } from '../shared/student-assignment-utils'
+
 import {StudentClass} from '../shared/student-assignment-interfaces'
 
 import {
@@ -109,8 +114,8 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const mz = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult;
     const cats = files.reportFiles[files.reportTitle.files[5].fileDesc].parseResult
     //FIXME: hardcoded, should be a choice of the user
-    const currentTerm = '4';
-    const q4Start = new Date(2019, 3, 4)
+    const currentTerm = getCurrentQuarter(SY_CURRENT)
+    const q4Start = getCurrentQuarterDate(SY_CURRENT)
 
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []

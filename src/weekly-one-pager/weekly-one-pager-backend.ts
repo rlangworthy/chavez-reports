@@ -3,11 +3,16 @@ import * as d3 from 'd3'
 import { 
     getOnTrackScore,
     getCPSOnTrack,
-    convertAspGrades
+    convertAspGrades,
+    getCurrentQuarter
 } from '../shared/utils'
 
 import {
     ReportFiles, } from '../shared/report-types'
+
+import {
+    SY_CURRENT
+    } from '../shared/initial-school-dates'
 
 import {
     ParseResult,
@@ -81,8 +86,8 @@ interface Tardies {
 export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const aspGrades = gr === null? null: gr.data as AspenESGradesRow[]
-    //FIXME: hardcoded quarter
-    const grades = aspGrades ? aspGrades.filter(g => g['Quarter']==='1').map(convertAspGrades): aspGrades
+    const currentQuarter = getCurrentQuarter(SY_CURRENT)
+    const grades = aspGrades ? aspGrades.filter(g => g['Quarter']===currentQuarter).map(convertAspGrades): aspGrades
     let studentGradeObject = getStudentGrades(grades);
 
     const sp = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult;
@@ -96,16 +101,16 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
         const ogr = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
         const oaspGrades = ogr === null? null: ogr.data as AspenESGradesRow[]
         //FIXME: hardcoded quarter
-        const ogrades = oaspGrades ? oaspGrades.filter(g => g['Quarter']==='4').map(convertAspGrades): oaspGrades
+        const ogrades = oaspGrades ? oaspGrades.filter(g => g['Quarter']===currentQuarter).map(convertAspGrades): oaspGrades
         gradeHist = getStudentGrades(ogrades);
         tHist = files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc] ? files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult : null;
         tardiesHist = tHist === null ? null: tHist.data as Tardies[];
 
     }
-    
+    console.log(spps)
+    console.log(studentGradeObject)
     if (spps !== null){spps.forEach(row => {
         if(studentGradeObject[row['Student ID']]!== undefined){
-            studentGradeObject[row['Student ID']].fullName = row.Name;
             studentGradeObject[row['Student ID']].ELL = row['ELL Program Year Code'];}
     });}
     if(tardies != null){
@@ -289,7 +294,7 @@ const getOTSQRP = (OT: number): number => {
     return 1
 }
 
-//FIXME: Mutates data
+//: Mutates data
 const getAttendanceData = (students: Students, attData: Tardies[]) => {
 
     const getTardies = (rs: Tardies[]):number =>{
@@ -312,6 +317,7 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
                 const tardy = getTardies(rs);
                 const absent = getAbsences(rs);
                 const pct = (total-absent)/total * 100;
+                students[rs[0]['Student ID']].fullName = rs[0]['Student Name']
                 students[rs[0]['Student ID']].absencePercent = pct;
                 students[rs[0]['Student ID']].absences = [absent];
                 students[rs[0]['Student ID']].tardies = [tardy];

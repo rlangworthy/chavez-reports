@@ -10,6 +10,10 @@ import {
   AspenESGradesRow, } from './file-interfaces'
 
 import {
+  SchoolYear
+  } from './initial-school-dates'
+
+import {
   getHours,
   getMinutes} from 'date-fns'
 
@@ -261,4 +265,37 @@ export const isTardy = (start: number, end: number, clockIn: Date, clockOut: Dat
 
 export const isCoreClass = (cName: string):boolean => {
   return CoreClassList.some(c => cName.includes(c))
+}
+
+export const getCurrentQuarter = (sy: SchoolYear): string => {
+  const date = new Date()
+  if(date >= sy.startDate){
+    if(date <= sy.q1End){
+      return '1'
+    }
+    if(date <= sy.q2End){
+      return '2'
+    }
+    if(date <= sy.q3End){
+      return '3'
+    }
+    if(date <= sy.q4End){
+      return '4'
+    }
+  }
+  return '4'
+}
+//returns cutoff date; for school
+export const getCurrentQuarterDate = (sy: SchoolYear): Date => {
+  const date = new Date()
+  if(date >= sy.q3End){
+    return sy.q3End
+  }
+  if(date >= sy.q2End){
+    return sy.q2End
+  }
+  if(date >= sy.q1End){
+    return sy.q1End
+  }
+  return sy.startDate
 }

@@ -3,14 +3,11 @@ import * as React from 'react'
 
 import { 
     GradeLogic,
-    AssignmentImpact, } from '../gradebook-audit-interfaces'
+    AssignmentImpact,
+    TeacherClass, } from '../gradebook-audit-interfaces'
 
 interface GradesByAssignmentProps {
-    classes: {[className: string]: {
-        tpl: GradeLogic
-        assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
-        }
-    }
+    classes: {[className: string]: TeacherClass}
     hasAsign: string[]
 }
 
@@ -20,19 +17,16 @@ export class GradesByAssignmentRender extends React.PureComponent<GradesByAssign
         return (
             <>
                 <h3>Assignment Grades</h3>
-                {this.props.hasAsign.map( k => <ClassAssignmentBreakdown classAssignments={this.props.classes[k]} class={k} key={k}/>)}
+                {this.props.hasAsign.map( k => <ClassAssignmentBreakdown classAssignments={this.props.classes[k]} class={this.props.classes[k].className} key={k}/>)}
             </>
         )
     }
 
 }
 
-const ClassAssignmentBreakdown: React.SFC<{classAssignments: {
-    tpl: GradeLogic
-    assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
-    }, class: string}> = (props) => {
+const ClassAssignmentBreakdown: React.SFC<{classAssignments: TeacherClass, class: string}> = (props) => {
     
-    const cats = props.classAssignments.assignments
+    const cats = props.classAssignments.categories
     const tpl = props.classAssignments.tpl
     const weightStr = tpl === 'Categories only' ? 'Weight Per Asg' : 'Assignment Weight'
     const header=(
@@ -111,7 +105,7 @@ const ClassAssignmentBreakdown: React.SFC<{classAssignments: {
                     {header}
                 </thead>
                 <tbody>
-                    {Object.keys(cats).map(a => CatDisplay(cats[a], a))}
+                    {Object.keys(cats).map(a => CatDisplay(cats[a].assignments as AssignmentImpact[], a))}
                 </tbody>
             </table>
         </React.Fragment>

@@ -6,6 +6,8 @@ import { WarningIcon } from '../../shared/icons';
 import {
     AssignmentImpact,
     GradeLogic,
+    TeacherClassImpacts,
+    TeacherClass,
 } from '../gradebook-audit-interfaces';
 
 import {
@@ -13,12 +15,7 @@ import {
   } from '../gradebook-audit-backend'
 
 export interface HighImpactAssignmentsRenderProps{
-  classes: {
-    [className: string]: {
-        tpl: GradeLogic
-        assignments : AssignmentImpact[] //sorted list of assignments
-    }
-  }
+  classes: {[className:string]:TeacherClass}
   hasGrades: string[]
 }
 
@@ -52,8 +49,8 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
       </tr>
     );
     rows.push(headRow)
-
-    const topAssignments = props.classes[c].assignments.slice(0, NUM_ASSIGNS_PER_CLASS)
+    console.log(props.classes[c])
+    const topAssignments: AssignmentImpact[] = props.classes[c].topAssignments.slice(0, NUM_ASSIGNS_PER_CLASS)
     const invertedRedBGStyle = {
       backgroundColor: 'red',
       color: 'white',
@@ -65,7 +62,7 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
       const row = (
         <tr key={c+ '-' + a.assignmentName + ' ' +  i.toString()}>
           { i === 0 &&
-          <td className={`index-column ${warning? 'warning' : '' }`} rowSpan={topAssignments.length}>{c}</td>}
+          <td className={`index-column ${warning? 'warning' : '' }`} rowSpan={topAssignments.length}>{props.classes[c].className}</td>}
           { i === 0 && 
           <td className='chart-column' rowSpan={topAssignments.length}>
             <Chart 

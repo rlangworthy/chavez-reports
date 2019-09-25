@@ -1,12 +1,13 @@
 import * as React from 'react';
 
 import {
-    GradeDistribution
+    GradeDistribution,
+    TeacherClass
 } from '../gradebook-audit-interfaces';
 
 interface FailingGradesRenderProps{
   classes: {
-    [className: string]: GradeDistribution
+    [className: string]: TeacherClass
   }
   hasGrades: string[]
 }
@@ -24,13 +25,13 @@ export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props =>
       </tr>
     );
     props.hasGrades.forEach( c => {
-      const students = props.classes[c].failingStudents;
+      const students = props.classes[c].distribution.failingStudents;
       students.forEach( (s, i) => {
         const studentName = s.studentName;
         const row = (
           <tr key={c + '-' + studentName}>
             { i === 0 &&
-            <td className='index-column' rowSpan={students.length}>{c}</td>
+            <td className='index-column' rowSpan={students.length}>{props.classes[c].className}</td>
             }
             <td>{studentName}</td>
             <td>{s.quarterGrade}</td>

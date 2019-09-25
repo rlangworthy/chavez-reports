@@ -189,6 +189,7 @@ export const studentSearchToGrade = (student : StudentSearchListRow): AspenESGra
         'Term Average' : '',
         'Term Grade' : '',
         'Final Average' : '',
+        'Course Number' : '',
     }
 }
 

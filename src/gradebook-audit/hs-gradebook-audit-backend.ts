@@ -2,31 +2,18 @@ import * as d3 from 'd3'
 
 import {
     partition} from 'ramda'
-
-import {
-    isAfter, } from 'date-fns'
-
+    
 import {
     AspenAssignmentRow,
     AspenCategoriesRow,
     AspenHSThresholdRow,
-    StudentSearchListRow,
-    Score,  } from '../shared/file-interfaces'
-
-import {
-    parseGrade,
-    stringToDate, } from '../shared/utils'
+    } from '../shared/file-interfaces'
 
 import { ReportFiles } from '../shared/report-types'
 import { 
-    TeacherClass,
     GradeDistribution,
     TeacherClasses,
-    Assignment, 
-    AssignmentStats,
-    AssignmentImpact,
-    Category,
-    GradeLogic } from './gradebook-audit-interfaces'
+    }from './gradebook-audit-interfaces'
 
 //intermediate interface based on grades, builds unique classes and assigns students 
 interface UniqueClasses {
@@ -64,7 +51,7 @@ export const createHSGradebookReports = (files: ReportFiles ) => {
     console.log(studentClasses)
     console.log(classes)
     console.log(categories)
-    return {distributions:{}, categories:{}, teachers:[]}
+    return {}
 }
 
 const getUniqueClasses = (grades: AspenHSThresholdRow[]): UniqueClasses => {
@@ -104,7 +91,11 @@ const invertUniqueClasses = (classes: UniqueClasses): {teacherClasses: TeacherCl
             }
             teacherClasses[teacher][unique] = {
                 categories: {},
-                distribuiton: gradesToDistribution(classes[unique].students)}
+                distribution: gradesToDistribution(classes[unique].students),
+                className: unique,
+                tpl: 'Categories only',
+                topAssignments: []
+            }
         })
         classes[unique].students.forEach(student => {
             if(studentClasses[student['Student ID']]===undefined){

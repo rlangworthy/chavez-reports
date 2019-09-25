@@ -11,6 +11,7 @@ export interface AspenESGradesRow {
   'Homeroom' : string
   'Quarter' : string
   'Course Name' : string
+  'Course Number': string
   'Teacher Last Name' : string
   'Teacher First Name' : string
   'Term Average' : string

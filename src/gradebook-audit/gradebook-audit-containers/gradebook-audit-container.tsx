@@ -8,16 +8,13 @@ import Col from 'react-bootstrap/Col'
 import {del} from 'idb-keyval'
 import { ReportFiles } from '../../shared/report-types'
 import { 
-    createESGradebookReports,
-    getAssignmentImpacts } from '../gradebook-audit-backend'
+    createESGradebookReports} from '../gradebook-audit-backend'
 import { 
     createHSGradebookReports, } from '../hs-gradebook-audit-backend'
 import {
     GradeLogic,
     AssignmentImpact,
-    TeacherGradeDistributions,
-    TeacherClassCategories,
-    Teacher,
+    TeacherClasses,
     } from '../gradebook-audit-interfaces'
 import {
     GradeDistributionDisplay,
@@ -36,8 +33,7 @@ interface GradebookAuditReportProps{
 }
 interface GradebookAuditReportState{
     selectedTeachers: string[]
-    distributions: TeacherGradeDistributions
-    categories: TeacherClassCategories
+    teacherClasses: TeacherClasses
     teachers: string[]
     
 }
@@ -45,12 +41,11 @@ interface GradebookAuditReportState{
 export class GradebookAuditReport extends React.PureComponent<GradebookAuditReportProps, GradebookAuditReportState>{
     
     componentWillMount(){
-        const {distributions, categories, teachers} = this.props.reportFiles ? createGradebookReports(this.props.reportFiles): {distributions:{}, categories:{}, teachers:[]}
-        const selectedTeachers = teachers.map(teacher => teacher.firstName + ' ' + teacher.lastName)
+        const teacherClasses = this.props.reportFiles ? createGradebookReports(this.props.reportFiles): {}
+        const selectedTeachers = Object.keys(teacherClasses)
         this.setState({
             selectedTeachers:[],
-            distributions: distributions,
-            categories:categories,
+            teacherClasses: teacherClasses,
             teachers: selectedTeachers
         })
     }
@@ -58,10 +53,8 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
     render(){
         window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')});
         //expects sorted teachers
-        const distributions = this.state.distributions
-        const categories = this.state.categories
         const teachers = this.state.selectedTeachers.length === 0 ? this.state.teachers : this.state.selectedTeachers
-
+        const teacherClasses = this.state.teacherClasses
         return (
             <Container>
                 <Row>
@@ -77,56 +70,38 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                         <React.Fragment>
                         {teachers.map( teacher => {
                             const tKey: string = teacher
-                            if(distributions[tKey] && categories[tKey]){
+                            if(teacherClasses[tKey]){
+                                //hasGrades and noGrades are names of classes
                                 const [hasGrades, noGrades]: string[][] = partition( (cn: string) => {
-                                    const gd = distributions[tKey][cn]
+                                    const gd = teacherClasses[tKey][cn].distribution
                                     return (gd.A > 0 || 
                                             gd.B > 0 || 
                                             gd.C > 0 || 
                                             gd.D > 0 ||
-                                            gd.F > 0)}, Object.keys(distributions[tKey]))
-                                
-                                const hasAsgn: string[] = Object.keys(categories[tKey]).filter( cn => {
-                                    return Object.keys(categories[tKey][cn]).some( cat => categories[tKey][cn][cat].assignments.length > 0)
-                                })
-                                const classes:{[className: string]: {
-                                    tpl: GradeLogic
-                                    assignments : {[category:string]:AssignmentImpact[]} //sorted list of assignments
-                                    }
-                                } = {}
-                                const classAsgs:{[className: string]: {
-                                    tpl: GradeLogic
-                                    assignments : AssignmentImpact[] //sorted list of assignments
-                                    }
-                                } = {}
-
-                                hasAsgn.forEach( cName => { 
-                                    classes[cName] = {tpl: categories[tKey][cName][Object.keys(categories[tKey][cName])[0]].TPL as GradeLogic, assignments: getAssignmentImpacts(categories[tKey][cName])}
-                                    classAsgs[cName] = {
-                                        tpl: classes[cName].tpl, 
-                                        assignments: Object.keys(classes[cName].assignments)
-                                            .reduce( (a:AssignmentImpact[],b) => a.concat(classes[cName].assignments[b]),[])
-                                            .sort((a,b) => b.impact - a.impact)}
+                                            gd.F > 0)}, Object.keys(teacherClasses[tKey]))
+                                //hasAsgn list of classes with assignments
+                                const hasAsgn: string[] = Object.keys(teacherClasses[tKey]).filter( cn => {
+                                    return Object.keys(teacherClasses[tKey][cn].categories).some( cat => teacherClasses[tKey][cn].categories[cat].assignments.length > 0)
                                 })
 
                                 return (
                                     <div key={tKey} className='gradebook-audit-report'>
                                         <h1>{tKey}</h1>
                                         <GradeDistributionDisplay 
-                                            classes={distributions[tKey]}
+                                            classes={teacherClasses[tKey]}
                                             hasGrades={hasGrades}
                                             noGrades={noGrades}/>
                                         <CategoryTableRender 
-                                            classes={categories[tKey]}
+                                            classes={teacherClasses[tKey]}
                                             hasGrades={hasAsgn}/>
                                         <FailingGradesRender 
-                                            classes={distributions[tKey]}
+                                            classes={teacherClasses[tKey]}
                                             hasGrades={hasGrades}/>
                                         <HighImpactAssignmentsRender 
-                                            classes={classAsgs}
-                                            hasGrades={hasAsgn}/>
+                                            classes={teacherClasses[tKey]}
+                                            hasGrades={hasGrades}/>
                                         <GradesByAssignmentRender
-                                            classes={classes}
+                                            classes={teacherClasses[tKey]}
                                             hasAsign={hasAsgn}/>
                                     </div>
                                 )
@@ -156,7 +131,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
     }
 }
 
-const createGradebookReports = (reportFiles: ReportFiles) => {
+const createGradebookReports = (reportFiles: ReportFiles):TeacherClasses => {
     if(reportFiles.reportTitle.title === 'HS Gradebook Audit Report'){
         return createHSGradebookReports(reportFiles)
     }else{
