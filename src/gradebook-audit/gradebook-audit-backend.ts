@@ -74,13 +74,15 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
         c['CLS Cycle'] ==='All Cycles')
     //first get classes and categories for each teacher
     const teacherClasses: TeacherClasses = getClassesAndCategories(rawCategoriesAndTPL)
+    console.log(teacherClasses)
     //second add grade distributions (including student list) and class names through the grades extract
     const classesAndGrades: TeacherClasses = getGradeDistributions(rawESGrades, teacherClasses)
+    console.log(classesAndGrades)
     //associate student id's and assignments
     const studentAssignments: StudentAssignments = getStudentAssignment(rawAllAssignments)
     //combine assignments and classes
     const completeTeacherClasses: TeacherClasses = addAssignmentsToClasses(classesAndGrades, studentAssignments)
-
+    console.log(completeTeacherClasses)
     return completeTeacherClasses
 }
 
@@ -114,7 +116,7 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[]): TeacherClass
 const getGradeDistributions = (grades: AspenESGradesRow[], teacherClasses: TeacherClasses): TeacherClasses => {
     const distributions = d3.nest<AspenESGradesRow, GradeDistribution>()
         .key((r:AspenESGradesRow) => r["Teacher First Name"] + ' ' + r["Teacher Last Name"])
-        .key((r:AspenESGradesRow) => r["Course Number"] + '-' + r.Homeroom)
+        .key((r:AspenESGradesRow) => r["Course Number"])
         .rollup( (rs: AspenESGradesRow[]):{distribution: GradeDistribution, name: string} => {
             const failingStudents = rs.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) < 60)
                 .map(r => {
@@ -138,9 +140,10 @@ const getGradeDistributions = (grades: AspenESGradesRow[], teacherClasses: Teach
     Object.keys(teacherClasses).forEach(teacher => {
         if(distributions[teacher]){
             Object.keys(teacherClasses[teacher]).forEach(className => {
-                if(distributions[teacher][className]){
-                    teacherClasses[teacher][className].distribution = distributions[teacher][className].distribution
-                    teacherClasses[teacher][className].className = distributions[teacher][className].name
+                const distName = className.split('-').slice(0,2).join('-')
+                if(distributions[teacher][distName]){
+                    teacherClasses[teacher][className].distribution = distributions[teacher][distName].distribution
+                    teacherClasses[teacher][className].className = distributions[teacher][distName].name
                 }
             })
         }
