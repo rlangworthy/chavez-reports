@@ -49,7 +49,6 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
       </tr>
     );
     rows.push(headRow)
-    console.log(props.classes[c])
     const topAssignments: AssignmentImpact[] = props.classes[c].topAssignments.slice(0, NUM_ASSIGNS_PER_CLASS)
     const invertedRedBGStyle = {
       backgroundColor: 'red',
@@ -59,7 +58,6 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
 
     };
     topAssignments.forEach( (a, i) => {
-      console.log(props.classes[c].className)
       const row = (
         <tr key={c+ '-' + a.assignmentName + ' ' +  i.toString()}>
           { i === 0 &&

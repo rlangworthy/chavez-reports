@@ -43,7 +43,7 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
       color: 'white',
       fontWeight: 'bold' as 'bold',
     };
-    props.hasGrades.forEach( c => {
+    Object.keys(props.classes).forEach( c => {
         const badCategoryWeight = hasCategoryWeightsNot100(props.classes[c].categories);
         let i = 0;
         Object.keys(props.classes[c].categories).forEach( cat => {

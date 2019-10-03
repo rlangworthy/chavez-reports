@@ -73,6 +73,10 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                             if(teacherClasses[tKey]){
                                 //hasGrades and noGrades are names of classes
                                 const [hasGrades, noGrades]: string[][] = partition( (cn: string) => {
+                                    if(teacherClasses[tKey][cn].distribution === undefined){
+                                        console.log(teacherClasses[tKey])
+                                        console.log(cn)
+                                    }
                                     const gd = teacherClasses[tKey][cn].distribution
                                     return (gd.A > 0 || 
                                             gd.B > 0 || 

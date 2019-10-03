@@ -26,7 +26,7 @@ export interface AspenHSThresholdRow {
   'Section':string
   'Period':string
   'Course Name':string
-  'Cavg':string
+  'Numeric Average':string
   'Teacher Name':string
   
 }

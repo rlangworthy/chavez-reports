@@ -98,3 +98,25 @@ export interface AssignmentImpact extends Assignment{
     medianGrade: number
     lowestGrade: number
 }
+
+export const blankDistribution: GradeDistribution = {
+    A : 0,
+    B : 0,
+    C : 0,
+    D : 0,
+    F : 0,
+    Blank : 0,
+    failingStudents: [],
+    students: []
+}
+
+export const blankAssignmentStats: AssignmentStats = {
+    numBlank: 0,
+    numExcused: 0,
+    numIncomplete: 0,
+    numMissing: 0,
+    numZero: 0,
+    averageGrade: 0,
+    medianGrade: 0,
+    lowestGrade: 0,
+}

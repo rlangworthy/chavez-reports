@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import {
-    uniqBy,
     mean,
     median} from 'ramda'
 
@@ -22,7 +21,9 @@ import {
 import {
     SY_CURRENT
     } from '../shared/initial-school-dates'
+
 import { ReportFiles } from '../shared/report-types'
+
 import { 
     GradeDistribution,
     Assignment, 
@@ -33,29 +34,9 @@ import {
     TeacherClass,
     TeacherClasses,
     StudentAssignments, 
-    ImpactCategory} from './gradebook-audit-interfaces'
-
-const blankDistribution: GradeDistribution = {
-    A : 0,
-    B : 0,
-    C : 0,
-    D : 0,
-    F : 0,
-    Blank : 0,
-    failingStudents: [],
-    students: []
-}
-
-const blankAssignmentStats: AssignmentStats = {
-    numBlank: 0,
-    numExcused: 0,
-    numIncomplete: 0,
-    numMissing: 0,
-    numZero: 0,
-    averageGrade: 0,
-    medianGrade: 0,
-    lowestGrade: 0,
-}
+    ImpactCategory,
+    blankAssignmentStats,
+    blankDistribution,} from './gradebook-audit-interfaces'
 
 export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
@@ -74,21 +55,19 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
         c['CLS Cycle'] ==='All Cycles')
     //first get classes and categories for each teacher
     const teacherClasses: TeacherClasses = getClassesAndCategories(rawCategoriesAndTPL)
-    console.log(teacherClasses)
     //second add grade distributions (including student list) and class names through the grades extract
     const classesAndGrades: TeacherClasses = getGradeDistributions(rawESGrades, teacherClasses)
-    console.log(classesAndGrades)
     //associate student id's and assignments
     const studentAssignments: StudentAssignments = getStudentAssignment(rawAllAssignments)
     //combine assignments and classes
     const completeTeacherClasses: TeacherClasses = addAssignmentsToClasses(classesAndGrades, studentAssignments)
-    console.log(completeTeacherClasses)
     return completeTeacherClasses
 }
 
 const getClassesAndCategories = (categories: AspenCategoriesRow[]): TeacherClasses => {
     const classes:TeacherClasses = d3.nest<AspenCategoriesRow, TeacherClass>()
         .key(r => r['Teacher First Name'] + ' ' + r['Teacher Last Name'])
+        //class name is of form code-gradelevel-homeroom, sometimes homeroom doesn't match up correctly though
         .key(r => r['Class Name'])
         .rollup((rs):TeacherClass => {
             return {
@@ -114,9 +93,12 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[]): TeacherClass
 }
 
 const getGradeDistributions = (grades: AspenESGradesRow[], teacherClasses: TeacherClasses): TeacherClasses => {
+    const distClasses: TeacherClasses = {}
     const distributions = d3.nest<AspenESGradesRow, GradeDistribution>()
         .key((r:AspenESGradesRow) => r["Teacher First Name"] + ' ' + r["Teacher Last Name"])
+        //Use just course number here, of form code-gradelevel
         .key((r:AspenESGradesRow) => r["Course Number"])
+        .key((r:AspenESGradesRow) => r.Homeroom)
         .rollup( (rs: AspenESGradesRow[]):{distribution: GradeDistribution, name: string} => {
             const failingStudents = rs.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) < 60)
                 .map(r => {
@@ -138,17 +120,31 @@ const getGradeDistributions = (grades: AspenESGradesRow[], teacherClasses: Teach
         }).object(grades);
     //adding the distributions to the teacherclasses, has the list of students there as well.
     Object.keys(teacherClasses).forEach(teacher => {
+        distClasses[teacher]= {}
         if(distributions[teacher]){
             Object.keys(teacherClasses[teacher]).forEach(className => {
+                //here we need to reconcile homerooms of students with the class codes in categories
+                //if the categories code matches a homeroom, use that homeroom
                 const distName = className.split('-').slice(0,2).join('-')
-                if(distributions[teacher][distName]){
-                    teacherClasses[teacher][className].distribution = distributions[teacher][distName].distribution
-                    teacherClasses[teacher][className].className = distributions[teacher][distName].name
+                const hr = className.split('-')[2]
+                if(distributions[teacher][distName] && distributions[teacher][distName][hr]){
+                    distClasses[teacher][className] = {...teacherClasses[teacher][className]}
+                    distClasses[teacher][className].distribution = distributions[teacher][distName][hr].distribution
+                    distClasses[teacher][className].className = distributions[teacher][distName][hr].name
+                }else if(distributions[teacher][distName]){
+                    const hrs = Object.keys(distributions[teacher][distName])
+                    distClasses[teacher][distName+ '-'+ hrs.join('-')] = {...teacherClasses[teacher][className]}
+                    distClasses[teacher][distName+ '-'+ hrs.join('-')].distribution = joinGradeDistributions(hrs.map(hr => distributions[teacher][distName][hr].distribution))
+                    distClasses[teacher][distName+ '-'+ hrs.join('-')].className = distributions[teacher][distName][hrs[0]].name
+                    console.log(distClasses[teacher][distName+ '-'+ hrs.join('-')].className)
+                    console.log(distributions[teacher][distName][hrs[0]].name)
                 }
             })
         }
     })
-    return teacherClasses;
+    console.log(distributions)
+    console.log(distClasses)
+    return distClasses;
 }
 
 const getStudentAssignment = (assignments: AspenAssignmentRow[]):StudentAssignments => {
@@ -178,7 +174,7 @@ const addAssignmentsToClasses = (classes:TeacherClasses, assignments: StudentAss
                     const categories = teacherClassesFinal[teacher][classId].categories
                     teacherClassesFinal[teacher][classId].categories = addCategoryAssignments(categories, studentAssignments)
                     teacherClassesFinal[teacher][classId].topAssignments = getSortedAssignments(teacherClassesFinal[teacher][classId].categories)
-                    teacherClassesFinal[teacher][classId].className = teacherClassesFinal[teacher][classId].className + ' ' + classId.split('-').pop()
+                    teacherClassesFinal[teacher][classId].className = teacherClassesFinal[teacher][classId].className + ' ' + classId.split('-').slice(2).join(' ')
                 }
             }
         })
@@ -240,7 +236,7 @@ export const hasCategoryWeightsNot100 = (categories: {
 };
 
 export const getTotalAssignmentStats = (assignments: Assignment[]):AssignmentStats => {
-    const stats = assignments.map( a => a.stats);
+    const stats = assignments.map( a => a.stats).filter(a => isFinite(a.averageGrade));
     const avg = Math.floor(stats.reduce( (a,b) => a - (Number.isNaN(b.averageGrade) ? 0:b.averageGrade), 0)/(-assignments.length))
     return stats.reduce( (a,b) => {
         return {
@@ -253,7 +249,7 @@ export const getTotalAssignmentStats = (assignments: Assignment[]):AssignmentSta
             medianGrade: 0,
             lowestGrade: 0,
         }
-    })
+    }, {...blankAssignmentStats})
 }
 
 export const getAssignmentStats = (grades: Score[], scorePosible: number, gradeLogic: string, name?: string ):AssignmentStats => {
@@ -338,4 +334,17 @@ export const getChartData = (assignments: AssignmentImpact[]):any => {
     assignments.forEach( (a, i) => data.push([(a.impact).toFixed(1) + '%', a.impact]))
     data.push(['Others', percentOther])
     return data;
+  }
+
+  const joinGradeDistributions = (distributions: GradeDistribution[]):GradeDistribution => {
+      return distributions.reduce((a,b) => {return {
+          A: a.A + b.A,
+          B: a.B + b.B,
+          C: a.C + b.C,
+          D: a.D + b.D,
+          F: a.F + b.F,
+          Blank: a.Blank + b.Blank,
+          failingStudents: a.failingStudents.concat(b.failingStudents),
+          students: a.students && b.students ? a.students.concat(b.students) : undefined
+      }}, blankDistribution)
   }

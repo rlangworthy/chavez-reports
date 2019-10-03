@@ -47,7 +47,7 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
         moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
     },
-    /*{
+    {
         title: 'HS Gradebook Audit Report',
         description: 'Analyze gradebook by classroom (for Admin).',
         link: process.env.PUBLIC_URL + '/hs-gradebook-audit/upload/',
@@ -56,7 +56,7 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
         moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
-    },*/
+    },
     {
         title: 'Summerschool Report',
         description: 'Monitor which students are likely to need summer school and are at risk of being retained (for Admin).',
