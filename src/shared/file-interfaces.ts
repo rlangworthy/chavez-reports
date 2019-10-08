@@ -82,7 +82,8 @@ export interface RawStudentProfessionalSupportDetailsRow {
     Name: string
     ELL: string
     PDIS: string
-    'ELL Program Year Code'
+    'ELL Program Year Code': string
+    Grade: string
 }
 
 export interface RawStaffAbsenceRow {

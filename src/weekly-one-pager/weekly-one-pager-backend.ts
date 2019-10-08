@@ -27,6 +27,7 @@ import {
 export interface HomeRoom{
     room: string
     students: HRStudent[]
+    grade: string
     OT?: number
     SQRP?: number
 }
@@ -52,6 +53,7 @@ export interface HRStudent {
 }
 
 interface Student {
+    GradeLevel: string
     HR: string
     ID: string
     fullName: string
@@ -107,11 +109,12 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
         tardiesHist = tHist === null ? null: tHist.data as Tardies[];
 
     }
-    console.log(spps)
-    console.log(studentGradeObject)
+    
     if (spps !== null){spps.forEach(row => {
         if(studentGradeObject[row['Student ID']]!== undefined){
-            studentGradeObject[row['Student ID']].ELL = row['ELL Program Year Code'];}
+            studentGradeObject[row['Student ID']].ELL = row['ELL Program Year Code'];
+            studentGradeObject[row['Student ID']].GradeLevel = row.Grade
+        }
     });}
     if(tardies != null){
         getAttendanceData(studentGradeObject, tardies);
@@ -125,9 +128,7 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
 
     const homeRooms = flattenStudents(studentGradeObject);
 
-    return homeRooms;
-    
-
+    return homeRooms.sort((a,b) => a.grade.localeCompare(b.grade));
 }
 
 const mergeStudents = (current: Students, past: Students) => {
@@ -208,8 +209,9 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
             const GPA = getGPA(finalGrades);
             return {
                 HR: rs[0].StudentHomeroom,
+                GradeLevel: '',
                 ID: rs[0].StudentID,
-                fullName: '',
+                fullName: rs[0].StudentLastName + ', ' + rs[0].StudentFirstName,
                 ELL: '',
                 quarterReadingGrade: quarterGrades[0],
                 quarterMathGrade: quarterGrades[1],
@@ -239,6 +241,7 @@ const flattenStudents = (students: Students): HomeRoom[] => {
         .rollup( rs => {
             return {
                 room: rs[0].HR,
+                grade: rs[0].GradeLevel,
                 students: rs.sort((a,b)=> a.onTrack-b.onTrack).map( (r: Student):HRStudent => {
                     return {
                         fullName: r.fullName,
@@ -317,7 +320,6 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
                 const tardy = getTardies(rs);
                 const absent = getAbsences(rs);
                 const pct = (total-absent)/total * 100;
-                students[rs[0]['Student ID']].fullName = rs[0]['Student Name']
                 students[rs[0]['Student ID']].absencePercent = pct;
                 students[rs[0]['Student ID']].absences = [absent];
                 students[rs[0]['Student ID']].tardies = [tardy];

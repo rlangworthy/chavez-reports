@@ -100,7 +100,7 @@ export const StudentOnePagers: React.SFC<StudentOnePagerProps> = props => {
                                     </Row>
                                     <Row></Row>
                                     <Row>
-                                        <Col>Your Chavez On-Track Score is: {student.onTrack}</Col>
+                                        <Col>Your On-Track Score is: {student.onTrack}</Col>
                                     </Row>
                                     <Row>
                                         <Col>Use this information at chavez-hs-planner.com to make a plan for getting into high school.</Col>
