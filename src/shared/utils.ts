@@ -132,7 +132,8 @@ export const getCPSOnTrack = (math: number, reading: number, attendancePCT: numb
 */
 export const stringToDate = (s: string): Date => {
   const d = s.split('/').map(a => parseInt(a))
-  return new Date(d[2], d[0]-1, d[1])
+  const year = d[2] > 2000 ? d[2] : 2000 + d[2]
+  return new Date(year, d[0]-1, d[1])
 }
 
 //parses dates of the form mm-dd-yyyy tt:tt:tt AM/PM

@@ -37,6 +37,7 @@ import {
     ImpactCategory,
     blankAssignmentStats,
     blankDistribution,} from './gradebook-audit-interfaces'
+import { existsTypeAnnotation } from '@babel/types'
 
 export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
@@ -48,7 +49,6 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = getCurrentQuarter(SY_CURRENT)
     const qStart = getCurrentQuarterDate(SY_CURRENT)
-
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
     const rawAllAssignments = aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), qStart))
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
@@ -136,14 +136,10 @@ const getGradeDistributions = (grades: AspenESGradesRow[], teacherClasses: Teach
                     distClasses[teacher][distName+ '-'+ hrs.join('-')] = {...teacherClasses[teacher][className]}
                     distClasses[teacher][distName+ '-'+ hrs.join('-')].distribution = joinGradeDistributions(hrs.map(hr => distributions[teacher][distName][hr].distribution))
                     distClasses[teacher][distName+ '-'+ hrs.join('-')].className = distributions[teacher][distName][hrs[0]].name
-                    console.log(distClasses[teacher][distName+ '-'+ hrs.join('-')].className)
-                    console.log(distributions[teacher][distName][hrs[0]].name)
                 }
             })
         }
     })
-    console.log(distributions)
-    console.log(distClasses)
     return distClasses;
 }
 
@@ -332,7 +328,7 @@ export const getChartData = (assignments: AssignmentImpact[]):any => {
     const percentOther = 100 - Math.abs(assignments.reduce((a,b) => a - b.impact, 0))
     const data = [['Assignment Name', 'Assignment Weight'] as any]
     assignments.forEach( (a, i) => data.push([(a.impact).toFixed(1) + '%', a.impact]))
-    data.push(['Others', percentOther])
+    data.push(['Others', percentOther > 0 ? percentOther:0])
     return data;
   }
 
