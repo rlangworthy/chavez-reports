@@ -126,7 +126,7 @@ export const StudentOnePagers: React.SFC<StudentOnePagerProps> = props => {
                                                     .slice(0,5)
                                                     .map( (asg, j) => {
                                                     return (<tr key={j}>
-                                                                <td>{asg.assignmentName}</td>
+                                                                <td colSpan={2}>{asg.assignmentName}</td>
                                                                 <td>{asg.points}</td>
                                                                 <td>{(asg.impact !== undefined ? asg.impact.toFixed(2):'n/a') + '%'}</td>
                                                             </tr>)})}
