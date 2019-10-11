@@ -6,8 +6,13 @@ import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-contain
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 
+/*
+ *To add a new report: 
+ *  First add any addtional files to file-types.ts
+ *  Second come here and make a new ReportTitle for it
+ */
 
-import { 
+import {
     FileTypes,
     RawFileParse, } from './file-types'
 

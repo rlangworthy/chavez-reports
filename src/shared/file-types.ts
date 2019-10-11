@@ -12,6 +12,7 @@ export enum FileTypes {
     KRONOS_DATA = 'Kronos Data',
     STUDENT_INFO = 'Student Search List Report',
     HS_THRESHOLD = 'HS Threshold Report',
+    STUDENT_SCHEDULE = 'Student Schedules (Sheet)',
 }
 
 /*
@@ -85,4 +86,8 @@ FileDescriptions[FileTypes.STUDENT_INFO] = {
 FileDescriptions[FileTypes.HS_THRESHOLD] = {
     description: 'Located in Grade Input section of the Aspen School view Grades tab',
     //link: 'https://drive.google.com/open?id=17aDRWZrMfcyqlMUGHGD38Zz5E-yAFTks7L70nb0ynJY'
+}
+FileDescriptions[FileTypes.STUDENT_SCHEDULE] = {
+    description: 'Located in Reports section of the Aspen School view Schedule tab',
+    link: 'https://docs.google.com/document/d/1mxzo9TQKwc76SaKb4MeVEOV3yERe5H2FBuXa7LTE4xk/edit?usp=sharing'
 }
