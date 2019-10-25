@@ -151,6 +151,8 @@ export const punchcardStringToDate = (s: string): Date => {
       console.log('Invalid date:' + newDate + ' from string' + s)
     }
     return newDate
+  }else if(d.length == 2){
+    return stringToDate(d[0])
   }
   throw new Error('Date string ' + s + ' is malformed')
 }
