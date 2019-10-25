@@ -1,10 +1,12 @@
 import * as d3 from 'd3'
 import {
     mean,
-    median} from 'ramda'
+    median,
+    uniq} from 'ramda'
 
 import {
-    isAfter, } from 'date-fns'
+    isAfter,
+    isBefore, } from 'date-fns'
 
 import {
     AspenAssignmentRow,
@@ -25,6 +27,10 @@ import {
 import { ReportFiles } from '../shared/report-types'
 
 import { 
+    parseSchedule,
+    StudentClassList } from '../shared/schedule-parser'
+
+import { 
     GradeDistribution,
     Assignment, 
     AssignmentStats,
@@ -36,41 +42,70 @@ import {
     StudentAssignments, 
     ImpactCategory,
     blankAssignmentStats,
-    blankDistribution,} from './gradebook-audit-interfaces'
-import { existsTypeAnnotation } from '@babel/types'
+    blankDistribution,
+    ScheduleClass,
+    ScheduleClasses,} from './gradebook-audit-interfaces'
 
 export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const asg = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
     const cat = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult
+    const sched = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult
+    const SS = sched ? sched.data as string[][] : []
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = asg ? asg.data as AspenAssignmentRow[] : []
     const aspCategoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
+    const studentSched = parseSchedule(SS)
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = getCurrentQuarter(SY_CURRENT)
     const qStart = getCurrentQuarterDate(SY_CURRENT)
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
-    const rawAllAssignments = aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), qStart))
+
+    const rawAllAssignments = aspAllAssignments.filter(a => 
+        isAfter(stringToDate(a['Assigned Date']), qStart) &&
+        isBefore(stringToDate(a['Assignment Due']), new Date()))
+
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
-    //first get classes and categories for each teacher
-    const teacherClasses: TeacherClasses = getClassesAndCategories(rawCategoriesAndTPL)
+    const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
+    console.log(scheduleClasses)
+    //first get classes and categories
+    const classCats: ScheduleClasses = getClassesAndCategories(rawCategoriesAndTPL, scheduleClasses)
     //second add grade distributions (including student list) and class names through the grades extract
-    const classesAndGrades: TeacherClasses = getGradeDistributions(rawESGrades, teacherClasses)
+    const classGrades: ScheduleClasses = getGradeDistributions(rawESGrades, classCats)
     //associate student id's and assignments
-    const studentAssignments: StudentAssignments = getStudentAssignment(rawAllAssignments)
+    const studentAssignments = getStudentAssignment(rawAllAssignments)
     //combine assignments and classes
-    const completeTeacherClasses: TeacherClasses = addAssignmentsToClasses(classesAndGrades, studentAssignments)
-    return completeTeacherClasses
+    const classesFinal = addAssignmentsToClasses(classGrades, studentAssignments)
+    const teacherclasses = invertScheduleClasses(classesFinal)
+    return teacherclasses
+    
 }
 
-const getClassesAndCategories = (categories: AspenCategoriesRow[]): TeacherClasses => {
-    const classes:TeacherClasses = d3.nest<AspenCategoriesRow, TeacherClass>()
-        .key(r => r['Teacher First Name'] + ' ' + r['Teacher Last Name'])
-        //class name is of form code-gradelevel-homeroom, sometimes homeroom doesn't match up correctly though
-        .key(r => r['Class Name'])
-        .rollup((rs):TeacherClass => {
+const getScheduleClasses = (schedule: StudentClassList []): ScheduleClasses => {
+    const classes: ScheduleClasses = d3.nest<StudentClassList, ScheduleClass>()
+        .key((r: StudentClassList) => r.courseID)
+        .rollup((rs: StudentClassList[]): ScheduleClass => {
             return {
+                students: rs.map((r: StudentClassList) => r.studentID),
+                teachers: rs[0].teacher.split('; '),
+                categories: {},
+                distribution: blankDistribution,
+                className: rs[0].courseDesc,
+                tpl: "Categories and assignments", //random value to be filled in later
+                topAssignments:[],
+            }
+        }).object(schedule)
+    return classes
+}
+
+const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: ScheduleClasses): ScheduleClasses => {
+    const classCats: ScheduleClasses = {}
+    const classes: ScheduleClasses = d3.nest<AspenCategoriesRow, TeacherClass>()
+        .key(r => r['Class Name'])
+        .rollup((rs: AspenCategoriesRow[]):ScheduleClass => {
+            return {
+                teachers: [rs[0]["Teacher Last Name"] + ', ' + rs[0]["Teacher First Name"]],
                 className: '',
                 distribution: blankDistribution,
                 categories: d3.nest<AspenCategoriesRow, Category>()
@@ -84,63 +119,71 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[]): TeacherClass
                                         assignmentStats: blankAssignmentStats,
                                     }
                                 }).object(rs) as { [categoryName: string]: Category; },
-                tpl:rs[0]["Average Mode Setting"],
+                tpl:rs[0]["Average Mode Setting"] as GradeLogic,
                 topAssignments: [],
+                students:[],
                 
                             }
         }).object(categories)
-    return classes
+
+    Object.keys(classes).forEach(cID => {
+        if(schedule[cID] !== undefined){
+            classCats[cID]= {
+                teachers: classes[cID].teachers.concat(schedule[cID].teachers),
+                className: schedule[cID].className,
+                distribution: blankDistribution,
+                categories: classes[cID].categories,
+                tpl: classes[cID].tpl,
+                topAssignments: [],
+                students: schedule[cID].students,
+            }
+        }
+    })
+    
+    return classCats
 }
 
-const getGradeDistributions = (grades: AspenESGradesRow[], teacherClasses: TeacherClasses): TeacherClasses => {
-    const distClasses: TeacherClasses = {}
-    const distributions = d3.nest<AspenESGradesRow, GradeDistribution>()
-        .key((r:AspenESGradesRow) => r["Teacher First Name"] + ' ' + r["Teacher Last Name"])
+const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClasses): ScheduleClasses => {
+    const distClasses: ScheduleClasses = {}
+    const studentGrades = d3.nest<AspenESGradesRow, GradeDistribution>()
+        .key((r:AspenESGradesRow) => r["Student ID"])
         //Use just course number here, of form code-gradelevel
-        .key((r:AspenESGradesRow) => r["Course Number"])
-        .key((r:AspenESGradesRow) => r.Homeroom)
-        .rollup( (rs: AspenESGradesRow[]):{distribution: GradeDistribution, name: string} => {
-            const failingStudents = rs.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) < 60)
+        .key((r:AspenESGradesRow) => r["Course Name"])
+        .object(grades);
+
+    //adding the distributions to the teacherclasses, has the list of students there as well.
+    Object.keys(classes).forEach(cID => {
+        const students = classes[cID].students
+        const className = classes[cID].className
+        const grades: AspenESGradesRow[] = students
+            .filter(sID => studentGrades[sID] !== undefined && studentGrades[sID][className]!==undefined)
+            .map(sID => studentGrades[sID][className][0])
+        distClasses[cID] = {
+            ...classes[cID],
+            distribution: getDistribution(grades),
+        }
+    })
+    return distClasses;
+}
+
+const getDistribution = (grades: AspenESGradesRow[]): GradeDistribution => {
+    const failingStudents = grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) < 60)
                 .map(r => {
                     return {
                         studentName: r["Student First Name"] + ' ' + r["Student Last Name"],
                         quarterGrade: parseFloat(r["Term Average"])
                     }
                 })
-            return {distribution: {
-                    A: rs.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 89).length,
-                    B: rs.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 79 && parseFloat(r["Term Average"]) < 90).length,
-                    C: rs.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 69 && parseFloat(r["Term Average"]) < 80).length,
-                    D: rs.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 59 && parseFloat(r["Term Average"]) < 70).length,
-                    F: failingStudents.length,
-                    Blank: rs.filter(r => r["Term Average"] === '').length,
-                    failingStudents: failingStudents,
-                    students: rs.map(r=>r["Student ID"]),
-                }, name: rs[0]["Course Name"]}
-        }).object(grades);
-    //adding the distributions to the teacherclasses, has the list of students there as well.
-    Object.keys(teacherClasses).forEach(teacher => {
-        distClasses[teacher]= {}
-        if(distributions[teacher]){
-            Object.keys(teacherClasses[teacher]).forEach(className => {
-                //here we need to reconcile homerooms of students with the class codes in categories
-                //if the categories code matches a homeroom, use that homeroom
-                const distName = className.split('-').slice(0,2).join('-')
-                const hr = className.split('-')[2]
-                if(distributions[teacher][distName] && distributions[teacher][distName][hr]){
-                    distClasses[teacher][className] = {...teacherClasses[teacher][className]}
-                    distClasses[teacher][className].distribution = distributions[teacher][distName][hr].distribution
-                    distClasses[teacher][className].className = distributions[teacher][distName][hr].name
-                }else if(distributions[teacher][distName]){
-                    const hrs = Object.keys(distributions[teacher][distName])
-                    distClasses[teacher][distName+ '-'+ hrs.join('-')] = {...teacherClasses[teacher][className]}
-                    distClasses[teacher][distName+ '-'+ hrs.join('-')].distribution = joinGradeDistributions(hrs.map(hr => distributions[teacher][distName][hr].distribution))
-                    distClasses[teacher][distName+ '-'+ hrs.join('-')].className = distributions[teacher][distName][hrs[0]].name
-                }
-            })
+    return {
+            A: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 89).length,
+            B: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 79 && parseFloat(r["Term Average"]) < 90).length,
+            C: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 69 && parseFloat(r["Term Average"]) < 80).length,
+            D: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 59 && parseFloat(r["Term Average"]) < 70).length,
+            F: failingStudents.length,
+            Blank: grades.filter(r => r["Term Average"] === '').length,
+            failingStudents: failingStudents,
+            students: grades.map(r=>r["Student ID"]),
         }
-    })
-    return distClasses;
 }
 
 const getStudentAssignment = (assignments: AspenAssignmentRow[]):StudentAssignments => {
@@ -152,37 +195,37 @@ const getStudentAssignment = (assignments: AspenAssignmentRow[]):StudentAssignme
 
     return studentAssignments
 }
-//Add assignments and do math on them
-const addAssignmentsToClasses = (classes:TeacherClasses, assignments: StudentAssignments): TeacherClasses => {
-    const teacherClassesFinal: TeacherClasses = {}
-    Object.keys(classes).forEach(teacher => {
-        teacherClassesFinal[teacher] = {}
-        Object.keys(classes[teacher]).forEach(classId => {
-            teacherClassesFinal[teacher][classId] = classes[teacher][classId]
-            const className = teacherClassesFinal[teacher][classId].className
-            if(teacherClassesFinal[teacher][classId].distribution){
-                const students = teacherClassesFinal[teacher][classId].distribution.students
-                if(students !== undefined){
-                    
-                    const studentAssignments = students
-                        .map(id => assignments[id] && assignments[id][className] ? assignments[id][className]:[])
-                        .flat()
-                    const categories = teacherClassesFinal[teacher][classId].categories
-                    teacherClassesFinal[teacher][classId].categories = addCategoryAssignments(categories, studentAssignments)
-                    teacherClassesFinal[teacher][classId].topAssignments = getSortedAssignments(teacherClassesFinal[teacher][classId].categories)
-                    teacherClassesFinal[teacher][classId].className = teacherClassesFinal[teacher][classId].className + ' ' + classId.split('-').slice(2).join(' ')
-                }
-            }
-        })
-    })
-    return teacherClassesFinal
+
+//Add assignments and do math on them, update class name to reflect the section number
+const addAssignmentsToClasses = (classes:ScheduleClasses, assignments: StudentAssignments): ScheduleClasses => {
+    const classesFinal: ScheduleClasses = {}
+    Object.keys(classes).forEach(cID => {
+        classesFinal[cID] = classes[cID]
+        const className = classesFinal[cID].className
+        const students = classesFinal[cID].students
+    
+        
+        const studentAssignments = students
+            .map(id => assignments[id] && assignments[id][className] ? assignments[id][className]:[])
+            .flat()
+        const categories = classesFinal[cID].categories
+        classesFinal[cID].categories = addCategoryAssignments(categories, studentAssignments)
+        classesFinal[cID].topAssignments = getSortedAssignments(classesFinal[cID].categories)
+        classesFinal[cID].className = classesFinal[cID].className + '-' + cID.split('-').slice(-2).join('-')
+        }
+    )
+    return classesFinal
 }
 
 const getSortedAssignments = (categories : {[category: string]: Category}): AssignmentImpact[] => {
-    return Object.keys(categories)
+    
+    
+    const sorted =  Object.keys(categories)
             .map(key => categories[key].assignments as AssignmentImpact[])
             .flat()
-            .sort((a:AssignmentImpact, b:AssignmentImpact) => a.impact > b.impact ? 0:1)
+            .sort((a:AssignmentImpact, b:AssignmentImpact) => a.impact > b.impact ? -1:1)
+
+    return sorted
 }
 
 const addCategoryAssignments = (categories: {[category: string]: Category}, assignments: AspenAssignmentRow[]): {[category: string]: Category} => {
@@ -250,11 +293,11 @@ export const getTotalAssignmentStats = (assignments: Assignment[]):AssignmentSta
 
 export const getAssignmentStats = (grades: Score[], scorePosible: number, gradeLogic: string, name?: string ):AssignmentStats => {
     const blanks = grades.filter( g => g === '').length;
-    const excused = grades.filter( g => g === 'Exc').length;
+    const excused = grades.filter( g => g === 'Exc' || g === '/').length;
     const inc = grades.filter( g => g === 'Inc').length;
     const missing = grades.filter( g => g === 'Msg').length;
     const zeroes = grades.filter( g => g === '0').length;
-    const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!=='')
+    const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!==''&&g!=='/')
         .map( g => parseGrade(g)/scorePosible*100)
         .filter(g => g >= 0);
     const gradeStats: {averageGrade: number,
@@ -309,11 +352,12 @@ export const getAssignmentImpacts = (c: {
                 lowestGrade: a.stats.lowestGrade,   
             }
         })}
-    })  
+    })
 
     return classAsgns
   }
-  
+
+//
 const getImpact = (tpl: GradeLogic, a: Assignment, total: number): number =>{
       if(tpl === 'Total points'){
         return a.maxPoints/total * 100
@@ -332,15 +376,20 @@ export const getChartData = (assignments: AssignmentImpact[]):any => {
     return data;
   }
 
-  const joinGradeDistributions = (distributions: GradeDistribution[]):GradeDistribution => {
-      return distributions.reduce((a,b) => {return {
-          A: a.A + b.A,
-          B: a.B + b.B,
-          C: a.C + b.C,
-          D: a.D + b.D,
-          F: a.F + b.F,
-          Blank: a.Blank + b.Blank,
-          failingStudents: a.failingStudents.concat(b.failingStudents),
-          students: a.students && b.students ? a.students.concat(b.students) : undefined
-      }}, blankDistribution)
+
+const invertScheduleClasses = (schedule: ScheduleClasses): TeacherClasses => {
+      const teacherclasses: TeacherClasses = {}
+
+      Object.keys(schedule).forEach(cID => {
+        const teachers = getUniqueTeachers(schedule[cID].teachers)
+        if(teacherclasses[teachers] === undefined){
+            teacherclasses[teachers] = {}
+        }
+        teacherclasses[teachers][cID] = schedule[cID]
+      })
+      return teacherclasses
+  }
+
+const getUniqueTeachers = (teachers: string[]):string => {
+      return uniq(teachers).sort().join('; ')
   }

@@ -49,7 +49,8 @@ export const ReportCards: ReportTitle[] = [
         component: GradebookAuditReport,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT, fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
-                {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
+                {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL},
+                {fileType: FileTypes.STUDENT_SCHEDULE, fileDesc: FileTypes.STUDENT_SCHEDULE}],
         moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
     },
  /*   {
@@ -109,8 +110,8 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.NWEA,fileDesc: FileTypes.NWEA},
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD},
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL, fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
-    },
-    /*{
+    },/*
+    {
         title: 'Student Assignment Sheet',
         description: 'All student assignments by class and category',
         link: process.env.PUBLIC_URL + '/student-assignment-sheet/upload/',

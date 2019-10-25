@@ -110,7 +110,7 @@ export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
       }
 
       if(attendancePCT>=87.5){
-        if(GPA >= 33){
+        if(GPA >= 3){
           return 4
         }else if(GPA >=2.5){
           return 4

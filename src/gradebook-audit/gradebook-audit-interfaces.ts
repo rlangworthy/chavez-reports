@@ -5,6 +5,8 @@ import {
 
 export type GradeLogic = 'Categories only' | 'Categories and assignments' | 'Category total points' | 'Total points'
 
+
+
 /*
   Working on using this for ES grades, className for index is classID from aspen, 
   currently class name in categories
@@ -27,6 +29,16 @@ export interface TeacherClass {
     className: string
     tpl: GradeLogic
     topAssignments: AssignmentImpact[]
+}
+
+//experimental schedule nonsense
+export interface ScheduleClass extends TeacherClass {
+    students: string[] //student id's
+    teachers: string[] //list of people who issued assignments, entered grades, or set categories
+}
+
+export interface ScheduleClasses {
+    [classID: string]: ScheduleClass
 }
 
 //Student object to organize assignments since assignments extract doesn't have class name or homeroom information,

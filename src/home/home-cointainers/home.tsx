@@ -2,12 +2,12 @@ import * as React from 'react'
 import * as Papa from 'papaparse'
 import * as idb from 'idb-keyval'
 import * as d3 from 'd3'
+import { isAfter, isBefore } from 'date-fns'
 import CardDeck from 'react-bootstrap/CardDeck'
 import Navbar from 'react-bootstrap/Navbar'
 import Button from 'react-bootstrap/Button'
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
 import { ReportCards } from '../../shared/report-types'
-import { fileListHas, getUniqueFileName } from '../../shared/utils'
 import { ReportCard } from '../home-displays/report-card'
 import { ReportModal } from './report-modal'
 import { InstructionModal } from '../home-displays/instructions-modal'
@@ -17,7 +17,15 @@ import {
     FileTypes,
     ParseResult,
     RawFileParse, } from '../../shared/file-types'
+import { 
+    fileListHas, 
+    getUniqueFileName, 
+    getCurrentQuarterDate, 
+    stringToDate} from '../../shared/utils'
+
 import './home.css'
+import { AspenAssignmentRow } from '../../shared/file-interfaces'
+import { SY_CURRENT } from '../../shared/initial-school-dates'
 
 export type Action = 'Delete' | 'Save' | 'Rename'
  
@@ -167,6 +175,33 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
 
     //add file to the working instance of the app, should refactor into utils along with delete and save
     private addFile = (fileType: string, file: File): Promise<void> => {
+        if(fileType === FileTypes.ASSIGNMENTS_SLOW_LOAD){
+            var download:AspenAssignmentRow[] = []
+            const qStart = getCurrentQuarterDate(SY_CURRENT)
+            return new Promise ((resolve,reject) => {
+                Papa.parse(file, {complete: (result: ParseResult) => {
+                    const newFileList = {};
+                    Object.assign(newFileList, this.state.fileList);
+                    const fileName = newFileList[fileType].find( f => f.fileName === file.name) ? 
+                                        getUniqueFileName(file.name, this.state.fileList[fileType]):
+                                        file.name;
+                    newFileList[fileType].push({
+                            fileType: fileType, 
+                            fileName: fileName, 
+                            parseResult: {...result, data: download}});
+                    this.setState({fileList: newFileList})
+                    resolve();
+                },
+                    skipEmptyLines: true,
+                    header: true,
+                    chunk: (result: ParseResult) => {
+                        download = download.concat(result.data.filter((a:AspenAssignmentRow) => 
+                            isAfter(stringToDate(a['Assigned Date']), qStart) &&
+                            isBefore(stringToDate(a['Assignment Due']), new Date())))
+                    }})
+            })
+        }
+
         return new Promise ( (resolve, reject) => 
             Papa.parse(file, {complete: (result: ParseResult) => {
                 const newFileList = {};
@@ -179,8 +214,9 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 resolve();
             },
                 skipEmptyLines: true,
-                header: true})
-    )}
+                header: fileType === FileTypes.STUDENT_SCHEDULE ? false:true})
+        )
+    }
 
     //remove file from working instance of app and delete it from indexeddb if necessary
     private deleteFile = (file: RawFileParse): Promise<void> => {
