@@ -53,16 +53,6 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.STUDENT_SCHEDULE, fileDesc: FileTypes.STUDENT_SCHEDULE}],
         moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
     },
- /*   {
-        title: 'HS Gradebook Audit Report',
-        description: 'Analyze gradebook by classroom (for Admin).',
-        link: process.env.PUBLIC_URL + '/hs-gradebook-audit/upload/',
-        component: GradebookAuditReport,
-        files: [{fileType: FileTypes.HS_THRESHOLD, fileDesc: FileTypes.HS_THRESHOLD}, 
-                {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD}, 
-                {fileType: FileTypes.TEACHER_CATEGORIES_TPL,fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
-        moreInfoLink: 'https://docs.google.com/document/d/16ssdtsMqY5khDZCOtbw0Xpm-oZmS_agQSFI-iCEg1yA/edit?usp=sharing',
-    },*/
     {
         title: 'Summerschool Report',
         description: 'Monitor which students are likely to need summer school and are at risk of being retained (for Admin).',
@@ -96,7 +86,8 @@ export const ReportCards: ReportTitle[] = [
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION,fileDesc: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION}, 
                 {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE}],
-        optionalFiles: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT + ' (Optional)'}, 
+        optionalFiles: [{fileType: FileTypes.NWEA, fileDesc: FileTypes.NWEA + ' (For Reverse)'},
+                        {fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT + ' (Optional)'}, 
                         {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE + ' (Optional)'}],
     },
     {

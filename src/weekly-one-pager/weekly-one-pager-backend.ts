@@ -21,8 +21,14 @@ import {
 import {
     RawESCumulativeGradeExtractRow,
     RawStudentProfessionalSupportDetailsRow,
-    AspenESGradesRow
+    AspenESGradesRow,
+    RawNWEACDFRow
     } from '../shared/file-interfaces'
+
+export interface NWEAData{
+    chartData: number[][]
+    correl: number
+}
 
 export interface HomeRoom{
     room: string
@@ -30,6 +36,8 @@ export interface HomeRoom{
     grade: string
     OT?: number
     SQRP?: number
+    NWEARead?: NWEAData
+    NWEAMath?: NWEAData
 }
 
 export interface HRStudent {
@@ -50,6 +58,8 @@ export interface HRStudent {
     enrollmentDays: number[]
     onTrack: number
     CPSonTrack: boolean
+    nweaRead: number //-1 if none
+    nweaMath: number  //-1 if none
 }
 
 interface Student {
@@ -73,6 +83,8 @@ interface Student {
     tardies: number[]
     totalDays: number[]
     onTrack: number
+    nweaRead: number //-1 if none
+    nweaMath: number //-1 if none
 }
 
 interface Students {
@@ -99,15 +111,23 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
     let gradeHist = {}
     let tHist: ParseResult | null = null 
     let tardiesHist: null | Tardies[] =  null
-    if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc]){
-        const ogr = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
+    if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[2].fileDesc]){
+        const ogr = files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult
         const oaspGrades = ogr === null? null: ogr.data as AspenESGradesRow[]
         //FIXME: hardcoded quarter
         const ogrades = oaspGrades ? oaspGrades.filter(g => g['Quarter']===currentQuarter).map(convertAspGrades): oaspGrades
         gradeHist = getStudentGrades(ogrades);
-        tHist = files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc] ? files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult : null;
+        tHist = files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[2].fileDesc] ? files.reportFiles[files.reportTitle.optionalFiles[2].fileDesc].parseResult : null;
         tardiesHist = tHist === null ? null: tHist.data as Tardies[];
 
+    }
+
+    let nweaData = {}
+    if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc]){
+        const nwea = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
+        nweaData = parseNWEA(nwea === null ? []:nwea.data as RawNWEACDFRow[])
+        
+    
     }
     
     if (spps !== null){spps.forEach(row => {
@@ -124,11 +144,37 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
         getAttendanceData(gradeHist, tardiesHist);
     }
 
+    if(nweaData !== {}){
+        Object.keys(studentGradeObject).forEach(id => {
+            if(nweaData[id]!== undefined){
+                if(nweaData[id]['Mathematics']!==undefined){
+                    studentGradeObject[id].nweaMath = parseInt(nweaData[id]['Mathematics'][0].TestPercentile)
+                }
+                if(nweaData[id]['Reading']!==undefined){
+                    studentGradeObject[id].nweaRead = parseInt(nweaData[id]['Reading'][0].TestPercentile)
+                }
+            }
+        })
+    }
+
     mergeStudents(studentGradeObject, gradeHist);
 
     const homeRooms = flattenStudents(studentGradeObject);
 
+    if(nweaData !== {}){
+        Object.keys(homeRooms).forEach(hr => {
+            homeRooms[hr] = {...homeRooms[hr], ...getNWEAData(homeRooms[hr])}
+        })
+    }
+    console.log(homeRooms)
     return homeRooms.sort((a,b) => a.grade.localeCompare(b.grade));
+}
+
+const parseNWEA = (nwea: RawNWEACDFRow[]): {[id:string]:any} => {
+    return d3.nest()
+                .key(r => r.StudentID)
+                .key(r => r.Discipline)
+                .object(nwea)
 }
 
 const mergeStudents = (current: Students, past: Students) => {
@@ -228,6 +274,8 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
                 tardies: [],
                 totalDays: [],
                 onTrack: -1,
+                nweaMath: -1,
+                nweaRead: -1,
             }
         }).object(file)
     
@@ -261,6 +309,8 @@ const flattenStudents = (students: Students): HomeRoom[] => {
                         enrollmentDays: r.totalDays,
                         onTrack: r.onTrack,
                         CPSonTrack: getCPSOnTrack(r.finalMathGrade, r.finalReadingGrade, r.absencePercent),
+                        nweaMath: r.nweaMath,
+                        nweaRead: r.nweaRead,
                     }
                 })
             }
@@ -330,3 +380,32 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
         })
         .object(attData)
 }
+
+const getNWEAData = (hr: HomeRoom): {NWEARead: NWEAData, NWEAMath: NWEAData} => {
+    const mathChartData = hr.students.map(student => [student.nweaMath, student.finalMathGrade]).filter(a => a[0] >=0 && a[1] >=0)
+    const mathCorr = pcorr(mathChartData.map(a => a[0]), mathChartData.map(a => a[1]))
+    const readChartData: number[][] = hr.students.map(student => [student.nweaRead, student.finalReadingGrade]).filter(a => a[0] >=0 && a[1] >=0)
+    const readCorr = pcorr(readChartData.map(a => a[0]), readChartData.map(a => a[1]))
+    const readData:NWEAData = {correl: readCorr, chartData: readChartData}
+    const mathData:NWEAData = {correl: mathCorr, chartData: mathChartData}
+    return {NWEARead: readData, NWEAMath: mathData}
+}
+
+const pcorr = (x, y) => {
+    let sumX = 0,
+      sumY = 0,
+      sumXY = 0,
+      sumX2 = 0,
+      sumY2 = 0;
+    const minLength = x.length = y.length = Math.min(x.length, y.length),
+      reduce = (xi, idx) => {
+        const yi = y[idx];
+        sumX += xi;
+        sumY += yi;
+        sumXY += xi * yi;
+        sumX2 += xi * xi;
+        sumY2 += yi * yi;
+      }
+    x.forEach(reduce);
+    return (minLength * sumXY - sumX * sumY) / Math.sqrt((minLength * sumX2 - sumX * sumX) * (minLength * sumY2 - sumY * sumY));
+  }
