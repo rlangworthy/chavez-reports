@@ -101,7 +101,7 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.NWEA,fileDesc: FileTypes.NWEA},
                 {fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD},
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL, fileDesc: FileTypes.TEACHER_CATEGORIES_TPL}],
-    },/*
+    },
     {
         title: 'Student Assignment Sheet',
         description: 'All student assignments by class and category',
@@ -109,6 +109,7 @@ export const ReportCards: ReportTitle[] = [
         component: StudentGradeSheets,
         files: [{fileType: FileTypes.ASSIGNMENTS_SLOW_LOAD, fileDesc: FileTypes.ASSIGNMENTS_SLOW_LOAD},
                 {fileType: FileTypes.TEACHER_CATEGORIES_TPL, fileDesc: FileTypes.TEACHER_CATEGORIES_TPL},
-                {fileType: FileTypes.STUDENT_INFO, fileDesc: FileTypes.STUDENT_INFO}],
-    },*/
+                {fileType: FileTypes.ATTENDENCE, fileDesc: FileTypes.ATTENDENCE},
+                {fileType: FileTypes.STUDENT_SCHEDULE, fileDesc: FileTypes.STUDENT_SCHEDULE}],
+    },
 ]

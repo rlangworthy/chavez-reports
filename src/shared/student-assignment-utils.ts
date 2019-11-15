@@ -11,16 +11,32 @@ import {
     StudentClass,
     StudentCategory,
     StudentAssignment, } from './student-assignment-interfaces'
-import { parseGrade } from './utils';
+import { 
+    parseGrade,
+    getOnTrackScore, 
+    getGPA, 
+    isCoreClass,} from './utils';
+
+import {StudentClassList } from '../shared/schedule-parser'
+
+export interface Tardies {
+    'Student ID': string
+    Attended: string
+    Absences: string
+}
 
 export const getStudentAssignments = (
-    grades: AspenESGradesRow[],
+    attendance: Tardies[],
     categories: AspenCategoriesRow[],
     assignments: AspenAssignmentRow[],
+    schedule?: StudentClassList[],
     ):StudentAssignments => {
-    const hrs = d3.nest<AspenESGradesRow>()
-        .key(r => r['Student ID'])
-        .object(grades)
+    
+    const classes = d3.nest<StudentClassList>()
+        .key(r=>r.studentID)
+        .key(r=>r.courseID)
+        .object(schedule)
+    
     const cats = d3.nest<AspenCategoriesRow>()
         .key(r => r['Class Name'])
         .object(categories)
@@ -28,24 +44,28 @@ export const getStudentAssignments = (
     const asgns = d3.nest<AspenAssignmentRow>()
         .key(r => r['Student ID'])
         .object(assignments)
+
     const consolidatedStudents: StudentAssignments = {}
     Object.keys(asgns).forEach( id => {
         const stuName = asgns[id][0]['Student First Name'] + ' ' + asgns[id][0]['Student Last Name']
-        const homeroom = hrs[id] ? hrs[id][0]['Homeroom'] : 'UNDEFINED STUDENT HOMEROOM'
-        const gl = hrs[id] ? hrs[id][0]['Grade Level'].slice(-1) : 'UNDEFINED STUDENT GRADE LEVEL'
-        const classObj = d3.nest<AspenAssignmentRow>()
-            .key(r => r['Class Name'] + ' ' + gl + ' (' + homeroom + ')')
+        var homeroom = 'UNDEFINED STUDENT HOMEROOM'
+        var gl = 'UNDEFINED STUDENT GRADE LEVEL'
+        const classAsignsObj = d3.nest<AspenAssignmentRow>()
+            .key(r => r['Class Name'])
             .key(r => r['Category Name'])
             .object(asgns[id])
-        const classes: {[className: string]: StudentClass} = {}
-        Object.keys(classObj).forEach(cname => {
-            const currentClassCats: AspenCategoriesRow[] = cats[cname] ? cats[cname] : []
+        const studentClasses: {[className: string]: StudentClass} = {}
+        classes[id] && Object.keys(classes[id]).forEach(cid => {
+            homeroom = classes[id][cid][0].homeroom
+            gl = cid.split('-')[2]
+            const currentClassCats: AspenCategoriesRow[] = cats[cid] ? cats[cid] : []
             const gradeLogic = currentClassCats[0] ? currentClassCats[0]['Average Mode Setting'] : 'UNDEFINED CLASS'
-            const teacherName = cats[cname] ? cats[cname][0]['Teacher First Name'] + ' ' + cats[cname][0]['Teacher Last Name'] : 'UNDEFINED CLASS'
+            const teacherName = classes[id][cid][0].teacher
+            const className = classes[id][cid][0].courseDesc
             
             const categories: {[category: string]: StudentCategory} = {}
-            Object.keys(classObj[cname]).forEach(catName => {
-                const catAsgns = classObj[cname][catName]
+            classAsignsObj[className] && Object.keys(classAsignsObj[className]).forEach(catName => {
+                const catAsgns = classAsignsObj[className][catName]
                 categories[catName] = {
                     weight: catAsgns[0]['Category Weight'],
                     category: catAsgns[0]['Category Name'],
@@ -53,10 +73,13 @@ export const getStudentAssignments = (
                 }
             })
 
-            classes[cname] = {
-                gradeLoic: gradeLogic,
-                teacher: teacherName,
-                categories: categories
+            if(classAsignsObj[className] !== undefined){
+                studentClasses[className] = {
+                    className: className,
+                    gradeLoic: gradeLogic,
+                    teacher: teacherName,
+                    categories: categories
+                }
             }
         })
 
@@ -64,13 +87,15 @@ export const getStudentAssignments = (
             studentName: stuName,
             homeroom : homeroom,
             gradeLevel : gl,
-            classes: classes
+            onTrack : -1,
+            classes: studentClasses,
         }
     })
     Object.keys(consolidatedStudents).forEach(id => {
         Object.keys(consolidatedStudents[id].classes).forEach( cName => 
             calculateGrades(consolidatedStudents[id].classes[cName]))
     })
+    getOnTrackfromClasses(consolidatedStudents, attendance);
     return consolidatedStudents
 }
 
@@ -145,27 +170,38 @@ const calculateGrades = (studentClass: StudentClass) => {
             const catTotal = total ? total : categories[a].categoryTotalPoints
             const catPercent = gradeLogic === 'Total points' ? 100 : categories[a].percent
             if(categories[a].hasAssignments && catTotal !== undefined && catPercent !== undefined){
+                const cattp = categories[a].categoryTotalPoints
                 categories[a].assignments = categories[a].assignments.map(a => {
-                    if(includeGrade(a)){
+                    if(includeGrade(a) && cattp){
                         return {
                             ...a,
-                            assignmentWeight: a.pointsPossible,
+                            assignmentWeight: (a.pointsPossible/cattp) * (catPercent),
                             impact: (parseGrade(a.points) -a.pointsPossible) * (catPercent/catTotal)
                         }
                     }else{
                         return a
                     }
                 })
+                
+                if(cattp !== undefined){
+                    categories[a].categoryGrade = 100 * categories[a].assignments.reduce((a:number,b:StudentAssignment): number=> {
+                        return (a + parseGrade(b.points))
+                    }, 0)/cattp
+                }
             }
         })
     }
     studentClass.finalGrade = pts ? Object.keys(studentClass.categories).reduce( (a,b) => {
         const catTotal = total ? total : studentClass.categories[b].categoryTotalPoints
-        if(catTotal !== undefined){
-            return a + catTotal
-        }else{
-            return a;
-        }},0): Object.keys(studentClass.categories).reduce((a,b)=> {
+        const percent = studentClass.categories[b].percent
+        const catGrade = studentClass.categories[b].categoryGrade
+                if(catTotal !== undefined && percent !== undefined && catGrade !== undefined){
+                    return a + (catGrade * percent)/100
+                }else{
+                    return a;
+                }
+            },0): 
+        Object.keys(studentClass.categories).reduce((a,b)=> {
             const catGrade = studentClass.categories[b].categoryGrade
             const catPct = studentClass.categories[b].percent
             if(catGrade !== undefined && catPct !== undefined){
@@ -193,8 +229,10 @@ export const studentSearchToGrade = (student : StudentSearchListRow): AspenESGra
     }
 }
 
-const includeGrade = (assignment: StudentAssignment): boolean => {
-    if(assignment.points === 'Inc' || assignment.points === 'Exc'){
+export const includeGrade = (assignment: StudentAssignment): boolean => {
+    if(assignment.points === 'Inc' || assignment.points === 'Exc' 
+        || assignment.points === '/' || assignment.points === ''
+        || assignment.points === '_3XCLUD3D_' || assignment.points === 'exc'){
       return false
     }else{
       return true
@@ -228,4 +266,46 @@ export const getStudentHrObject = (students: StudentAssignments): {[hr: string]:
          }
     })
     return hrObj
+}
+
+const getGPAfromClasses = (classes: {[className: string]: StudentClass}): number =>{
+    let cores: number[] = []
+    Object.keys(classes).forEach(cname => {
+        const fg = classes[cname].finalGrade;
+        if(isCoreClass(cname) && fg !== undefined){
+            cores.push(fg)
+        }
+    })
+
+    return getGPA(cores)
+} 
+
+const getOnTrackfromClasses = (students: StudentAssignments, attData: Tardies[]) => {
+
+    const getTardies = (rs: Tardies[]):number =>{
+        const t = rs.find(r=>r.Attended ==='Tardy');
+        if(t !== undefined){return parseInt(t.Absences)}
+        return 0;
+    }
+
+    const getAbsences = (rs: Tardies[]):number =>{
+        return rs.filter(r=> r.Attended !== 'Tardy' && r.Attended !== 'Present')
+                    .reduce((a,b) => {return a + ((b.Attended === '1/2 Day Excused' || b.Attended === '1/2 Day Unexcused') ?
+                                                    parseInt(b.Absences)/2.0 : parseInt(b.Absences))}, 0)
+    }
+
+    d3.nest<Tardies, Tardies[]>()
+        .key( r => r['Student ID'])
+        .rollup( rs => {
+            if(students[rs[0]['Student ID']]!==undefined){
+                const total = rs.reduce((a,b) => a + parseInt(b.Absences),0);
+                const tardy = getTardies(rs);
+                const absent = getAbsences(rs);
+                const pct = (total-absent)/total * 100;
+                students[rs[0]['Student ID']].onTrack = 
+                    getOnTrackScore(getGPAfromClasses(students[rs[0]['Student ID']].classes), pct);
+            }
+            return rs;
+        })
+        .object(attData)
 }

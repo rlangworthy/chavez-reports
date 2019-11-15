@@ -1,13 +1,14 @@
 .student-assignments-hidden {
-  display: none
+  display: none;
 }
 
 .student-assignments {
-  page-break-after: always
+  page-break-before: always;
+  page-break-after: always;
 }
 
 .category-table {
-  page-break-inside: avoid
+  page-break-inside: avoid;
 }
 
 @media (min-width: 768px){

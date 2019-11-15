@@ -1,14 +1,10 @@
 import * as React from 'react'
+import * as d3 from 'd3'
+
 import {uniq} from 'ramda'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import {
-    List, 
-    AutoSizer, 
-    CellMeasurerCache, 
-    CellMeasurer, 
-    Grid }from 'react-virtualized'
 
 import {
     StudentAssignments,
@@ -19,6 +15,7 @@ import { ReportFiles } from '../shared/report-types'
 import { MultiSelect } from '../shared/components/multi-select'
 import { createAssignmentReports } from './student-grade-sheet-backend'
 import {parseGrade} from '../shared/utils'
+import {includeGrade} from '../shared/student-assignment-utils'
 
 
 import './student-grade-display.css'
@@ -26,41 +23,36 @@ import './student-grade-display.css'
 interface StudentGradeState {
     asgs: StudentAssignments
     selectedHRs: string[]
-    HRs: string[]
+    HRs: {[hr:string]:JSX.Element[]}
     sortedKeys: string[]
-    cache: CellMeasurerCache
-    sortedStudents: JSX.Element[]
 }
 
 export class StudentGradeSheets extends React.PureComponent<{reportFiles?: ReportFiles}, StudentGradeState> {
     constructor(props){
         super(props)
-        const cache = new CellMeasurerCache({
-            fixedWidth: true,
-            defaultHeight: 100
-        })
-        this.state = {asgs: {}, selectedHRs:[], sortedKeys:[], HRs: [], cache: cache, sortedStudents: []}
+        this.state = {asgs: {}, selectedHRs:[], sortedKeys:[], HRs: {}}
     }
 
     componentWillMount(){
         if(this.props.reportFiles){
             const asgs = createAssignmentReports(this.props.reportFiles)
             const sk = Object.keys(asgs).sort((a,b) => asgs[a].homeroom.localeCompare(asgs[b].homeroom))
-            const hrs = uniq(sk.map(k => asgs[k].homeroom))
-            const ss = sk.map( id => <StudentClassDisplay student={asgs[id]}/>)
+            const hrs = d3.nest()
+                .key(s => asgs[s].homeroom)
+                .rollup(rs => rs.map( (r, i) => <StudentClassDisplay student={asgs[r]} key={asgs[r].homeroom + i}/>))
+                .object(sk)
             this.setState({
                 asgs: asgs,
                 HRs: hrs,
                 sortedKeys: sk,
-                sortedStudents: ss
             });
         }
     }
 
     handleClick = (ev: string | string[]) => {
         if(Array.isArray(ev)){
-            if(this.state.selectedHRs.length !== this.state.HRs.length){
-                this.setState({selectedHRs: this.state.HRs})
+            if(this.state.selectedHRs.length !== Object.keys(this.state.HRs).length){
+                this.setState({selectedHRs: Object.keys(this.state.HRs)})
             }else{
                 this.setState({selectedHRs: []})
             }
@@ -81,57 +73,49 @@ export class StudentGradeSheets extends React.PureComponent<{reportFiles?: Repor
                 <Row>
                     <Col className='assignments-filter-container'>
                         <MultiSelect
-                            items={this.state.HRs}  
+                            items={Object.keys(this.state.HRs)}  
                             selected={this.state.selectedHRs}
                             handleClick={this.handleClick}
                             title={'Homerooms'}/>
                     </Col>
                     <Col className={'assignments-display-container'}>
-                        <AutoSizer>
-                        {({ height, width }) => (
-                            <List
-                                deferredMeasurementCache={this.state.cache}
-                                height={height}
-                                rowCount={this.state.sortedKeys.length}
-                                rowHeight={20}
-                                rowRenderer={this.Student}
-                                width={width}
-                                overscanRowCount={10}
-                            />
-                        )}
-                        </AutoSizer>
+                        {this.state.selectedHRs.length === 0 ? 
+                        Object.keys(this.state.HRs).map(hr => this.state.HRs[hr]) :
+                        this.state.selectedHRs.map(hr => this.state.HRs[hr]).flat()}
                     </Col>
                 </Row>
             </Container>
             )
     }
 
-    StudentDisplay = React.memo((props:{id:string}) => {
-        const student = this.state.asgs[Object.keys(this.state.asgs)[props.id]]
-        const visibility = this.state.selectedHRs.length===0 ||  this.state.selectedHRs.includes(student.homeroom)
+    StudentDisplay = (student:Student) => {
         return (
-            <div key={props.id} className={`student-assignments ${visibility ? '': 'student-assignments-hidden'}`}>
+            <div key={student.studentName + student.homeroom} className={`student-assignments`}>
                 <StudentClassDisplay student={student}/>
             </div>
         )
-    })
-
-    Student:React.FunctionComponent<{index:number, parent: Grid, key: string, style: any}> = (props) => {
-        //const id = Object.keys(this.state.asgs)[props.index]
-        //const student = this.state.asgs[id]
-        return (
-            <CellMeasurer
-                cache={this.state.cache}
-                columnIndex={0}
-                parent={props.parent}
-                rowIndex={props.index}>
-                <div key={props.index} className={`student-assignments`}>
-                    {this.state.sortedStudents[props.index]}
-                </div>
-            </CellMeasurer>
-        )
     }
         
+}
+
+const getOTWord = (ot: number): string => {
+    if(ot === 5){
+        return ' On Track Score: 5 (On-Track)'
+    }
+    if(ot === 4){
+        return ' On Track Score: 4 (Almost On-Track)'
+    }
+    if(ot === 3){
+        return ' On Track Score: 3 (Near On-Track)'
+    }
+    if(ot === 2){
+        return ' On Track Score: 2 (Far from On-Track)'
+    }
+    if(ot === 1){
+        return ' On Track Score: 1 (Off-Track)'
+    }
+    return ''
+    
 }
 
 class StudentClassDisplay extends React.PureComponent<{student: Student}> {
@@ -139,8 +123,8 @@ class StudentClassDisplay extends React.PureComponent<{student: Student}> {
     render(){
         const student = this.props.student
             return(
-            <>
-                <h3>{student.studentName + ', ' + student.homeroom}</h3>
+            <div key={student.studentName + student.homeroom} className={`student-assignments`}>
+                <h3>{student.studentName + ', ' + student.homeroom + getOTWord(student.onTrack)}</h3>
                     {Object.keys(student.classes).map(cname => {
                         const fg = student.classes[cname].finalGrade
                         return (
@@ -158,7 +142,7 @@ class StudentClassDisplay extends React.PureComponent<{student: Student}> {
                             </div>
                         )
                     })}
-            </>
+            </div>
         )   
     }
 }
@@ -180,7 +164,7 @@ const AssignmentStats: React.SFC<{assignments: StudentAssignment[], category: St
 
     const rows: JSX.Element[] = []
     props.assignments.forEach( (asg, i) => {
-        const nc = asg.points === '' || asg.points === 'Inc'
+        const nc = !includeGrade(asg)
         const weight = asg.assignmentWeight
         const impact = asg.impact
         rows.push((
@@ -188,7 +172,7 @@ const AssignmentStats: React.SFC<{assignments: StudentAssignment[], category: St
             <td>{asg.assignmentName}</td>
             <td>{asg.assigned}</td>
             <td>{asg.due}</td>
-            <td>{pts ? asg.points: (parseGrade(asg.points)/asg.pointsPossible * 100).toFixed(2) + '%'}</td>
+            <td>{pts ? asg.points: !nc && (parseGrade(asg.points)/asg.pointsPossible * 100).toFixed(2) + '%'}</td>
             {pts  
             ? <td>{asg.pointsPossible}</td> : null}
             <td>{nc || weight === undefined? '' :(weight).toFixed(2) + '%'}</td>

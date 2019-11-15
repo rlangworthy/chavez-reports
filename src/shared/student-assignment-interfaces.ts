@@ -14,10 +14,12 @@ export interface Student {
     studentName: string
     homeroom: string
     gradeLevel: string
+    onTrack: number
     classes: {[className: string]: StudentClass}
 }
 
 export interface StudentClass {
+    className: string
     gradeLoic: string
     teacher: string
     finalGrade?: number

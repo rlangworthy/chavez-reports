@@ -115,21 +115,21 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const cats = files.reportFiles[files.reportTitle.files[5].fileDesc].parseResult
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = getCurrentQuarter(SY_CURRENT)
-    const q4Start = getCurrentQuarterDate(SY_CURRENT)
+    const startDate = getCurrentQuarterDate(SY_CURRENT)
 
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
     const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
     const rawAllAssignments = aspAllAssignments.filter(a => parseGrade(a['Score'])===0 
-        && isAfter(stringToDate(a['Assigned Date']), q4Start))
+        && isAfter(stringToDate(a['Assigned Date']), startDate))
         .map(convertAspAsgns)
-
-    const studentAssignments = getStudentAssignments(aspESGrades, aspCats, 
-        aspAllAssignments.filter( a => isAfter(stringToDate(a['Assigned Date']), q4Start)))
+    const tardies = at === null ? []: at.data as Tardies[];
+    const studentAssignments = getStudentAssignments(tardies, aspCats, 
+        aspAllAssignments.filter( a => isAfter(stringToDate(a['Assigned Date']), startDate) && a['Score'] !== 'Exc' && a['Score'] !== '/'))
 
     let studentGradeObject = getStudentGrades(rawESGrades);
-    const tardies = at === null ? null: at.data as Tardies[];
+    //const tardies = at === null ? null: at.data as Tardies[];
     const assignments = rawAllAssignments as Assignment[];
     if(tardies !== null){
         getAttendanceData(studentGradeObject, tardies);
@@ -175,6 +175,7 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
             }
         }).filter( a => a !== undefined);
         console.log(students)
+        
         return(students.sort((a,b) => a.homeRoom.concat(a.name).localeCompare(b.homeRoom.concat(b.name))));
     } else{
         return []

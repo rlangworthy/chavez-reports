@@ -70,6 +70,18 @@ export const convertAspCategories = (cats: AspenCategoriesRow) : RawTeacherCateg
   }
 }
 
+export const getGPA = (grades: number[]):number => {
+  const pos = grades.filter( n => n >= 0);
+  const normGrade = pos.map( (g):number => {
+      if(g > 89){return 4;}
+      if(g > 79){return 3;}
+      if(g > 69){return 2;}
+      if(g > 59){return 1;}
+      return 0;
+  })
+  return normGrade.length > 0 ? normGrade.reduce(((a,b) => a+b), 0)/normGrade.length : 0
+}
+
 /*
   CPS on track score for 2020 school year
 */
@@ -151,7 +163,7 @@ export const punchcardStringToDate = (s: string): Date => {
       console.log('Invalid date:' + newDate + ' from string' + s)
     }
     return newDate
-  }else if(d.length == 2){
+  }else if(d.length === 2){
     return stringToDate(d[0])
   }
   throw new Error('Date string ' + s + ' is malformed')
@@ -252,7 +264,7 @@ export const parseGrade = (g: string): number => {
   if(g==='F'||g==='f'){
     return 59;
   }
-  if(g==='Msg' || g === ''){
+  if(g==='Msg' || g === '' || g === 'M' || g==='m'){
     return 0;
   }
   console.log('Invalid Grade ' + g)
@@ -301,4 +313,32 @@ export const getCurrentQuarterDate = (sy: SchoolYear): Date => {
     return sy.q1End
   }
   return sy.startDate
+}
+
+export const linearRegression = (y: number[],x: number[]): {slope:number, 
+                                                          intercept: number,
+                                                          r2: number} =>{
+  var n = y.length;
+  var sum_x = 0;
+  var sum_y = 0;
+  var sum_xy = 0;
+  var sum_xx = 0;
+  var sum_yy = 0;
+
+  for (var i = 0; i < y.length; i++) {
+
+      sum_x += x[i];
+      sum_y += y[i];
+      sum_xy += (x[i]*y[i]);
+      sum_xx += (x[i]*x[i]);
+      sum_yy += (y[i]*y[i]);
+  } 
+
+  const slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
+  const intercept = (sum_y - slope * sum_x)/n;
+  const r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+
+  return {slope: slope, 
+          intercept: intercept,
+          r2: r2};
 }

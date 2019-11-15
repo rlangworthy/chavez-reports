@@ -1,11 +1,12 @@
 import * as d3 from 'd3'
+import * as papa from 'papaparse'
 
 import { 
     getOnTrackScore,
     getCPSOnTrack,
     convertAspGrades,
-    getCurrentQuarter
-} from '../shared/utils'
+    getCurrentQuarter,
+    getGPA } from '../shared/utils'
 
 import {
     ReportFiles, } from '../shared/report-types'
@@ -24,6 +25,7 @@ import {
     AspenESGradesRow,
     RawNWEACDFRow
     } from '../shared/file-interfaces'
+import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 
 export interface NWEAData{
     chartData: number[][]
@@ -167,6 +169,36 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
         })
     }
     console.log(homeRooms)
+    /*  //script for logging the class by class On Track counts and ratings
+    interface OTHR {
+        GradeLevel: string
+        OT1: number
+        OT2: number
+        OT3: number
+        OT4: number
+        OT5: number
+        GLOT: number
+        SQRP: number
+    }
+    const othrs: OTHR[] = d3.nest()
+        .key(r => r.GradeLevel)
+        .rollup((rs: Student[]):OTHR => {
+            const ot = rs.map(student => student.onTrack)
+            const avg = ot.reduce((a,b) => a+b)/ot.length
+            const sq = getOTSQRP(avg*10)
+            return {
+                GradeLevel: rs[0].GradeLevel,
+                OT1: rs.map(r=> r.onTrack).filter(r=> r===1).length,
+                OT2: rs.map(r=> r.onTrack).filter(r=> r===2).length,
+                OT3: rs.map(r=> r.onTrack).filter(r=> r===3).length,
+                OT4: rs.map(r=> r.onTrack).filter(r=> r===4).length,
+                OT5: rs.map(r=> r.onTrack).filter(r=> r===5).length,
+                GLOT: avg,
+                SQRP: sq,
+            }
+        }).object(Object.values(studentGradeObject))
+    console.log(papa.unparse(Object.values(othrs)));
+    */
     return homeRooms.sort((a,b) => a.grade.localeCompare(b.grade));
 }
 
@@ -231,18 +263,6 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
         const finalAvg = row.FinalAvg !== '' ? parseInt(row.FinalAvg, 10): -1;
         const quarterAvg = row.QuarterAvg !== '' ? parseInt(row.QuarterAvg, 10): -1
         return [quarterAvg, finalAvg];
-    }
-
-    const getGPA = (grades: number[]):number => {
-        const pos = grades.filter( n => n >= 0);
-        const normGrade = pos.map( (g):number => {
-            if(g > 89){return 4;}
-            if(g > 79){return 3;}
-            if(g > 69){return 2;}
-            if(g > 59){return 1;}
-            return 0;
-        })
-        return normGrade.length > 0 ? normGrade.reduce(((a,b) => a+b), 0)/normGrade.length : 0
     }
 
     if (file === null){return {}}

@@ -57,7 +57,7 @@ export const sy1920: SchoolYear = {
     irregularDays: irregularDayList,
     startDate: new Date(2019, 8, 2),
     endDate: new Date(2020, 5, 16),
-    q1End: new Date(2019, 10, 7),
+    q1End: new Date(2019, 15, 12),
     q2End: new Date(2020, 0 , 30),
     q3End: new Date(2020, 3, 16),
     q4End: new Date(2020, 5, 16),
