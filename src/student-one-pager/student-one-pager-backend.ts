@@ -20,6 +20,9 @@ import {
     getStudentAssignments,
     } from '../shared/student-assignment-utils'
 
+import {
+    parseSchedule,} from '../shared/schedule-parser'
+
 import {StudentClass} from '../shared/student-assignment-interfaces'
 
 import {
@@ -113,10 +116,11 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const nwea = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
     const mz = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult;
     const cats = files.reportFiles[files.reportTitle.files[5].fileDesc].parseResult
+    const sched = files.reportFiles[files.reportTitle.files[6].fileDesc].parseResult
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = getCurrentQuarter(SY_CURRENT)
     const startDate = getCurrentQuarterDate(SY_CURRENT)
-
+    const schedule = sched !== null ? parseSchedule(sched.data) : []
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
     const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
@@ -126,7 +130,8 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
         .map(convertAspAsgns)
     const tardies = at === null ? []: at.data as Tardies[];
     const studentAssignments = getStudentAssignments(tardies, aspCats, 
-        aspAllAssignments.filter( a => isAfter(stringToDate(a['Assigned Date']), startDate) && a['Score'] !== 'Exc' && a['Score'] !== '/'))
+        aspAllAssignments.filter( a => isAfter(stringToDate(a['Assigned Date']), startDate) && a['Score'] !== 'Exc' && a['Score'] !== '/'),
+        schedule)
 
     let studentGradeObject = getStudentGrades(rawESGrades);
     //const tardies = at === null ? null: at.data as Tardies[];

@@ -107,19 +107,26 @@ const BackPage : React.SFC<{hr: HomeRoom}> = (props) =>{
             {props.hr.NWEAMath && props.hr.NWEAMath.chartData.length > 1 ? 
                 <div className='math-rep'>
                     <h4>Correlation between most recent Mathematics NWEA percentile and cummulative grade for Math class</h4>
-                    <DisciplineDisplay data={props.hr.NWEAMath}/>
+                    <DisciplineDisplay data={props.hr.NWEAMath} discipline={'Math'}/>
                 </div> : null}
             {props.hr.NWEARead && props.hr.NWEARead.chartData.length > 1? 
                 <div className='math-rep'>
                     <h4>Correlation between most recent Reading NWEA percentile and cummulative grade for Reading Framework class</h4>
-                    <DisciplineDisplay data={props.hr.NWEARead}/>
+                    <DisciplineDisplay data={props.hr.NWEARead} discipline={'Read'}/>
                 </div> : null}
 
         </div>
     )
 }
 
-const DisciplineDisplay :React.SFC<{data: NWEAData}> = props => {
+const DisciplineDisplay :React.SFC<{data: NWEAData, discipline: 'Math' | 'Read'}> = props => {
+    let data: number[][] = []
+    if(props.discipline === 'Math'){
+        data = props.data.chartData.map(s => [s.nweaMath, s.finalMathGrade])
+    }else{
+        data = props.data.chartData.map(s => [s.nweaRead, s.finalReadingGrade])
+    }
+
     return(
         <div className='NWEA-rep'>
             <h5>Correlation: {props.data.correl}</h5>
@@ -130,7 +137,7 @@ const DisciplineDisplay :React.SFC<{data: NWEAData}> = props => {
                 loader={<div>Loading Chart</div>}
                 data={[
                     ['NWEA', 'Grade'],
-                    ...props.data.chartData
+                    ...data
                 ]}
                 options={{
                     title: 'NWEA vs Grade',
@@ -141,6 +148,38 @@ const DisciplineDisplay :React.SFC<{data: NWEAData}> = props => {
                 }}
                 rootProps={{ 'data-testid': '1' }}
             />
+            <div>
+                <span className='inline'>
+                    <h5>Lower than Predicted Grade</h5>
+                    <Table striped bordered size="sm">
+                        <tbody>
+                            <tr>
+                                <td>Name</td>
+                                <td>NWEA</td>
+                                <td>Grade</td>
+                            </tr>
+                            {props.data.chartData.slice(0, Math.min(props.data.chartData.length, 5)).map(s => {
+                                return (
+                                    <tr key={s.fullName}>
+                                        <td>{s.fullName}</td>
+                                        {props.discipline === 'Math' ?
+                                            <>
+                                            <td>{s.nweaMath}</td>
+                                            <td>{s.finalMathGrade}</td>
+                                            </> :
+                                            <>
+                                            <td>{s.nweaRead}</td>
+                                            <td>{s.finalReadingGrade}</td>
+                                            </>}
+                                    </tr>
+                                )
+                                })
+                            }
+                        </tbody>
+                    </Table>
+
+                </span>
+            </div>
         </div>
     )
 }

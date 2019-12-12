@@ -1,10 +1,49 @@
 import {
-    RawAssignmentsRow,
-    RawTeacherCategoriesAndTotalPointsLogicRow,
-    AspenAssignmentRow,
-    AspenCategoriesRow,
-    Score,
-    StudentSearchListRow } from './file-interfaces'
+    Score, } from './file-interfaces'
+
+import {
+    GradeLogic,
+    ClassCategory} from './teacher-class-interfaces'
+
+
+/*
+ * Initial breakdown of students and their classes based on the student schedules sheet
+ */
+export interface StudentSchedules {
+    [studentID: string]: ScheduleStudent
+}
+/*
+ * names of the form lastname, firstname
+ */
+export interface ScheduleStudent {
+    studentID: string
+    studentName: string
+    homeroom: string
+    classes: {[classID: string]:ScheduleClass}
+}
+
+export interface ScheduleClass {
+    classID: string
+    className: string
+    teacherNames: string[]
+}
+
+/*
+ * for combining the schedule and class categories
+ */
+export interface ScheduleClassCategories extends ScheduleClass {
+    gradingLogic: GradeLogic
+    categories: {[categoryName:string]: ClassCategory}
+}
+export interface ScheduleStudentCategories extends ScheduleStudent {
+    classes: {[classID: string]:ScheduleClassCategories}
+}
+
+export interface StudentCategorySchedules extends StudentSchedules {
+    [studentID: string]: ScheduleStudentCategories
+}
+
+
 
 export interface StudentAssignments {
     [id: string]: Student
@@ -15,7 +54,7 @@ export interface Student {
     homeroom: string
     gradeLevel: string
     onTrack: number
-    classes: {[className: string]: StudentClass}
+    classes: {[classID: string]: StudentClass}
 }
 
 export interface StudentClass {

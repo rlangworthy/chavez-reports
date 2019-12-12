@@ -74,7 +74,7 @@ export interface RawESCumulativeGradeExtractRow {
     TeacherFirstName: string
     QuarterAvg: string
     FinalAvg: string
-    QuarterGrade?: string
+    QuarterGrade: string
   }
 
 export interface RawStudentProfessionalSupportDetailsRow {

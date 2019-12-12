@@ -7,15 +7,25 @@ import {
     StudentSearchListRow, } from './file-interfaces'
 
 import {
+    ScheduleClass,
+    ScheduleStudent,
+    StudentSchedules,
     StudentAssignments,
     StudentClass,
     StudentCategory,
-    StudentAssignment, } from './student-assignment-interfaces'
+    StudentAssignment,
+    StudentCategorySchedules,
+    ScheduleClassCategories } from './student-assignment-interfaces'
+    
 import { 
     parseGrade,
     getOnTrackScore, 
     getGPA, 
     isCoreClass,} from './utils';
+
+import {
+    SchoolClasses, 
+    ClassCategories,} from './teacher-class-interfaces'
 
 import {StudentClassList } from '../shared/schedule-parser'
 
@@ -25,11 +35,67 @@ export interface Tardies {
     Absences: string
 }
 
+/*
+ * Simply collect schedules from the student schedule extract
+ */
+
+export const getStudentSchedules = (schedule: StudentClassList[]): StudentSchedules => {
+    const studentSchedules: StudentSchedules = d3.nest<StudentClassList>()
+        .key(r => r.studentID)
+        .rollup((rs:StudentClassList[]):ScheduleStudent => {
+            return {
+                studentID: rs[0].studentID,
+                studentName: rs[0].studentName,
+                homeroom: rs[0].homeroom,
+                classes: d3.nest<StudentClassList>()
+                    .key((r:StudentClassList) => r.courseID)
+                    .rollup((rs:StudentClassList[]):ScheduleClass => {
+                        return {
+                            classID: rs[0].courseID,
+                            className: rs[0].courseDesc,
+                            teacherNames: rs[0].teacher.split('; ')
+                        }
+                    })
+            }
+        })
+        .object(schedule)
+    return studentSchedules
+}
+
+/*
+ * Add class categories to student classes, filters classes that don't have categories
+ * Add teacher names from categories if they're not in schedule
+ */
+
+export const joinClassesandCategories = (schedule : StudentSchedules, classCats: SchoolClasses):StudentCategorySchedules  => {
+    const studentCategorySchedules : StudentCategorySchedules = {}
+    Object.keys(schedule).forEach(sID => {
+        const classes:{[classID: string]:ScheduleClassCategories} = {}
+        Object.keys(schedule[sID].classes).forEach(cID => {
+            if(classCats[cID]!== undefined){
+                classes[cID] = {
+                    ...schedule[sID].classes[cID],
+                    teacherNames: [...new Set(schedule[sID].classes[cID].teacherNames
+                        .concat(classCats[cID].teacherNames))],
+                    gradingLogic: classCats[cID].gradingLogic,
+                    categories: classCats[cID].categories,
+                }
+            }
+        })
+
+        studentCategorySchedules[sID] = {
+            ...schedule[sID],
+            classes: classes
+        }
+    })
+    return studentCategorySchedules
+}
+
 export const getStudentAssignments = (
     attendance: Tardies[],
     categories: AspenCategoriesRow[],
     assignments: AspenAssignmentRow[],
-    schedule?: StudentClassList[],
+    schedule: StudentClassList[],
     ):StudentAssignments => {
     
     const classes = d3.nest<StudentClassList>()

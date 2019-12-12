@@ -64,11 +64,9 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const rawAllAssignments = aspAllAssignments.filter(a => 
         isAfter(stringToDate(a['Assigned Date']), qStart) &&
         isBefore(stringToDate(a['Assignment Due']), new Date()))
-
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
-    console.log(scheduleClasses)
     //first get classes and categories
     const classCats: ScheduleClasses = getClassesAndCategories(rawCategoriesAndTPL, scheduleClasses)
     //second add grade distributions (including student list) and class names through the grades extract
@@ -78,6 +76,9 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     //combine assignments and classes
     const classesFinal = addAssignmentsToClasses(classGrades, studentAssignments)
     const teacherclasses = invertScheduleClasses(classesFinal)
+    console.log(rawAllAssignments);
+    console.log(scheduleClasses);
+    console.log(classCats)
     return teacherclasses
     
 }
