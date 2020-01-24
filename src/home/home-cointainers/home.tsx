@@ -12,6 +12,9 @@ import { ReportCard } from '../home-displays/report-card'
 import { ReportModal } from './report-modal'
 import { InstructionModal } from '../home-displays/instructions-modal'
 import { FileManagerContainer } from './file-manager-container'
+import { reportTag } from '../../shared/gtag'
+
+
 import { 
     FileList,
     FileTypes,
@@ -26,6 +29,7 @@ import {
 import './home.css'
 import { AspenAssignmentRow } from '../../shared/file-interfaces'
 import { SY_CURRENT } from '../../shared/initial-school-dates'
+import { GoogleLoginResponse } from 'react-google-login'
 
 export type Action = 'Delete' | 'Save' | 'Rename'
  
@@ -54,8 +58,8 @@ interface ReportHomeState {
 }
 
 interface ReportHomeProps {
-
-}
+    account: GoogleLoginResponse
+}    
 
 //ReportHome renders the cards and report modals, also holds onto the file list and state.
 //The state modifying things are all pased on to modal, it might make sense to do this as a context.
@@ -159,7 +163,8 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         report={report} 
                         show={this.state.activeModal === report.title}
                         handleHide={this.handleHide}
-                        addFile={this.addFile} />)
+                        addFile={this.addFile} 
+                        tag={()=>reportTag(window, 'report_generate', this.props.account.getBasicProfile().getEmail(), report.title)}/>)
                 })}
             </FileContextProvider>
         )

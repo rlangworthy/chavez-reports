@@ -27,7 +27,7 @@ import {
     SchoolClasses, 
     ClassCategories,} from './teacher-class-interfaces'
 
-import {StudentClassList } from '../shared/schedule-parser'
+import { StudentClassList } from '../shared/schedule-parser'
 
 export interface Tardies {
     'Student ID': string
@@ -104,7 +104,7 @@ export const getStudentAssignments = (
         .object(schedule)
     
     const cats = d3.nest<AspenCategoriesRow>()
-        .key(r => r['Class Name'])
+        .key(r => r['Class Number'])
         .object(categories)
     
     const asgns = d3.nest<AspenAssignmentRow>()
@@ -210,12 +210,12 @@ const calculateGrades = (studentClass: StudentClass) => {
     if(!pts){
         Object.keys(categories).forEach(a => {
             if(categories[a].hasAssignments) {
-                const nValid = categories[a].assignments.filter(includeGrade).length
+                const nValid = categories[a].assignments.filter((a) => includeGrade(a)&&a.pointsPossible>0).length
                 const pct = categories[a].percent
                 if(pct){
                     const assignmentWeight = pct/nValid
                     categories[a].assignments = categories[a].assignments.map(a => {
-                        if(includeGrade(a)){
+                        if(includeGrade(a)&&a.pointsPossible>0){
                             return {
                                 ...a,
                                 assignmentWeight: assignmentWeight,
@@ -227,7 +227,7 @@ const calculateGrades = (studentClass: StudentClass) => {
                     })
                 }
                 categories[a].categoryGrade = categories[a].assignments
-                    .filter(includeGrade)
+                    .filter((a) => includeGrade(a)&&a.pointsPossible>0)
                     .reduce((a,b):number => a + 100*(parseGrade(b.points)/b.pointsPossible),0)/nValid
             }
         })

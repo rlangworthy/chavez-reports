@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import {isAfter} from 'date-fns'
+import * as papa from 'papaparse'
 
 import { 
     getOnTrackScore,
@@ -179,12 +180,25 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
                 assignments: student.assignments,
             }
         }).filter( a => a !== undefined);
-        console.log(students)
-        
         return(students.sort((a,b) => a.homeRoom.concat(a.name).localeCompare(b.homeRoom.concat(b.name))));
     } else{
         return []
     }
+}
+
+/* Can be used to check all student grade calculations*/
+const printCalculatedGrades = (students: HSStudent[]) => {
+    const calcGrades: Object[]=[]
+        students.forEach(student =>{
+            Object.keys(student.assignments).forEach(cname => {
+                calcGrades.push({
+                    StudentID: student.ID,
+                    Class: cname,
+                    Grade: student.assignments[cname].finalGrade
+                })
+            })
+        })
+    console.log(papa.unparse(calcGrades))
 }
 
 const getStudentGrades = (file: RawESCumulativeGradeExtractRow[]): Students => {

@@ -14,6 +14,7 @@ import {
     } from '../home-displays/file-inputs'
 
 import './report-modal.css'
+import { reportTag } from '../../shared/gtag'
 
 interface ReportModalProps {
     report: ReportTitle
@@ -21,6 +22,7 @@ interface ReportModalProps {
     show: boolean
     handleHide: () => any
     addFile: (fileType: string, file: File) => Promise<void>
+    tag: () => void
 }
 
 interface ReportModalState {
@@ -95,6 +97,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
             channel.postMessage(reportFiles)
             channel.close()
         }
+        this.props.tag()
         window.open(this.props.report.link, '_blank')
     }
 

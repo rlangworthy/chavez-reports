@@ -67,6 +67,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
+    console.log(scheduleClasses)
     //first get classes and categories
     const classCats: ScheduleClasses = getClassesAndCategories(rawCategoriesAndTPL, scheduleClasses)
     //second add grade distributions (including student list) and class names through the grades extract
@@ -76,9 +77,6 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     //combine assignments and classes
     const classesFinal = addAssignmentsToClasses(classGrades, studentAssignments)
     const teacherclasses = invertScheduleClasses(classesFinal)
-    console.log(rawAllAssignments);
-    console.log(scheduleClasses);
-    console.log(classCats)
     return teacherclasses
     
 }
@@ -103,7 +101,7 @@ const getScheduleClasses = (schedule: StudentClassList []): ScheduleClasses => {
 const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: ScheduleClasses): ScheduleClasses => {
     const classCats: ScheduleClasses = {}
     const classes: ScheduleClasses = d3.nest<AspenCategoriesRow, TeacherClass>()
-        .key(r => r['Class Name'])
+        .key(r => r['Class Number'])
         .rollup((rs: AspenCategoriesRow[]):ScheduleClass => {
             return {
                 teachers: [rs[0]["Teacher Last Name"] + ', ' + rs[0]["Teacher First Name"]],

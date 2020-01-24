@@ -59,7 +59,7 @@ export const convertAspCategories = (cats: AspenCategoriesRow) : RawTeacherCateg
     SchoolName: '',
     TeacherLastName: cats['Teacher Last Name'],
     TeacherFirstName: cats['Teacher First Name'],
-    ClassName: cats['Class Name'],
+    ClassName: cats['Class Number'],
     CLSCycle: cats['CLS Cycle'],
     MultipleWeightMode: '',
     TotalPointsLogicSetting: cats['Average Mode Setting'],
@@ -143,9 +143,14 @@ export const getCPSOnTrack = (math: number, reading: number, attendancePCT: numb
   formats strings from the all assignments extracts into date objects
 */
 export const stringToDate = (s: string): Date => {
-  const d = s.split('/').map(a => parseInt(a))
-  const year = d[2] > 2000 ? d[2] : 2000 + d[2]
-  return new Date(year, d[0]-1, d[1])
+  if(s.split('/').length === 3){
+    const d = s.split('/').map(a => parseInt(a))
+    const year = d[2] > 2000 ? d[2] : 2000 + d[2]
+    return new Date(year, d[0]-1, d[1])
+  }else{
+    const d = s.split('-').map(a => parseInt(a))
+    return new Date(d[0], d[1]-1, d[2])
+  }
 }
 
 //parses dates of the form mm-dd-yyyy tt:tt:tt AM/PM

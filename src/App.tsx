@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { ReportHome } from './home/home-cointainers/home'
+import { SignInWrapper } from './home/home-cointainers/signin'
 import './App.css';
 import {Route} from 'react-router';
 import { createBrowserHistory } from 'history';
@@ -29,18 +30,27 @@ point the ReportWrapper renders the report using the newly sent files.
 
 */
 class App extends Component {
+
+  componentDidUpdate() {
+    const location = history.location
+    console.log(location)
+
+  }
+
+  
   render() {
     return (
       <>
-        <Route exact={true} path={process.env.PUBLIC_URL + '/'} component={ReportHome} />
+        <Route exact={true} path={process.env.PUBLIC_URL + '/'} component={SignInWrapper} />
         {ReportCards.map( report => {
           const Component = report.component
           return (
             <Route path={report.link} 
               key={report.title} render={() =>
-              <ReportWrapper reportTitle={report.title}>
-                <Component/>
-              </ReportWrapper>}/>
+                <ReportWrapper reportTitle={report.title}>
+                  <Component/>
+                </ReportWrapper>
+              }/>
           )
         })}
       </>

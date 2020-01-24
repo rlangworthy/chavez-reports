@@ -38,6 +38,7 @@
     -->
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script src="//rum-static.pingdom.net/pa-5dfa7fda229e9300080000d1.js" async></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z5G8S1W2L0"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -45,6 +46,10 @@
       gtag('js', new Date());
 
       gtag('config', 'G-Z5G8S1W2L0');
+      gtag('config', 'G-Z5G8S1W2L0', {
+        'custom_map': {
+          'report_name': 'report_name',
+          'user_email': 'user_email'}})
     </script>
   </body>
 </html>

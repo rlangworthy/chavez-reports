@@ -52,7 +52,7 @@ export interface AspenAssignmentRow {
 export interface AspenCategoriesRow {
   'Teacher First Name': string
   'Teacher Last Name' : string
-  'Class Name' : string
+  'Class Number' : string
   'CLS Cycle' : string
   'Average Mode Setting' : string
   'Category Name' : string
