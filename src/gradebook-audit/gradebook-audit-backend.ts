@@ -64,6 +64,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const rawAllAssignments = aspAllAssignments.filter(a => 
         isAfter(stringToDate(a['Assigned Date']), qStart) &&
         isBefore(stringToDate(a['Assignment Due']), new Date()))
+    console.log(aspAllAssignments)
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
