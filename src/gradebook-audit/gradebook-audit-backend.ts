@@ -57,18 +57,19 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const aspCategoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
     const studentSched = parseSchedule(SS)
     //FIXME: hardcoded, should be a choice of the user
-    const currentTerm = getCurrentQuarter(SY_CURRENT)
+    const currentTerm = '2'//getCurrentQuarter(SY_CURRENT)
     const qStart = getCurrentQuarterDate(SY_CURRENT)
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
+    console.log(aspAllAssignments)
 
     const rawAllAssignments = aspAllAssignments.filter(a => 
         isAfter(stringToDate(a['Assigned Date']), qStart) &&
         isBefore(stringToDate(a['Assignment Due']), new Date()))
-    console.log(aspAllAssignments)
+        //a['Grade Term']==='Term 2')
+    console.log(rawAllAssignments)
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
-    console.log(scheduleClasses)
     //first get classes and categories
     const classCats: ScheduleClasses = getClassesAndCategories(rawCategoriesAndTPL, scheduleClasses)
     //second add grade distributions (including student list) and class names through the grades extract

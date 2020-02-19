@@ -33,7 +33,7 @@ export const SummerschoolReportDownload: React.SFC<SummerschoolReportDownloadPro
     // Also filter out only the students who are attending summer school, have a summer school warning,
     // or who have an unknown summer school status due to missing data.
     const students = report.filter( student => {
-      const isInGrade36or8 = ['03','06','08'].indexOf(student.studentGradeLevel) !== -1;
+      const isInGrade36or8 = ['3','6','8','03','06','08'].indexOf(student.studentGradeLevel) !== -1;
       if (isInGrade36or8) {
         if (hasSummerSchool(student) || hasSummerSchoolWarning(student) || hasUnknownStatus(student)) {
           return true;
@@ -41,7 +41,7 @@ export const SummerschoolReportDownload: React.SFC<SummerschoolReportDownloadPro
       }
       return false;
     });
-    
+    console.log(students)
 
     const headRow =(
       <tr key={'Summerschool Table Header'}>

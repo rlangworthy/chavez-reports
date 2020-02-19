@@ -97,8 +97,9 @@ export const createSummerSchoolReportFromFiles = ( files: ReportFiles) => {
       nweaLY: rawNWEALY,
       paraProp: paraProp,
     });
-
+    console.log(students)
     const summerschoolData = createSummerschoolReport(students);
+    console.log(summerschoolData)
     return (summerschoolData.sort((a,b)=> a.studentHomeroom.concat(a.status)
       .localeCompare(b.studentHomeroom.concat(b.status))));
   } else {
@@ -147,7 +148,6 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
                                             }).object(grades.filter( r => r.SubjectName === 'CHGO READING FRMWK' 
                                                                       || r.SubjectName === 'ALGEBRA'
                                                                       || r.SubjectName === 'MATHEMATICS STD'));
-  
   const numToLetterGrade = (subject : {subjectName: string, quarterAvg: string, finalAvg: string}): LetterGrade | null => {
     const grade = ((subject.finalAvg !== '') ? parseInt(subject.finalAvg, 10): 
                       (subject.quarterAvg !== '') ? parseInt(subject.quarterAvg, 10): null);

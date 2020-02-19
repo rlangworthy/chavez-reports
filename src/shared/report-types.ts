@@ -79,9 +79,9 @@ export const ReportCards: ReportTitle[] = [
         externalLink: 'https://chavez.shinyapps.io/NWEA-Summary/'
     },
     {
-        title: 'Weekly One Pager',
+        title: 'Homeroom One Pager',
         description: 'Review student on-track informaiton by classroom (for teachers).',
-        link: process.env.PUBLIC_URL + '/weekly-one-pager/upload/',
+        link: process.env.PUBLIC_URL + '/homeroom-one-pager/upload/',
         component: HROnePagers,
         files: [{fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT}, 
                 {fileType: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION,fileDesc: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION}, 

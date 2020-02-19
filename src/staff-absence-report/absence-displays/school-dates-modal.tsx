@@ -66,7 +66,7 @@ export class SchoolDatesModal extends React.PureComponent<SchoolDatesModalProps,
                             <DayPicker
                                 onDayClick={this.props.handleDayClick}
                                 canChangeMonth={false}
-                                initialMonth={new Date(2018, 7)}
+                                initialMonth={new Date(2019, 7)}
                                 selectedDays={this.props.selectedDates}
                                 numberOfMonths={12}/>
                         </Col>

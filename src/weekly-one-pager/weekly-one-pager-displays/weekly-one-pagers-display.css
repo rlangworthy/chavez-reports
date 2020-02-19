@@ -2,6 +2,20 @@
     padding: 1cm;
     page-break-after: always;
 }
+
+.summary-page {
+    padding: 1cm;
+    page-break-after: always;
+}
+
+.summary-page-table {
+    margin: 1cm;
+}
+
+.summary-cell {
+    width: 45px;
+}
+
 .inline {
     display: inline-block;
     margin-right: 1.5rem;

@@ -202,10 +202,12 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     chunk: (result: ParseResult) => {
                         const d = new Date()
                         d.setDate(d.getDate()-1)
-                        console.log(d)
+                        //console.log(d)
                         download = download.concat(result.data.filter((a:AspenAssignmentRow) => 
                             isAfter(stringToDate(a['Assigned Date']), qStart) &&
                             isBefore(stringToDate(a['Assignment Due']), d)))
+                            //download.concat(result.data.filter((a:AspenAssignmentRow) => a['Grade Term'] === 'Term 2'))
+                        console.log(download)
                     }})
             })
         }

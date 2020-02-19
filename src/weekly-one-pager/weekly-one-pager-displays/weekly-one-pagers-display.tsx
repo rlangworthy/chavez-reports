@@ -5,7 +5,12 @@ import * as idb from 'idb-keyval'
 import Table from 'react-bootstrap/Table'
 import Chart from 'react-google-charts'
 
-import {createOnePagers, HomeRoom, NWEAData} from '../weekly-one-pager-backend'
+import {
+    createOnePagers, 
+    HomeRoom, 
+    NWEAData,
+    OTSummary, 
+    getOTSQRP} from '../weekly-one-pager-backend'
 import { ReportFiles } from '../../shared/report-types'
 import './weekly-one-pagers-display.css'
 
@@ -33,17 +38,62 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
     private 
 
     render() {
-        const homeRooms = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : []
+        const [homeRooms, summary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : [[],{}]
         const twoSided = this.props.reportFiles && 
             this.props.reportFiles.reportTitle.optionalFiles && 
             this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ? true:false
         return (
             <React.Fragment>
+                <SummaryPage summary={summary}/>
+                {twoSided ? <div className={'summary-page'}/>:null}
                 {homeRooms.map( hr => {return (
                     <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided}/>
                     )})}
             </React.Fragment>
         )}
+}
+
+class SummaryPage extends React.PureComponent<{summary: OTSummary}>{
+    render(){
+        const summaryKeys = ['3','4','5','6','7','8', '3-8']
+        const summary = this.props.summary
+        console.log(summary)
+        return (
+            <div className={'summary-page'}>
+                <h1>Homeroom One Pager Summaries</h1>
+                <h3>On Track Counts by Grade</h3>
+                {summaryKeys.map(key => 
+                        summary[key] &&
+                        <Table striped bordered size="sm" className={'summary-page-table'}>
+                            <tr>
+                                <td className={'summary-cell'}>Grade Level</td>
+                                {Object.keys(summary[key]).map(k => {
+                                    if(k !== 'Avg'){
+                                        return (
+                                            <td className={'summary-cell'}>OT Level {k}</td>
+                                    )}else{
+                                        return (
+                                            <td className={'summary-cell'}>Avg OT Score</td>
+                                        )
+                                    }
+                                })}
+                                <td className={'summary-cell'}>SQRP Points</td>
+                            </tr>
+                            <tr>
+                                <td className={'summary-cell'}>{key}</td>
+                                {Object.keys(summary[key]).map(k => {
+                                    return (
+                                        <td className={'summary-cell'}>{summary[key][k]}</td>
+                                    )
+                                })}
+                                <td className={'summary-cell'}>{getOTSQRP(summary[key]['Avg'] * 10)}</td>
+                            </tr>
+                        </Table>
+                    
+                )}
+            </div>
+        )
+    }
 }
 
 class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolean}> {
@@ -53,7 +103,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
             <div>
                 <div className='weekly-wrapper'>
                             <span>
-                                <h1 className='inline'>{'Weekly HR One Pager - ' + hr.room}</h1>
+                                <h1 className='inline'>{'Homeroom One Pager - ' + hr.room}</h1>
                                 <h3 className='inline'>{dateString}</h3>
                             </span>
                             <h4>Average OT Score: {hr.OT ? hr.OT.toFixed(1):''}, worth {hr.SQRP} of 5 SQRP points</h4>
@@ -61,6 +111,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                 <tbody>
                                     <tr>
                                         <td>ELL</td>
+                                        <td>LRE</td>
                                         <td>Full Name (On Track)</td>
                                         <td>Read(Q,F)</td>
                                         <td>Math(Q,F)</td>
@@ -74,6 +125,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                         return (
                                             <tr key={student.fullName + hr.room + i}>
                                                 <td>{student.ELL === 'N/A' ? '' : student.ELL}</td>
+                                                <td>{student.LRE}</td>
                                                 <td>{student.fullName + ' ('+ student.onTrack + ')'}</td>
                                                 <td>{printGrade(student.quarterReadingGrade, student.finalReadingGrade)}</td>
                                                 <td>{printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>

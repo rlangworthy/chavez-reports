@@ -62,6 +62,7 @@ export interface HRStudent {
     CPSonTrack: boolean
     nweaRead: number //-1 if none
     nweaMath: number  //-1 if none
+    LRE: string
 }
 
 export interface ChartHRStudent extends HRStudent {
@@ -96,6 +97,7 @@ interface Student {
     onTrack: number
     nweaRead: number //-1 if none
     nweaMath: number //-1 if none
+    LRE: string
 }
 
 interface Students {
@@ -108,7 +110,13 @@ interface Tardies {
     Absences: string
 }
 
-export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
+export interface OTSummary {
+    [group: string]: {
+        [OTScore: string]: number
+    }
+}
+
+export const createOnePagers = (files: ReportFiles): [HomeRoom[], OTSummary] => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const aspGrades = gr === null? null: gr.data as AspenESGradesRow[]
     const currentQuarter = getCurrentQuarter(SY_CURRENT)
@@ -145,6 +153,7 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
         if(studentGradeObject[row['Student ID']]!== undefined){
             studentGradeObject[row['Student ID']].ELL = row['ELL Program Year Code'];
             studentGradeObject[row['Student ID']].GradeLevel = row.Grade
+            studentGradeObject[row['Student ID']].LRE = row.LRE;
         }
     });}
     if(tardies != null){
@@ -170,7 +179,7 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
 
     mergeStudents(studentGradeObject, gradeHist);
 
-    const homeRooms = flattenStudents(studentGradeObject);
+    const [homeRooms, summary] = flattenStudents(studentGradeObject);
 
     if(nweaData !== {}){
         Object.keys(homeRooms).forEach(hr => {
@@ -178,7 +187,7 @@ export const createOnePagers = (files: ReportFiles): HomeRoom[] => {
         })
     }
     //console.log(homeRooms)
-    return homeRooms.sort((a,b) => a.grade.localeCompare(b.grade));
+    return [homeRooms.sort((a,b) => a.grade.localeCompare(b.grade)), summary];
 }
 
 const parseNWEA = (nwea: RawNWEACDFRow[]): {[id:string]:any} => {
@@ -275,14 +284,49 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
                 onTrack: -1,
                 nweaMath: -1,
                 nweaRead: -1,
+                LRE: '',
             }
         }).object(file)
     
     return students;
 }
 
-const flattenStudents = (students: Students): HomeRoom[] => {
+const flattenStudents = (students: Students): [HomeRoom[], OTSummary] => {
     const studentArray: Student[] = Object.keys(students).map( s => students[s]);
+    const summary: OTSummary = d3.nest<Student, number>()
+        .key((r:Student) => r.GradeLevel)
+        .key((r:Student) => r.onTrack.toString())
+        .rollup(rs => rs.length)
+        .object(studentArray)
+    summary['3-8'] = {}
+    
+    Object.keys(summary).forEach(gl => {
+        ['1','2','3','4','5'].forEach(ot => {
+            if(summary[gl][ot]===undefined){
+                summary[gl][ot] = 0
+            }
+        })
+        Object.keys(summary[gl]).forEach(ot => {
+            if(['3','4','5','6','7','8'].includes(gl)){
+                if(summary['3-8'][ot] === undefined){
+                    summary['3-8'][ot] = 0
+                }
+                summary['3-8'][ot] = summary['3-8'][ot] + summary[gl][ot]
+            }
+        })
+    })
+    Object.keys(summary).forEach(gl => {
+        let total = 0
+        summary[gl]['Avg'] = 0
+        Object.keys(summary[gl]).forEach(ot => {
+            if(ot !== 'Avg'){
+                total += summary[gl][ot]
+                summary[gl]['Avg'] += summary[gl][ot] * parseInt(ot)
+            }
+        })
+        summary[gl]['Avg'] = parseFloat((summary[gl]['Avg']/total).toFixed(2))
+    })
+    console.log(summary)
     const homeRoomsObject: {[hr: string]: HomeRoom}= d3.nest<Student, HomeRoom>()
         .key( r => r.HR)
         .rollup( rs => {
@@ -310,6 +354,7 @@ const flattenStudents = (students: Students): HomeRoom[] => {
                         CPSonTrack: getCPSOnTrack(r.finalMathGrade, r.finalReadingGrade, r.absencePercent),
                         nweaMath: r.nweaMath,
                         nweaRead: r.nweaRead,
+                        LRE: r.LRE
                     }
                 })
             }
@@ -317,23 +362,23 @@ const flattenStudents = (students: Students): HomeRoom[] => {
     const homeRooms = Object.keys(homeRoomsObject)
                             .map( hr => homeRoomsObject[hr])
                             .map(hr => {
-                                const OT = getHROT(hr.students)
+                                const OT = getGroupOT(hr.students)
                                 const SQRP = getOTSQRP(OT)
                                 return {...hr, OT:OT, SQRP:SQRP}
                             })
     
 
-    return homeRooms;
+    return [homeRooms, summary];
 
 }
 
-const getHROT = (students: HRStudent[]): number => {
+const getGroupOT = (students: HRStudent[]): number => {
     const ot = students.map(student => student.onTrack)
     const avg = ot.reduce((a,b) => a+b)/ot.length
     return avg * 10
 }
 
-const getOTSQRP = (OT: number): number => {
+export const getOTSQRP = (OT: number): number => {
     if(OT >= 44.5){
         return 5
     }else if(OT >= 42){

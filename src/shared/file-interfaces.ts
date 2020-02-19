@@ -36,6 +36,7 @@ export interface AspenAssignmentRow {
   'Student First Name': string
   'Student ID' : string
   'Grade Level' : string
+  'Grade Term' : string
   'Class Name' : string
   'Teacher Last Name' : string
   'Teacher First Name' : string
@@ -84,6 +85,7 @@ export interface RawStudentProfessionalSupportDetailsRow {
     PDIS: string
     'ELL Program Year Code': string
     Grade: string
+    LRE: string
 }
 
 export interface RawStaffAbsenceRow {
