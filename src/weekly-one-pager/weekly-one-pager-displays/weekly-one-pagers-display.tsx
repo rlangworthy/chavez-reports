@@ -3,6 +3,9 @@ import * as dateFns from 'date-fns'
 import * as idb from 'idb-keyval'
 
 import Table from 'react-bootstrap/Table'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import Chart from 'react-google-charts'
 
 import {
@@ -12,6 +15,9 @@ import {
     OTSummary, 
     getOTSQRP} from '../weekly-one-pager-backend'
 import { ReportFiles } from '../../shared/report-types'
+import {
+    MultiSelect
+    } from '../../shared/components/multi-select'
 import './weekly-one-pagers-display.css'
 
 interface OnePageProps {
@@ -19,6 +25,11 @@ interface OnePageProps {
 }
 
 interface OnePageState {
+    grades: string[]
+    selectedGrades: string[]
+    homeRooms: HomeRoom[],
+    summary: OTSummary,
+    twoSided: boolean
 }
 
 const printGrade = (quarter: number, final: number) => {
@@ -32,25 +43,78 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
     constructor(props){
         super(props)
         window.addEventListener('beforeunload', () => {idb.del('Weekly One Pager')});
-        this.state = {homeRooms: []}
+        this.state = {
+            grades: [],
+            selectedGrades: [],
+            homeRooms: [],
+            summary: {},
+            twoSided: false,
+        }
     }
 
-    private 
-
-    render() {
+    componentWillMount(){
         const [homeRooms, summary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : [[],{}]
         const twoSided = this.props.reportFiles && 
             this.props.reportFiles.reportTitle.optionalFiles && 
             this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ? true:false
+        const grades = [... new Set(homeRooms.map(hr => hr.grade))].sort()
+        this.setState({
+            homeRooms: homeRooms,
+            summary: summary,
+            twoSided: twoSided,
+            grades: grades,
+        })
+    
+    } 
+
+    render() {
+        const summary = this.state.summary
+        const twoSided = this.state.twoSided
+        const homeRooms = this.state.homeRooms
         return (
-            <React.Fragment>
-                <SummaryPage summary={summary}/>
-                {twoSided ? <div className={'summary-page'}/>:null}
-                {homeRooms.map( hr => {return (
-                    <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided}/>
-                    )})}
-            </React.Fragment>
+            <Container>
+                <Row>
+                    <Col className='grades-filter-container'>
+                        <MultiSelect
+                            items={this.state.grades}
+                            selected={this.state.selectedGrades}
+                            title='Teachers'
+                            handleClick={this.handleGradeClick}
+                        />
+                    </Col>
+                    <Col className='grades-display-container'>
+                        <SummaryPage summary={summary}/>
+                        {twoSided ? <div className={'summary-page'}/>:null}
+                        {homeRooms.map( hr => {
+                                if(this.state.selectedGrades===[] || this.state.selectedGrades.includes(hr.grade)){
+                                    return (
+                                        <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided}/>
+                                    )
+                                }else{
+                                    return null
+                                }
+                            }
+                        )}
+                    </Col>
+                </Row>
+            </Container>
         )}
+
+        handleGradeClick = (grade: string[] | string): void => {
+            const selected=this.state.selectedGrades;
+            if(Array.isArray(grade)){
+                if(grade.every(s => selected.includes(s))){
+                    this.setState({selectedGrades: selected.filter(f=> !grade.includes(f))})
+                }else{
+                    const newSelected = selected.concat(grade.filter(s=> !selected.includes(s)))
+                    this.setState({selectedGrades:newSelected})
+                }
+            }else{
+                selected.includes(grade) ? 
+                    this.setState({selectedGrades: selected.filter(f => f!==grade)}):
+                    this.setState({selectedGrades: selected.concat([grade])})
+            }
+        }
 }
 
 class SummaryPage extends React.PureComponent<{summary: OTSummary}>{
