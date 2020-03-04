@@ -1,3 +1,15 @@
+/*
+ * Adding a file involves:
+ *  update the FileTypes enum to include your new file + human readable name
+ *  update the FileDescription object to have a description for your new file
+ *
+ * From there you'll want to add an interface for your new file (file-interfaces.ts) and then add it
+ * to whatever reports will require it (report-types.ts).
+ * 
+ */
+
+
+
 export const DBNAME = 'reportFileStore'
 
 
@@ -13,6 +25,7 @@ export enum FileTypes {
     STUDENT_INFO = 'Student Search List Report',
     HS_THRESHOLD = 'HS Threshold Report',
     STUDENT_SCHEDULE = 'Student Schedules (Sheet)',
+    MCLASS_STUDENT_SUMMARY = 'Student Summary',
 }
 
 /*
@@ -90,4 +103,7 @@ FileDescriptions[FileTypes.HS_THRESHOLD] = {
 FileDescriptions[FileTypes.STUDENT_SCHEDULE] = {
     description: 'Located in Reports section of the Aspen School view Schedule tab',
     link: 'https://docs.google.com/document/d/1mxzo9TQKwc76SaKb4MeVEOV3yERe5H2FBuXa7LTE4xk/edit?usp=sharing'
+}
+FileDescriptions[FileTypes.MCLASS_STUDENT_SUMMARY] = {
+    description: '',
 }

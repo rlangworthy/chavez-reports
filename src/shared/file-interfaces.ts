@@ -61,6 +61,13 @@ export interface AspenCategoriesRow {
   'Category Percentage' : string
 }
 
+export interface MClassStudentSummary {
+  'Student Primary ID': string
+  'Assessment Measure-TRC Proficiency Level-Levels': string
+  'Assessment Grade' : string
+  'Reporting Class ID' : string //homeroom
+}
+
 export interface RawESCumulativeGradeExtractRow {
     SchoolID:string
     SchoolName: string

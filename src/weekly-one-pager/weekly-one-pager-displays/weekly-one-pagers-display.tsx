@@ -34,7 +34,7 @@ interface OnePageState {
 
 const printGrade = (quarter: number, final: number) => {
     if (quarter < 0 && final < 0 ){ return '--'}
-    return '(' + ((quarter > 0 ) ? quarter: '-') + ', ' + ((final > 0 ) ? final: '-') + ')';
+    return '(' + ((quarter > 0 ) ? quarter.toFixed(1): '-') + ', ' + ((final > 0 ) ? final.toFixed(1): '-') + ')';
 }
 
 const dateString= dateFns.format(new Date(), 'Do MMM, YYYY');
@@ -53,11 +53,12 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
     }
 
     componentWillMount(){
-        const [homeRooms, summary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : [[],{}]
         const twoSided = this.props.reportFiles && 
             this.props.reportFiles.reportTitle.optionalFiles && 
             this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ? true:false
+        const [homeRooms, summary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : [[],{}]
         const grades = [... new Set(homeRooms.map(hr => hr.grade))].sort()
+        console.log(twoSided)
         this.setState({
             homeRooms: homeRooms,
             summary: summary,
@@ -86,7 +87,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
                         <SummaryPage summary={summary}/>
                         {twoSided ? <div className={'summary-page'}/>:null}
                         {homeRooms.map( hr => {
-                                if(this.state.selectedGrades===[] || this.state.selectedGrades.includes(hr.grade)){
+                                if(this.state.selectedGrades.length===0 || this.state.selectedGrades.includes(hr.grade)){
                                     return (
                                         <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided}/>
                                     )
@@ -121,37 +122,41 @@ class SummaryPage extends React.PureComponent<{summary: OTSummary}>{
     render(){
         const summaryKeys = ['3','4','5','6','7','8', '3-8']
         const summary = this.props.summary
-        console.log(summary)
         return (
             <div className={'summary-page'}>
-                <h1>Homeroom One Pager Summaries</h1>
+                <span>
+                    <h1>Homeroom One Pager Summaries</h1>
+                    <h3 className='inline'>{dateString}</h3>
+                </span>
                 <h3>On Track Counts by Grade</h3>
                 {summaryKeys.map(key => 
                         summary[key] &&
-                        <Table striped bordered size="sm" className={'summary-page-table'}>
-                            <tr>
-                                <td className={'summary-cell'}>Grade Level</td>
-                                {Object.keys(summary[key]).map(k => {
-                                    if(k !== 'Avg'){
+                        <Table striped bordered size="sm" className={'summary-page-table'} key={key}>
+                            <tbody>
+                                <tr>
+                                    <td className={'summary-cell'}>Grade Level</td>
+                                    {Object.keys(summary[key]).map(k => {
+                                        if(k !== 'Avg'){
+                                            return (
+                                                <td className={'summary-cell'} key={k}>OT Level {k}</td>
+                                        )}else{
+                                            return (
+                                                <td className={'summary-cell'} key={k}>Avg OT Score</td>
+                                            )
+                                        }
+                                    })}
+                                    <td className={'summary-cell'}>SQRP Points</td>
+                                </tr>
+                                <tr>
+                                    <td className={'summary-cell'}>{key}</td>
+                                    {Object.keys(summary[key]).map(k => {
                                         return (
-                                            <td className={'summary-cell'}>OT Level {k}</td>
-                                    )}else{
-                                        return (
-                                            <td className={'summary-cell'}>Avg OT Score</td>
+                                            <td className={'summary-cell'} key={k}>{summary[key][k]}</td>
                                         )
-                                    }
-                                })}
-                                <td className={'summary-cell'}>SQRP Points</td>
-                            </tr>
-                            <tr>
-                                <td className={'summary-cell'}>{key}</td>
-                                {Object.keys(summary[key]).map(k => {
-                                    return (
-                                        <td className={'summary-cell'}>{summary[key][k]}</td>
-                                    )
-                                })}
-                                <td className={'summary-cell'}>{getOTSQRP(summary[key]['Avg'] * 10)}</td>
-                            </tr>
+                                    })}
+                                    <td className={'summary-cell'}>{getOTSQRP(summary[key]['Avg'] * 10)}</td>
+                                </tr>
+                            </tbody>
                         </Table>
                     
                 )}
@@ -195,8 +200,8 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                                 <td>{printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>
                                                 <td>{printGrade(student.quarterScienceGrade, student.finalScienceGrade)}</td>
                                                 <td>{printGrade(student.quarterSocialScienceGrade, student.finalSocialScienceGrade)}</td>
-                                                <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(2):
-                                                    student.finalGPA[0].toFixed(2) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(2)+')'}</td>
+                                                <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(1):
+                                                    student.finalGPA[0].toFixed(1) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(1)+')'}</td>
                                                 <td>{student.tardies[0] === student.tardies[1] ? student.tardies[0]:
                                                     student.tardies[0] + '(' + (student.tardies[0]-student.tardies[1])+')'}</td>
                                                 <td>{student.enrollmentDays[0]===student.enrollmentDays[1] ? 
@@ -218,21 +223,75 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
 }
 
 const BackPage : React.SFC<{hr: HomeRoom}> = (props) =>{    
-    return (
-        <div className='backpage'>
-            {props.hr.NWEAMath && props.hr.NWEAMath.chartData.length > 1 ? 
-                <div className='math-rep'>
-                    <h4>Correlation between most recent Mathematics NWEA percentile and cummulative grade for Math class</h4>
-                    <DisciplineDisplay data={props.hr.NWEAMath} discipline={'Math'}/>
-                </div> : null}
-            {props.hr.NWEARead && props.hr.NWEARead.chartData.length > 1? 
-                <div className='math-rep'>
-                    <h4>Correlation between most recent Reading NWEA percentile and cummulative grade for Reading Framework class</h4>
-                    <DisciplineDisplay data={props.hr.NWEARead} discipline={'Read'}/>
-                </div> : null}
+    if(['3','4','5','6','7','8'].includes(props.hr.grade))
+    {
+        return (
+            <div className='backpage'>
+                {props.hr.NWEAMath && props.hr.NWEAMath.chartData.length > 1 ? 
+                    <div className='math-rep'>
+                        <h4>Mathematics NWEA percentile and cummulative grade for Math class Analysis</h4>
+                        <DisciplineDisplay data={props.hr.NWEAMath} discipline={'Math'}/>
+                    </div> : null}
+                {props.hr.NWEARead && props.hr.NWEARead.chartData.length > 1? 
+                    <div className='math-rep'>
+                        <h4>Reading NWEA percentile and cummulative grade for Reading Framework class Analysis</h4>
+                        <DisciplineDisplay data={props.hr.NWEARead} discipline={'Read'}/>
+                    </div> : null}
 
-        </div>
-    )
+            </div>
+        )
+    }else if(['1', '2'].includes(props.hr.grade)){
+        return (
+            <div className='backpage'>
+                <h4>Students with High Reading Grades and Low TRC Proficiency</h4>
+                <span className='inline'>
+                    <Table striped bordered size="sm">
+                        <tbody>
+                            <tr>
+                                <td colSpan={2}>Below Proficient and A's</td>
+                            </tr>
+                            {props.hr.students.map((s,id)=> {
+                                if(s.mClass && s.mClass === 'Below Proficient'
+                                    && s.finalReadingGrade > 89.5){
+                                        return (
+                                            <tr key={id}>
+                                                <td>{s.fullName}</td>
+                                                <td>{s.finalReadingGrade}</td>
+                                            </tr>
+                                        )
+                                    }
+                            })}
+                        </tbody>
+                    </Table>
+                    <Table striped bordered size="sm">
+                        <tbody>
+                            <tr>
+                                <td colSpan={2}>Far Below Proficient and A's or B's</td>
+                            </tr>
+                            {props.hr.students.map((s,id)=> {
+                                if(s.mClass && s.mClass === 'Far Below Proficient'
+                                    && s.finalReadingGrade > 79.5){
+                                        return (
+                                            <tr key={id}>
+                                                <td>{s.fullName}</td>
+                                                <td>{s.finalReadingGrade}</td>
+                                            </tr>
+                                        )
+                                    }
+                            })}
+                        </tbody>
+                    </Table>
+                </span>
+            </div>
+        )
+    }
+    else{
+        return (
+            <div className='backpage'>
+                
+            </div>
+        )
+    }
 }
 
 const DisciplineDisplay :React.SFC<{data: NWEAData, discipline: 'Math' | 'Read'}> = props => {
@@ -242,11 +301,17 @@ const DisciplineDisplay :React.SFC<{data: NWEAData, discipline: 'Math' | 'Read'}
     }else{
         data = props.data.chartData.map(s => [s.nweaRead, s.finalReadingGrade])
     }
+    let correl = 'Low';
+    if(props.data.correl > .4){
+        correl = 'Medium'
+    }
+    if(props.data.correl > .65){
+        correl = 'High'
+    }
 
-    return(
-        <div className='NWEA-rep'>
-            <h5>Correlation: {props.data.correl}</h5>
-            <Chart
+    /*
+    old chart of nwea vs grade
+    <Chart
                 width={'500px'}
                 height={'300px'}
                 chartType="ScatterChart"
@@ -264,9 +329,13 @@ const DisciplineDisplay :React.SFC<{data: NWEAData, discipline: 'Math' | 'Read'}
                 }}
                 rootProps={{ 'data-testid': '1' }}
             />
+    */
+    return(
+        <div className='NWEA-rep'>
+            <h5>{correl} Correlation Between NWEA Percentile and Grade</h5>
             <div>
                 <span className='inline'>
-                    <h5>Lower than Predicted Grade</h5>
+                    <h5>D and F Grades With High NWEA Scores</h5>
                     <Table striped bordered size="sm">
                         <tbody>
                             <tr>
@@ -274,21 +343,33 @@ const DisciplineDisplay :React.SFC<{data: NWEAData, discipline: 'Math' | 'Read'}
                                 <td>NWEA</td>
                                 <td>Grade</td>
                             </tr>
-                            {props.data.chartData.slice(0, Math.min(props.data.chartData.length, 5)).map(s => {
-                                return (
-                                    <tr key={s.fullName}>
-                                        <td>{s.fullName}</td>
-                                        {props.discipline === 'Math' ?
-                                            <>
-                                            <td>{s.nweaMath}</td>
-                                            <td>{s.finalMathGrade}</td>
-                                            </> :
-                                            <>
-                                            <td>{s.nweaRead}</td>
-                                            <td>{s.finalReadingGrade}</td>
-                                            </>}
-                                    </tr>
-                                )
+                            {props.data.chartData
+                                .filter(student => 
+                                    (props.discipline === 'Math' && student.finalMathGrade < 70 && student.nweaMath >= 50) ||
+                                    (props.discipline === 'Read' && student.finalReadingGrade < 70 && student.nweaRead >= 50))
+                                .sort((a,b) => {
+                                    if(props.discipline === 'Math'){
+                                        return a.finalMathGrade - b.finalMathGrade
+                                    }else{
+                                        return a.finalReadingGrade - b.finalReadingGrade
+                                    }
+                                })
+                                .slice(0, Math.min(props.data.chartData.length, 5))
+                                .map(s => {
+                                    return (
+                                        <tr key={s.fullName}>
+                                            <td>{s.fullName}</td>
+                                            {props.discipline === 'Math' ?
+                                                <>
+                                                <td>{s.nweaMath}</td>
+                                                <td>{s.finalMathGrade}</td>
+                                                </> :
+                                                <>
+                                                <td>{s.nweaRead}</td>
+                                                <td>{s.finalReadingGrade}</td>
+                                                </>}
+                                        </tr>
+                                    )
                                 })
                             }
                         </tbody>

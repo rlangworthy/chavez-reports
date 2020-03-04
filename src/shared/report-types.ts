@@ -87,6 +87,7 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION,fileDesc: FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION}, 
                 {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE}],
         optionalFiles: [{fileType: FileTypes.NWEA, fileDesc: FileTypes.NWEA + ' (For Reverse)'},
+                        {fileType: FileTypes.MCLASS_STUDENT_SUMMARY, fileDesc: FileTypes.MCLASS_STUDENT_SUMMARY + ' (Optional)'},
                         {fileType: FileTypes.ES_GRADES_EXTRACT,fileDesc: FileTypes.ES_GRADES_EXTRACT + ' (Optional)'}, 
                         {fileType: FileTypes.ATTENDENCE,fileDesc: FileTypes.ATTENDENCE + ' (Optional)'}],
     },

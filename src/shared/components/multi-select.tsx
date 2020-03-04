@@ -5,6 +5,10 @@ import { CustomToggle } from '../../shared/components/custom-toggle'
 import { CustomCollapse } from '../../shared/components/custom-collapse'
 import './multi-select.css'
 import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+
 //takes a handler, either an array of values or 
 export interface MultiSelectProps {
     handleClick: (ev: string | string[]) => void
@@ -17,6 +21,7 @@ export interface MultiSelectState {
     open: boolean
     subHeaders: {[key: string]:boolean}
 }
+
 
 export class MultiSelect extends React.PureComponent<MultiSelectProps, MultiSelectState> {
     constructor(props) {
@@ -174,3 +179,65 @@ const SelectDropdownWidget: React.SFC<SelectDropdownWidgetProps> = (props) => {
     )
 }
 /* eslint-enable */
+
+
+
+export interface MultiSelectPanesState{
+
+}
+export interface MultiSelectPanesProps{
+
+}
+/*
+export class MultiSelectPanes extends React.PureComponent<{}> {
+    
+    
+    render(){
+        return (
+            <Container>
+                <Row>
+                    <Col className='grades-filter-container'>
+                        <MultiSelect
+                            items={this.state.grades}
+                            selected={this.state.selectedGrades}
+                            title='Teachers'
+                            handleClick={this.handleGradeClick}
+                        />
+                    </Col>
+                    <Col className='grades-display-container'>
+                        <SummaryPage summary={summary}/>
+                        {twoSided ? <div className={'summary-page'}/>:null}
+                        {homeRooms.map( hr => {
+                                if(this.state.selectedGrades.length===0 || this.state.selectedGrades.includes(hr.grade)){
+                                    return (
+                                        <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided}/>
+                                    )
+                                }else{
+                                    return null
+                                }
+                            }
+                        )}
+                    </Col>
+                </Row>
+            </Container>
+        )
+    }
+
+
+    handleGradeClick = (grade: string[] | string): void => {
+        const selected=this.state.selectedGrades;
+        if(Array.isArray(grade)){
+            if(grade.every(s => selected.includes(s))){
+                this.setState({selectedGrades: selected.filter(f=> !grade.includes(f))})
+            }else{
+                const newSelected = selected.concat(grade.filter(s=> !selected.includes(s)))
+                this.setState({selectedGrades:newSelected})
+            }
+        }else{
+            selected.includes(grade) ? 
+                this.setState({selectedGrades: selected.filter(f => f!==grade)}):
+                this.setState({selectedGrades: selected.concat([grade])})
+        }
+    }
+}
+*/

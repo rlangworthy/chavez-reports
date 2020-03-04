@@ -23,7 +23,7 @@ import {
 import { 
     fileListHas, 
     getUniqueFileName, 
-    getCurrentQuarterDate, 
+    getCurrentQuarter, 
     stringToDate} from '../../shared/utils'
 
 import './home.css'
@@ -182,7 +182,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
     private addFile = (fileType: string, file: File): Promise<void> => {
         if(fileType === FileTypes.ASSIGNMENTS_SLOW_LOAD){
             var download:AspenAssignmentRow[] = []
-            const qStart = getCurrentQuarterDate(SY_CURRENT)
+            const qStart = getCurrentQuarter(SY_CURRENT)
             return new Promise ((resolve,reject) => {
                 Papa.parse(file, {complete: (result: ParseResult) => {
                     const newFileList = {};
@@ -202,12 +202,8 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     chunk: (result: ParseResult) => {
                         const d = new Date()
                         d.setDate(d.getDate()-1)
-                        //console.log(d)
                         download = download.concat(result.data.filter((a:AspenAssignmentRow) => 
-                            isAfter(stringToDate(a['Assigned Date']), qStart) &&
-                            isBefore(stringToDate(a['Assignment Due']), d)))
-                            //download.concat(result.data.filter((a:AspenAssignmentRow) => a['Grade Term'] === 'Term 2'))
-                        console.log(download)
+                            a["Grade Term"].split(' ')[1]===qStart))
                     }})
             })
         }

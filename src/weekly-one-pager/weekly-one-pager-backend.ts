@@ -26,8 +26,8 @@ import {
     RawESCumulativeGradeExtractRow,
     RawStudentProfessionalSupportDetailsRow,
     AspenESGradesRow,
-    RawNWEACDFRow
-    } from '../shared/file-interfaces'
+    RawNWEACDFRow,
+    MClassStudentSummary} from '../shared/file-interfaces'
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import { HSStudent } from '../student-one-pager/student-one-pager-backend'
 
@@ -63,6 +63,7 @@ export interface HRStudent {
     nweaRead: number //-1 if none
     nweaMath: number  //-1 if none
     LRE: string
+    mClass?: string
 }
 
 export interface ChartHRStudent extends HRStudent {
@@ -98,6 +99,7 @@ interface Student {
     nweaRead: number //-1 if none
     nweaMath: number //-1 if none
     LRE: string
+    mClass?: string
 }
 
 interface Students {
@@ -145,9 +147,14 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], OTSummary] => 
     if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc]){
         const nwea = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
         nweaData = parseNWEA(nwea === null ? []:nwea.data as RawNWEACDFRow[])
-        
-    
     }
+    let mClassData = {}
+    if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc]){
+        const mClass = files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult
+        mClassData = parseMClass(mClass === null ? []:mClass.data as MClassStudentSummary[])
+        console.log(mClassData)
+    }
+
     
     if (spps !== null){spps.forEach(row => {
         if(studentGradeObject[row['Student ID']]!== undefined){
@@ -176,6 +183,13 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], OTSummary] => 
             }
         })
     }
+    if(mClassData !== {}){
+        Object.keys(studentGradeObject).forEach(id => {
+            if(mClassData[id]!== undefined){
+                studentGradeObject[id].mClass = mClassData[id][0]['Assessment Measure-TRC Proficiency Level-Levels']
+            }
+        })
+    }
 
     mergeStudents(studentGradeObject, gradeHist);
 
@@ -186,7 +200,6 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], OTSummary] => 
             homeRooms[hr] = {...homeRooms[hr], ...getNWEAData(homeRooms[hr])}
         })
     }
-    //console.log(homeRooms)
     return [homeRooms.sort((a,b) => a.grade.localeCompare(b.grade)), summary];
 }
 
@@ -195,6 +208,12 @@ const parseNWEA = (nwea: RawNWEACDFRow[]): {[id:string]:any} => {
                 .key(r => r.StudentID)
                 .key(r => r.Discipline)
                 .object(nwea)
+}
+
+const parseMClass = (mClass: MClassStudentSummary[]): {[id:string]:MClassStudentSummary} => {
+    return d3.nest()
+    .key((r:MClassStudentSummary) => r["Student Primary ID"])
+    .object(mClass)
 }
 
 const mergeStudents = (current: Students, past: Students) => {
@@ -326,7 +345,6 @@ const flattenStudents = (students: Students): [HomeRoom[], OTSummary] => {
         })
         summary[gl]['Avg'] = parseFloat((summary[gl]['Avg']/total).toFixed(2))
     })
-    console.log(summary)
     const homeRoomsObject: {[hr: string]: HomeRoom}= d3.nest<Student, HomeRoom>()
         .key( r => r.HR)
         .rollup( rs => {
@@ -354,7 +372,8 @@ const flattenStudents = (students: Students): [HomeRoom[], OTSummary] => {
                         CPSonTrack: getCPSOnTrack(r.finalMathGrade, r.finalReadingGrade, r.absencePercent),
                         nweaMath: r.nweaMath,
                         nweaRead: r.nweaRead,
-                        LRE: r.LRE
+                        LRE: r.LRE,
+                        mClass: r.mClass,
                     }
                 })
             }
@@ -441,9 +460,7 @@ const getNWEAData = (hr: HomeRoom): {NWEARead: NWEAData, NWEAMath: NWEAData} => 
         residual: s.finalReadingGrade - (rReg.slope * s.nweaRead + rReg.intercept)}})
         .sort((a,b) => a.residual - b.residual)
 
-    console.log(hr.room)
-    console.log(rReg)
-    console.log(rChartStudents)
+
     const readData:NWEAData = {correl: readCorr, chartData: rChartStudents}
     const mathData:NWEAData = {correl: mathCorr, chartData: mChartStudents}
     return {NWEARead: readData, NWEAMath: mathData}

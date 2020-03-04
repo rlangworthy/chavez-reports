@@ -45,7 +45,7 @@ const holidayList1920: HolidayDate[] = [
 const irregularDayList: HolidayDate[] = [
     {name: 'Report Card Distribution Days',
     dates: [new Date(2020, 1,7),new Date(2020, 5, 16)]},
-    {name:'School Improement Days',
+    {name:'School Improvement Days',
     dates: [new Date(2019, 10, 8), new Date(2020, 0, 31), new Date(2020, 3, 17), new Date(2020, 5, 17)]},
     {name: 'ES Parent-Teacher Conference Days',
     dates: [new Date(2019, 10,13), new Date(2020, 3, 22)]}
