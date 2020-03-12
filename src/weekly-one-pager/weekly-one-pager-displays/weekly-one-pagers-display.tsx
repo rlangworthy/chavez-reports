@@ -12,8 +12,8 @@ import {
     createOnePagers, 
     HomeRoom, 
     NWEAData,
-    OTSummary, 
-    getOTSQRP} from '../weekly-one-pager-backend'
+    getOTSQRP,
+    HRSummary} from '../weekly-one-pager-backend'
 import { ReportFiles } from '../../shared/report-types'
 import {
     MultiSelect
@@ -28,7 +28,7 @@ interface OnePageState {
     grades: string[]
     selectedGrades: string[]
     homeRooms: HomeRoom[],
-    summary: OTSummary,
+    summary: HRSummary,
     twoSided: boolean
 }
 
@@ -47,7 +47,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
             grades: [],
             selectedGrades: [],
             homeRooms: [],
-            summary: {},
+            summary: {OT:{},grades:{}},
             twoSided: false,
         }
     }
@@ -56,7 +56,8 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
         const twoSided = this.props.reportFiles && 
             this.props.reportFiles.reportTitle.optionalFiles && 
             this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ? true:false
-        const [homeRooms, summary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : [[],{}]
+        const [homeRooms, summary]: [HomeRoom[], HRSummary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : 
+        [[] as HomeRoom[],{} as HRSummary]
         const grades = [... new Set(homeRooms.map(hr => hr.grade))].sort()
         console.log(twoSided)
         this.setState({
@@ -93,7 +94,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
                                     )
                                 }else{
                                     return null
-                                }
+                                }   
                             }
                         )}
                     </Col>
@@ -118,10 +119,11 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
         }
 }
 
-class SummaryPage extends React.PureComponent<{summary: OTSummary}>{
+class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
     render(){
         const summaryKeys = ['3','4','5','6','7','8', '3-8']
-        const summary = this.props.summary
+        const summary = this.props.summary.OT
+        const averages = this.props.summary.grades
         return (
             <div className={'summary-page'}>
                 <span>
@@ -158,7 +160,30 @@ class SummaryPage extends React.PureComponent<{summary: OTSummary}>{
                                 </tr>
                             </tbody>
                         </Table>
-                    
+                )}
+                <h3>Grade and Attendance Averages by Grade</h3>
+                {summaryKeys.map(key => 
+                        averages[key] &&
+                        <Table striped bordered size="sm" className={'summary-page-table'} key={key}>
+                            <tbody>
+                                <tr>
+                                    <td className={'summary-cell'}>Grade Level</td>
+                                    <td className={'summary-cell'}>Math</td>
+                                    <td className={'summary-cell'}>Reading</td>
+                                    <td className={'summary-cell'}>Science</td>
+                                    <td className={'summary-cell'}>Social Science</td>
+                                    <td className={'summary-cell'}>Attendance</td>
+                                </tr>
+                                <tr>
+                                    <td className={'summary-cell'}>{key}</td>
+                                    <td className={'summary-cell'}>{averages[key].mathGrade.toFixed(1)}</td>
+                                    <td className={'summary-cell'}>{averages[key].readingGrade.toFixed(1)}</td>
+                                    <td className={'summary-cell'}>{averages[key].scienceGrade.toFixed(1)}</td>
+                                    <td className={'summary-cell'}>{averages[key].ssGrade.toFixed(1)}</td>
+                                    <td className={'summary-cell'}>{averages[key].attendanceAvg.toFixed(1)}</td>
+                                </tr>
+                            </tbody>
+                        </Table>
                 )}
             </div>
         )
@@ -175,7 +200,10 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                 <h1 className='inline'>{'Homeroom One Pager - ' + hr.room}</h1>
                                 <h3 className='inline'>{dateString}</h3>
                             </span>
-                            <h4>Average OT Score: {hr.OT ? hr.OT.toFixed(1):''}, worth {hr.SQRP} of 5 SQRP points</h4>
+                            <span className='inline'>
+                                <h4>Average OT Score: {hr.OT ? hr.OT.toFixed(1):''}, worth {hr.SQRP} of 5 SQRP points</h4>
+                                <span color={'darkgreen'}>Green</span> names improve OT with one higher letter grade, <span color={'darkorange'}>Orange</span> with two
+                            </span>
                             <Table striped bordered size="sm">
                                 <tbody>
                                     <tr>
@@ -191,11 +219,12 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                         <td>Attendance</td>
                                     </tr>
                                     {hr.students.map( (student, i) => {
+                                        const className = student.otDelta && student.otDelta > 0 ? (student.otDelta ===1 ? 'one-grade':'two-grade') : ''
                                         return (
                                             <tr key={student.fullName + hr.room + i}>
                                                 <td>{student.ELL === 'N/A' ? '' : student.ELL}</td>
                                                 <td>{student.LRE}</td>
-                                                <td>{student.fullName + ' ('+ student.onTrack + ')'}</td>
+                                                <td className={className}>{student.fullName + ' ('+ student.onTrack + ')'}</td>
                                                 <td>{printGrade(student.quarterReadingGrade, student.finalReadingGrade)}</td>
                                                 <td>{printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>
                                                 <td>{printGrade(student.quarterScienceGrade, student.finalScienceGrade)}</td>

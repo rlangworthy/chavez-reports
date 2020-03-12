@@ -90,6 +90,10 @@ export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
       return 1
     }
 
+    if(attendancePCT <87.5){
+      return 2
+    }
+
     if(GPA >= 2){
       if(attendancePCT>=97.5){
         return (GPA >= 2.5 ? 5:4)
@@ -131,6 +135,8 @@ export const getOnTrackScore = (GPA: number, attendancePCT: number): number =>{
     }
     return 2
 }
+
+
 
 /*
   CPS on track pre-2020 school year

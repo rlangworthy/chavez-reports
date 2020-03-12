@@ -33,6 +33,7 @@ import { HSStudent } from '../student-one-pager/student-one-pager-backend'
 
 
 export interface HomeRoom{
+    averages: GradesSummary
     room: string
     students: HRStudent[]
     grade: string
@@ -40,6 +41,15 @@ export interface HomeRoom{
     SQRP?: number
     NWEARead?: NWEAData
     NWEAMath?: NWEAData
+}
+
+export interface GradesSummary {
+    studentCount: number
+    ssGrade: number
+    scienceGrade: number
+    mathGrade: number
+    readingGrade: number
+    attendanceAvg: number
 }
 
 export interface HRStudent {
@@ -59,6 +69,7 @@ export interface HRStudent {
     tardies: number[]
     enrollmentDays: number[]
     onTrack: number
+    otDelta?: number
     CPSonTrack: boolean
     nweaRead: number //-1 if none
     nweaMath: number  //-1 if none
@@ -112,13 +123,12 @@ interface Tardies {
     Absences: string
 }
 
-export interface OTSummary {
-    [group: string]: {
-        [OTScore: string]: number
-    }
+export interface HRSummary {
+    OT: {[group: string]:{[OTScore: string]: number}}
+    grades: {[group: string]: GradesSummary}
 }
 
-export const createOnePagers = (files: ReportFiles): [HomeRoom[], OTSummary] => {
+export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const aspGrades = gr === null? null: gr.data as AspenESGradesRow[]
     const currentQuarter = getCurrentQuarter(SY_CURRENT)
@@ -152,7 +162,6 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], OTSummary] => 
     if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc]){
         const mClass = files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult
         mClassData = parseMClass(mClass === null ? []:mClass.data as MClassStudentSummary[])
-        console.log(mClassData)
     }
 
     
@@ -310,45 +319,65 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
     return students;
 }
 
-const flattenStudents = (students: Students): [HomeRoom[], OTSummary] => {
+const flattenStudents = (students: Students): [HomeRoom[], HRSummary] => {
     const studentArray: Student[] = Object.keys(students).map( s => students[s]);
-    const summary: OTSummary = d3.nest<Student, number>()
+    //Fill out on track portion of summary
+    const summary: HRSummary = {
+        OT: {},
+        grades: {}
+    }
+    summary.OT = d3.nest<Student, number>()
         .key((r:Student) => r.GradeLevel)
         .key((r:Student) => r.onTrack.toString())
         .rollup(rs => rs.length)
         .object(studentArray)
-    summary['3-8'] = {}
+    summary.OT['3-8'] = {}
     
-    Object.keys(summary).forEach(gl => {
+    Object.keys(summary.OT).forEach(gl => {
         ['1','2','3','4','5'].forEach(ot => {
-            if(summary[gl][ot]===undefined){
-                summary[gl][ot] = 0
+            if(summary.OT[gl][ot]===undefined){
+                summary.OT[gl][ot] = 0
             }
         })
-        Object.keys(summary[gl]).forEach(ot => {
+        Object.keys(summary.OT[gl]).forEach(ot => {
             if(['3','4','5','6','7','8'].includes(gl)){
-                if(summary['3-8'][ot] === undefined){
-                    summary['3-8'][ot] = 0
+                if(summary.OT['3-8'][ot] === undefined){
+                    summary.OT['3-8'][ot] = 0
                 }
-                summary['3-8'][ot] = summary['3-8'][ot] + summary[gl][ot]
+                summary.OT['3-8'][ot] = summary.OT['3-8'][ot] + summary.OT[gl][ot]
             }
         })
     })
-    Object.keys(summary).forEach(gl => {
+    Object.keys(summary.OT).forEach(gl => {
         let total = 0
-        summary[gl]['Avg'] = 0
-        Object.keys(summary[gl]).forEach(ot => {
+        summary.OT[gl]['Avg'] = 0
+        Object.keys(summary.OT[gl]).forEach(ot => {
             if(ot !== 'Avg'){
-                total += summary[gl][ot]
-                summary[gl]['Avg'] += summary[gl][ot] * parseInt(ot)
+                total += summary.OT[gl][ot]
+                summary.OT[gl]['Avg'] += summary.OT[gl][ot] * parseInt(ot)
             }
         })
-        summary[gl]['Avg'] = parseFloat((summary[gl]['Avg']/total).toFixed(2))
+        summary.OT[gl]['Avg'] = parseFloat((summary.OT[gl]['Avg']/total).toFixed(2))
     })
+    //end on track portion of summary
+
     const homeRoomsObject: {[hr: string]: HomeRoom}= d3.nest<Student, HomeRoom>()
         .key( r => r.HR)
-        .rollup( rs => {
+        .rollup( (rs:Student[]):HomeRoom => {
             return {
+                averages: {
+                    studentCount:rs.length,
+                    attendanceAvg: rs.map(r => r.absencePercent).reduce((a,b) => a+b,0)/rs.length,
+                    ssGrade: rs.map(r => r.finalSocialScienceGrade)
+                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalSocialScienceGrade >=0).length,
+                    scienceGrade: rs.map(r => r.finalScienceGrade)
+                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalScienceGrade >=0).length,
+                    mathGrade: rs.map(r => r.finalMathGrade)
+                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalMathGrade >=0).length,
+                    readingGrade: rs.map(r => r.finalReadingGrade)
+                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalReadingGrade >=0).length,
+                                
+                },
                 room: rs[0].HR,
                 grade: rs[0].GradeLevel,
                 students: rs.sort((a,b)=> a.onTrack-b.onTrack).map( (r: Student):HRStudent => {
@@ -369,6 +398,7 @@ const flattenStudents = (students: Students): [HomeRoom[], OTSummary] => {
                         tardies: r.tardies,
                         enrollmentDays: r.totalDays,
                         onTrack: r.onTrack,
+                        otDelta: getOTDelta(r.onTrack, r.finalGPA[0], r.absencePercent),
                         CPSonTrack: getCPSOnTrack(r.finalMathGrade, r.finalReadingGrade, r.absencePercent),
                         nweaMath: r.nweaMath,
                         nweaRead: r.nweaRead,
@@ -386,9 +416,29 @@ const flattenStudents = (students: Students): [HomeRoom[], OTSummary] => {
                                 return {...hr, OT:OT, SQRP:SQRP}
                             })
     
-
+    
+    //grade averages
+    const gradeStudents = d3.nest<Student>()
+                            .key(s => s.GradeLevel)
+                            .rollup((rs:Student[]):GradesSummary => {
+                                return {
+                                    studentCount:rs.length,
+                                    attendanceAvg: rs.map(r => r.absencePercent).reduce((a,b) => a+b,0)/rs.length,
+                                    ssGrade: rs.map(r => r.finalSocialScienceGrade)
+                                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalSocialScienceGrade >=0).length,
+                                    scienceGrade: rs.map(r => r.finalScienceGrade)
+                                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalScienceGrade >=0).length,
+                                    mathGrade: rs.map(r => r.finalMathGrade)
+                                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalMathGrade >=0).length,
+                                    readingGrade: rs.map(r => r.finalReadingGrade)
+                                                .reduce((a,b) => a + (b >= 0 ? b:0),0)/rs.filter(r => r.finalReadingGrade >=0).length,
+                                                
+                                }})
+                            .object(studentArray)
+    summary.grades = gradeStudents
+    console.log(summary)
+    console.log(homeRooms)
     return [homeRooms, summary];
-
 }
 
 const getGroupOT = (students: HRStudent[]): number => {
@@ -409,6 +459,20 @@ export const getOTSQRP = (OT: number): number => {
     }
     return 1
 }
+
+const getOTDelta = (ot: number, gpa: number, absencePct: number): number => {
+    if(ot === 5){
+        return 0
+    }
+    if(ot < getOnTrackScore(gpa + .25, absencePct)){
+        return 1
+    }
+    if(ot < getOnTrackScore(gpa + .5, absencePct)){
+        return 2
+    }
+    return 0
+}
+
 
 //: Mutates data
 const getAttendanceData = (students: Students, attData: Tardies[]) => {
@@ -481,8 +545,6 @@ const spreadGrades = (grades: AspenESGradesRow[]): RawESCumulativeGradeExtractRo
             const grade = rs.filter(g => g['Quarter']===currentQuarter);
             const prevGrade = rs.filter(g => g['Quarter']===prevQuarter);
             if(grade[0]===undefined){
-                console.log(rs)
-                console.log(currentQuarter)
             }
             if(grade[0]["Final Average"] === ''){
                 grade[0]["Final Average"] = prevGrade[0]['Term Grade']

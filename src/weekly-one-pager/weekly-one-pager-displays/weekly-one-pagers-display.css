@@ -9,11 +9,19 @@
 }
 
 .summary-page-table {
-    margin: 1cm;
+    margin: .5cm;
 }
 
 .summary-cell {
     width: 45px;
+}
+
+td.one-grade {
+    color: darkgreen
+}
+
+td.two-grade {
+  color: darkorange
 }
 
 .inline {
@@ -56,7 +64,7 @@
   
     .grades-display-container {
       position: relative;
-      overflow: visible;
+      overflow: clip;
       width: 100%;  
     }
   }  
