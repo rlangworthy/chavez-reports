@@ -13,7 +13,7 @@ import { ReportModal } from './report-modal'
 import { InstructionModal } from '../home-displays/instructions-modal'
 import { FileManagerContainer } from './file-manager-container'
 import { reportTag } from '../../shared/gtag'
-
+import Dropzone from 'react-dropzone'
 
 import { 
     FileList,
@@ -122,14 +122,26 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 <Navbar>
                     <Navbar.Brand>Chavez Report Suite</Navbar.Brand>
                 </Navbar>
-                <ButtonToolbar className='home-btn-toolbar'>
-                    <Button onClick={() => this.activateModal('Instructions')}>
-                        Instructions
-                    </Button>
-                    <Button onClick={() => this.activateModal('Manage Files')}>
-                        {this.state.loadingFiles ? 'Loading...':'Manage Local Files'}
-                    </Button>
-                </ButtonToolbar>
+                <div className='home-btn-toolbar-container'>
+                    <ButtonToolbar className='home-btn-toolbar'>
+                        <Button onClick={() => this.activateModal('Instructions')}>
+                            Instructions
+                        </Button>
+                        <Button onClick={() => this.activateModal('Manage Files')}>
+                            {this.state.loadingFiles ? 'Loading...':'Manage Local Files'}
+                        </Button>
+                    </ButtonToolbar>
+                    <Dropzone onDrop={acceptedFiles => console.log(acceptedFiles)}>
+                        {({getRootProps, getInputProps}) => (
+                            <section>
+                            <div {...getRootProps()}>
+                                <input {...getInputProps()} />
+                                <Button>Drag 'n' drop some files here, or click to select files</Button>
+                            </div>
+                            </section>
+                        )}
+                    </Dropzone>
+                </div>
                 <CardDeck>
                     {ReportCards.map( card => {return (<ReportCard 
                         key={card.title} 

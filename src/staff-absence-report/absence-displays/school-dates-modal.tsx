@@ -9,6 +9,7 @@ import DayPickerInput from 'react-day-picker/DayPickerInput'
 import {HolidayDate, SY_CURRENT} from '../../shared/initial-school-dates'
 
 import './school-dates-modal.css'
+import { DayModifiers } from 'react-day-picker/types/Modifiers'
 
 interface SchoolDatesModalProps {
     show: boolean
@@ -16,7 +17,7 @@ interface SchoolDatesModalProps {
     holidays: HolidayDate[]
     startDate: Date
     endDate: Date
-    handleDayClick: (date: Date, mod:{selected: boolean}) => void
+    handleDayClick: (date: Date, modifiers: DayModifiers) => void
     handleBoundsChange: (startDate: Date, endDate: Date) => void
     handleHide: ()=>void
     handleHolidayClick: (dates: Date[], selectDates: boolean) => void

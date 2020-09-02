@@ -5,6 +5,7 @@ import { StaffAbsenceReport } from '../staff-absence-report/absence-containers/s
 import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-containers/gradebook-audit-container'
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
+import { TestReport } from '../test-report/test-backend'
 
 /*
  *To add a new report: 
@@ -114,4 +115,12 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.ATTENDENCE, fileDesc: FileTypes.ATTENDENCE},
                 {fileType: FileTypes.STUDENT_SCHEDULE, fileDesc: FileTypes.STUDENT_SCHEDULE}],
     },
+    {
+        title: 'Test',
+        description: 'All student assignments by class and category',
+        link: process.env.PUBLIC_URL + '/test/upload/',
+        component: TestReport,
+        files: [
+                {fileType: FileTypes.SCHEDULE_INFO, fileDesc: FileTypes.SCHEDULE_INFO}],
+    }
 ]

@@ -551,5 +551,5 @@ const spreadGrades = (grades: AspenESGradesRow[]): RawESCumulativeGradeExtractRo
             }
             return convertAspGrades(grade[0])
     }).object(grades)
-    return Object.values(byStudent).map(a => Object.values(a)).flat(Infinity)
+    return Object.values(byStudent).map(a => Object.values(a)).flat(2)
 }

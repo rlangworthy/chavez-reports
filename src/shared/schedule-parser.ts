@@ -101,5 +101,6 @@ export const parseSchedule = (rawSched: string[][]): StudentClassList[] => {
             i++
         }
     }
+    console.log(sched.flat())
     return sched.flat()
 }

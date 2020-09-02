@@ -50,7 +50,7 @@ export const FileInputs: React.SFC<FileInputsProps> = (props) => {
                                                     fLink={f.altLink}/>
                                             </Col>
                                             <Col>
-                                                <Form.Control as='select' onChange={(e)=>props.handleChange(e, f.fileDesc)}
+                                                <Form.Control as='select' onChange={(e)=>props.handleChange(e as React.ChangeEvent<HTMLSelectElement>, f.fileDesc)}
                                                 value={props.selectedValues[f.fileDesc]}
                                                 id={`${f}-file-select`}>
                                                     {fileList[f.fileType].map( (file, i) => {

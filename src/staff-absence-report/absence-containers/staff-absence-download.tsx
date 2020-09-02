@@ -43,6 +43,7 @@ import {
 
 import './staff-absence-download.css'
 import 'react-day-picker/lib/style.css';
+import { DayModifiers } from 'react-day-picker/types/Modifiers';
 
 interface StaffAbsenceReportProps {
     reportFiles?: ReportFiles
@@ -192,7 +193,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
         this.setState({dateModal: false})
     }
 
-    private handleDatesModalDayClick = (date: Date, mod: {selected: boolean}) => {
+    private handleDatesModalDayClick = (date: Date, mod: DayModifiers) => {
         this.setState({schoolDates: mod.selected ? this.state.schoolDates.filter(d => !isSameDay(d, date)):this.state.schoolDates.concat([date])})
     }
 

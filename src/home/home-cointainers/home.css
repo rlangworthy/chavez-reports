@@ -7,6 +7,10 @@
     justify-content: center;
 }
 
+.home-btn-toolbar-container {
+    margin-bottom: 25px;
+}
+
 .home-btn-toolbar {
     margin-bottom: 25px;
 }
