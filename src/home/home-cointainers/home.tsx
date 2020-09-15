@@ -12,6 +12,7 @@ import { ReportCard } from '../home-displays/report-card'
 import { ReportModal } from './report-modal'
 import { InstructionModal } from '../home-displays/instructions-modal'
 import { FileManagerContainer } from './file-manager-container'
+import { getFileType } from '../../shared/file-types-utils'
 import { reportTag } from '../../shared/gtag'
 import Dropzone from 'react-dropzone'
 
@@ -189,6 +190,22 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
     private handleHide = () => {
         this.setState({activeModal: null});
     }
+
+    private dropFiles = (files: File[]): Promise<void[]> => {
+        return Promise.all(files.map((file):Promise<void> => {
+            return new Promise ((resolve, reject) => {
+                Papa.parse(file, {complete: (result: ParseResult, f: File) => {
+                    const fileType = getFileType(result.meta.fields)
+                    this.addFile(fileType, f)
+                    resolve();
+                },
+                skipEmptyLines: true,
+                header: true,
+                preview: 1})
+            })
+        }))
+    }
+
 
     //add file to the working instance of the app, should refactor into utils along with delete and save
     private addFile = (fileType: string, file: File): Promise<void> => {
