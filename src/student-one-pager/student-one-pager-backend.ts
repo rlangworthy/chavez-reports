@@ -125,7 +125,7 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
     const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
     const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
-    const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm).map(convertAspGrades)
+    const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
     const rawAllAssignments = aspAllAssignments.filter(a => parseGrade(a['Score'])===0 
         && isAfter(stringToDate(a['Assigned Date']), startDate))
         .map(convertAspAsgns)
@@ -201,43 +201,43 @@ const printCalculatedGrades = (students: HSStudent[]) => {
     console.log(papa.unparse(calcGrades))
 }
 
-const getStudentGrades = (file: RawESCumulativeGradeExtractRow[]): Students => {
+const getStudentGrades = (file: AspenESGradesRow[]): Students => {
     
     
-    const getReadingGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'CHGO READING FRMWK');
+    const getReadingGrade = (rows: AspenESGradesRow[]): number[] => {
+        const row = rows.find( r => r["Course Name"] === 'CHGO READING FRMWK');
         if(row === undefined){return [-1, -1]}
-        const finalAvg = row.FinalAvg !== '' ? parseInt(row.FinalAvg, 10): -1;
-        const quarterAvg = row.QuarterAvg !== '' ? parseInt(row.QuarterAvg, 10): -1
+        const finalAvg = row["Cumulative Semester Average"] !== '' ? parseInt(row["Cumulative Semester Average"], 10): -1;
+        const quarterAvg = row["Running Term Average"] !== '' ? parseInt(row["Running Term Average"], 10): -1
         return [quarterAvg, finalAvg];
 
     }
-    const getMathGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'MATHEMATICS STD');
-        const alg = rows.find( r => r.SubjectName === 'ALGEBRA');
+    const getMathGrade = (rows: AspenESGradesRow[]): number[] => {
+        const row = rows.find( r => r["Course Name"] === 'MATHEMATICS STD');
+        const alg = rows.find( r => r["Course Name"] === 'ALGEBRA');
         if(row === undefined){
             if(alg === undefined){return [-1, -1]}
             else{
-                const finalAvg = alg.FinalAvg !== '' ? parseInt(alg.FinalAvg, 10): -1;
-                const quarterAvg = alg.QuarterAvg !== '' ? parseInt(alg.QuarterAvg, 10): -1
+                const finalAvg = alg["Cumulative Semester Average"] !== '' ? parseInt(alg["Cumulative Semester Average"], 10): -1;
+                const quarterAvg = alg["Running Term Average"] !== '' ? parseInt(alg["Running Term Average"], 10): -1
                 return [quarterAvg, finalAvg];
             }}
-        const finalAvg = row.FinalAvg !== '' ? parseInt(row.FinalAvg, 10): -1;
-        const quarterAvg = row.QuarterAvg !== '' ? parseInt(row.QuarterAvg, 10): -1
+        const finalAvg = row["Cumulative Semester Average"] !== '' ? parseInt(row["Cumulative Semester Average"], 10): -1;
+        const quarterAvg = row["Running Term Average"] !== '' ? parseInt(row["Running Term Average"], 10): -1
         return [quarterAvg, finalAvg];
     }
-    const getScienceGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'SCIENCE  STANDARDS');
+    const getScienceGrade = (rows: AspenESGradesRow[]): number[] => {
+        const row = rows.find( r => r["Course Name"] === 'SCIENCE  STANDARDS');
         if(row === undefined){return [-1, -1]}
-        const finalAvg = row.FinalAvg !== '' ? parseInt(row.FinalAvg, 10): -1;
-        const quarterAvg = row.QuarterAvg !== '' ? parseInt(row.QuarterAvg, 10): -1
+        const finalAvg = row["Cumulative Semester Average"] !== '' ? parseInt(row["Cumulative Semester Average"], 10): -1;
+        const quarterAvg = row["Running Term Average"] !== '' ? parseInt(row["Running Term Average"], 10): -1
         return [quarterAvg, finalAvg];
     }
-    const getSocialScienceGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'SOCIAL SCIENCE STD');
+    const getSocialScienceGrade = (rows: AspenESGradesRow[]): number[] => {
+        const row = rows.find( r => r["Course Name"] === 'SOCIAL SCIENCE STD');
         if(row === undefined){return [-1, -1]}
-        const finalAvg = row.FinalAvg !== '' ? parseInt(row.FinalAvg, 10): -1;
-        const quarterAvg = row.QuarterAvg !== '' ? parseInt(row.QuarterAvg, 10): -1
+        const finalAvg = row["Cumulative Semester Average"] !== '' ? parseInt(row["Cumulative Semester Average"], 10): -1;
+        const quarterAvg = row["Running Term Average"] !== '' ? parseInt(row["Running Term Average"], 10): -1
         return [quarterAvg, finalAvg];
     }
 
@@ -253,7 +253,7 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[]): Students => {
         return normGrade.length > 0 ? normGrade.reduce(((a,b) => a+b), 0)/normGrade.length : 0
     }
 
-    const students = d3.nest<RawESCumulativeGradeExtractRow, Student>()
+    const students = d3.nest<AspenESGradesRow, Student>()
         .key( r => r.StudentID)
         .rollup( rs => {
             const grades = [getReadingGrade(rs),getMathGrade(rs),getScienceGrade(rs),getSocialScienceGrade(rs)];

@@ -132,7 +132,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                             {this.state.loadingFiles ? 'Loading...':'Manage Local Files'}
                         </Button>
                     </ButtonToolbar>
-                    <Dropzone onDrop={acceptedFiles => console.log(acceptedFiles)}>
+                    <Dropzone onDrop={acceptedFiles => this.dropFiles(acceptedFiles)}>
                         {({getRootProps, getInputProps}) => (
                             <section>
                             <div {...getRootProps()}>
@@ -196,7 +196,9 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
             return new Promise ((resolve, reject) => {
                 Papa.parse(file, {complete: (result: ParseResult, f: File) => {
                     const fileType = getFileType(result.meta.fields)
-                    this.addFile(fileType, f)
+                    if(fileType !== 'NA'){
+                        this.addFile(fileType, f)
+                    }
                     resolve();
                 },
                 skipEmptyLines: true,

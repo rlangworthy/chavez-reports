@@ -50,7 +50,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "eslint-plugin-react": "^7.13.0"
+    "eslint-plugin-react": "^7.13.0",
+    "ttypescript": "^1.5.12"
   },
   "homepage": "https://co-ps-chavez-sites-w01.cps.k12.il.us/reports"
 }

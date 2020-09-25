@@ -286,12 +286,17 @@ export const studentSearchToGrade = (student : StudentSearchListRow): AspenESGra
         'Homeroom' : student.STUDENT_CURRENT_HOMEROOM,
         'Quarter' : '',
         'Course Name' : '',
+        'Course Number': '',
         'Teacher Last Name' : '',
         'Teacher First Name' : '',
-        'Term Average' : '',
-        'Term Grade' : '',
-        'Final Average' : '',
-        'Course Number' : '',
+        'Running Term Average': '',
+        'Running Term Letter Grade': '',
+        'Posted Term Grade': '',
+        'Term Grade Override Indicator': '',
+        'Cumulative Semester Average': '',
+        'Final Average Letter': '',
+        'Final Grade': '',
+        'Final Grade Override Indicator': '',
     }
 }
 
@@ -375,3 +380,4 @@ const getOnTrackfromClasses = (students: StudentAssignments, attData: Tardies[])
         })
         .object(attData)
 }
+

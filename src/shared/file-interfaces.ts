@@ -2,6 +2,7 @@ export type LetterGrade = 'A' | 'B' | 'C' | 'D' | 'F' | 'a' | 'b' | 'c' | 'd' | 
 export const LetterGradeList = ['A' , 'B' , 'C' , 'D' , 'F' , 'a' , 'b' , 'c' , 'd' , 'f']
 
 export type Score = string | 'Msg' | 'Exc' | 'Inc' | '' | LetterGrade;
+type KeysEnum<T> = { [P in keyof Required<T>]: true };
 
 export interface AspenESGradesRow {
   'Student Last Name': string
@@ -14,9 +15,35 @@ export interface AspenESGradesRow {
   'Course Number': string
   'Teacher Last Name' : string
   'Teacher First Name' : string
-  'Term Average' : string
-  'Term Grade' : string
-  'Final Average' : string
+  'Running Term Average': string
+  'Running Term Letter Grade': string
+  'Posted Term Grade': string
+  'Term Grade Override Indicator': string
+  'Cumulative Semester Average': string
+  'Final Average Letter': string
+  'Final Grade': string
+  'Final Grade Override Indicator': string
+}
+
+export const aspenESGradesRowKeys: KeysEnum<AspenESGradesRow> = {
+  'Student Last Name': true,
+  'Student First Name': true,
+  'Student ID' : true,
+  'Grade Level' : true,
+  'Homeroom' : true,
+  'Quarter' : true,
+  'Course Name' : true,
+  'Course Number': true,
+  'Teacher Last Name' : true,
+  'Teacher First Name' : true,
+  'Running Term Average': true,
+  'Running Term Letter Grade': true,
+  'Posted Term Grade': true,
+  'Term Grade Override Indicator': true,
+  'Cumulative Semester Average': true,
+  'Final Average Letter': true,
+  'Final Grade': true,
+  'Final Grade Override Indicator': true,
 }
 
 export interface AspenHSThresholdRow {
@@ -50,6 +77,25 @@ export interface AspenAssignmentRow {
   'Grade entered on': string
 }
 
+export const aspenAssignmentRowKeys: KeysEnum<AspenAssignmentRow> = {
+  'Student Last Name': true,
+  'Student First Name': true,
+  'Student ID' : true,
+  'Grade Level' : true,
+  'Grade Term' : true,
+  'Class Name' : true,
+  'Teacher Last Name' : true,
+  'Teacher First Name' : true,
+  'Assignment Name' : true,
+  'Score' : true,
+  'Score Possible' : true,
+  'Category Name' : true,
+  'Category Weight' : true,
+  'Assigned Date' : true,
+  'Assignment Due': true,
+  'Grade entered on': true,
+}
+
 export interface AspenCategoriesRow {
   'Teacher First Name': string
   'Teacher Last Name' : string
@@ -59,6 +105,17 @@ export interface AspenCategoriesRow {
   'Category Name' : string
   'Category Weight' : string
   'Category Percentage' : string
+}
+
+export const aspenCategoriesRowKeys: KeysEnum<AspenCategoriesRow> = {
+  'Teacher First Name': true,
+  'Teacher Last Name' : true,
+  'Class Number' : true,
+  'CLS Cycle' : true,
+  'Average Mode Setting' : true,
+  'Category Name' : true,
+  'Category Weight' : true,
+  'Category Percentage' : true,
 }
 
 export interface MClassStudentSummary {
@@ -93,6 +150,16 @@ export interface RawStudentProfessionalSupportDetailsRow {
     'ELL Program Year Code': string
     Grade: string
     LRE: string
+}
+
+export const rawStudentProfessionalSupportDetailsRowKeys: KeysEnum<RawStudentProfessionalSupportDetailsRow> = {
+  'Student ID': true,
+  Name: true,
+  ELL: true,
+  PDIS: true,
+  'ELL Program Year Code': true,
+  Grade: true,
+  LRE: true,
 }
 
 export interface RawStaffAbsenceRow {
@@ -170,7 +237,15 @@ export interface StudentSearchListRow {
   STUDENT_ESL_INDICATOR: string //race
 }
 
-export type RawNWEACDF = RawNWEACDFRow[];
+export const studentSearchListRowKeys: KeysEnum<StudentSearchListRow> = {
+  STUDENT_ID: true,
+  STUDENT_NAME: true,
+  STUDENT_ACTIVITY_INDICATOR: true,
+  textbox8: true, //grade level
+  STUDENT_CURRENT_HOMEROOM: true,
+  STUDENT_RACE: true, //sex
+  STUDENT_ESL_INDICATOR: true, //race
+}
 
 export interface RawNWEACDFRow {
   Requirement_Status: string
@@ -252,4 +327,98 @@ export interface RawNWEACDFRow {
   PercentCorrect: string
   ProjectedProficiency: string
   Textbox22: string
+}
+
+export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
+  Requirement_Status: true,
+  SchoolName: true,
+  StudentID: true,
+  StudentLastName: true,
+  StudentFirstName: true,
+  GradeLevel: true,
+  StudentHomeroom: true,
+  ACCESS_TEST_YEAR1: true,
+  ACCESS_LITERACY_COMPOSITE1: true,
+  STUDENT_ELL_INDICATOR: true,
+  STUDENT_SPECIAL_ED_INDICATOR: true,
+  TermName: true,
+  Discipline: true,
+  GrowthMeasureYN: true,
+  TestName: true,
+  TestStartDate: true,
+  TestDurationMinutes: true,
+  TestRITScore: true,
+  TestStandardError: true,
+  TestPercentile: true,
+  TestPercentile_32: true,
+  TypicalFallToFallGrowth: true,
+  TypicalSpringToSpringGrowth: true,
+  TypicalFallToSpringGrowth: true,
+  TypicalFallToWinterGrowth: true,
+  StartGrade1: true,
+  LYSpringTestDate1: true,
+  LYSpringRITScore1: true,
+  LYTermName1: true,
+  SpringProjectedGain1: true,
+  CYSpringProjectedRIT1: true,
+  GrowthNeededtoAchieveProjected1: true,
+  RITtoReadingScore: true,
+  RITtoReadingMin: true,
+  RITtoReadingMax: true,
+  Goal1Name: true,
+  Goal1RitScore: true,
+  Goal1StdErr: true,
+  Goal1Range: true,
+  Goal1Adjective: true,
+  Goal2Name: true,
+  Goal2RitScore: true,
+  Goal2StdErr: true,
+  Goal2Range: true,
+  Goal2Adjective: true,
+  Goal3Name: true,
+  Goal3RitScore: true,
+  Goal3StdErr: true,
+  Goal3Range: true,
+  Goal3Adjective: true,
+  Goal4Name: true,
+  Goal4RitScore: true,
+  Goal4StdErr: true,
+  Goal4Range: true,
+  Goal4Adjective: true,
+  Goal5Name: true,
+  Goal5RitScore: true,
+  Goal5StdErr: true,
+  Goal5Range: true,
+  Goal5Adjective: true,
+  Goal6Name: true,
+  Goal6RitScore: true,
+  Goal6StdErr: true,
+  Goal6Range: true,
+  Goal6Adjective: true,
+  Goal7Name: true,
+  Goal7RitScore: true,
+  Goal7StdErr: true,
+  Goal7Range: true,
+  Goal7Adjective: true,
+  Goal8Name: true,
+  Goal8RitScore: true,
+  Goal8StdErr: true,
+  Goal8Range: true,
+  Goal8Adjective: true,
+  TestStartTime: true,
+  PercentCorrect: true,
+  ProjectedProficiency: true,
+  Textbox22: true,
+}
+
+export interface Tardies {
+  'Student ID': string
+  Attended: string
+  Absences: string
+}
+
+export const tardiesKeys: KeysEnum<Tardies> = {
+    'Student ID': true,
+    Attended: true,
+    Absences: true,
 }

@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import {
   RawESCumulativeGradeExtractRow,
   RawStudentProfessionalSupportDetailsRow,
-  RawNWEACDF,
+  RawNWEACDFRow,
   AspenESGradesRow } from '../shared/file-interfaces';
 
 import {
@@ -12,6 +12,10 @@ import {
   
 import {
   ReportFiles, } from '../shared/report-types'
+
+  import {
+    SY_CURRENT
+  } from '../shared/initial-school-dates'
 
   type RawESCumulativeGradeExtract = RawESCumulativeGradeExtractRow[]
 
@@ -24,9 +28,9 @@ interface AspenSummerschoolRawData {
 }
 */
 interface ImpactSummerschoolRawData {
-  nweaCY: RawNWEACDF
-  nweaLY: RawNWEACDF
-  grades: RawESCumulativeGradeExtract
+  nweaCY: RawNWEACDFRow[]
+  nweaLY: RawNWEACDFRow[]
+  grades: AspenESGradesRow[]
   paraProp: RawStudentProfessionalSupportDetailsRow[]
 }
 
@@ -86,9 +90,9 @@ export const createSummerSchoolReportFromFiles = ( files: ReportFiles) => {
   const pp = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
 
   const aspGrades = rg === null ? null : rg.data as AspenESGradesRow[];
-  const rawGrades = aspGrades ? aspGrades.filter(g => g['Quarter']==='4').map(convertAspGrades): aspGrades
-  const rawNWEACY = cy === null ? null : cy.data as RawNWEACDF;
-  const rawNWEALY = ly === null ? null : ly.data as RawNWEACDF;
+  const rawGrades = aspGrades ? aspGrades.filter(g => g['Quarter']==='4'): null
+  const rawNWEACY = cy === null ? null : cy.data as RawNWEACDFRow[];
+  const rawNWEALY = ly === null ? null : ly.data as RawNWEACDFRow[];
   const paraProp = pp === null ? null : pp.data as RawStudentProfessionalSupportDetailsRow[];
   if(rawGrades && rawNWEACY && rawNWEALY && paraProp){
     const students = getStudentsFromAspenData({
@@ -139,15 +143,15 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
                                                 gradeLevel: rs[0].StudentGradeLevel,
                                                 subjects: rs.map( r => {
                                                   return {
-                                                    subjectName: r.SubjectName,
-                                                    quarterAvg: r.QuarterAvg,
-                                                    finalAvg: r.FinalAvg,
+                                                    subjectName: r["Course Name"],
+                                                    quarterAvg: r["Running Term Average"],
+                                                    finalAvg: r["Cumulative Semester Average"],
                                                   }
                                                 })
                                               }
-                                            }).object(grades.filter( r => r.SubjectName === 'CHGO READING FRMWK' 
-                                                                      || r.SubjectName === 'ALGEBRA'
-                                                                      || r.SubjectName === 'MATHEMATICS STD'));
+                                            }).object(grades.filter( r => r["Course Name"] === 'CHGO READING FRMWK' 
+                                                                      || r["Course Name"] === 'ALGEBRA'
+                                                                      || r["Course Name"] === 'MATHEMATICS STD'));
   const numToLetterGrade = (subject : {subjectName: string, quarterAvg: string, finalAvg: string}): LetterGrade | null => {
     const grade = ((subject.finalAvg !== '') ? parseInt(subject.finalAvg, 10): 
                       (subject.quarterAvg !== '') ? parseInt(subject.quarterAvg, 10): null);
@@ -167,11 +171,11 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
   }
 
   const getMathGrade = (student: RawStudentInfo): LetterGrade | null => {
-    const math = student.subjects.find( r => r.subjectName === 'MATHEMATICS STD');
+    const math = student.subjects.find( r => r["Course Name"] === 'MATHEMATICS STD');
     if(math !== undefined){
       return numToLetterGrade(math);
     }
-    const alg = student.subjects.find( r => r.subjectName === 'ALGEBRA');
+    const alg = student.subjects.find( r => r["Course Name"] === 'ALGEBRA');
     if(alg !== undefined){
       return numToLetterGrade(alg);
     }
@@ -179,14 +183,14 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
   }
 
   const getReadingGrade = (student: RawStudentInfo): LetterGrade | null => {
-    const subj = student.subjects.find( r => r.subjectName === 'CHGO READING FRMWK');
+    const subj = student.subjects.find( r => r["Course Name"] === 'CHGO READING FRMWK');
     if(subj !== undefined){
       return numToLetterGrade(subj);
     }
     return null;
   }
 
-  const getNWEAMath = (studentID: string, nweaData: RawNWEACDF): number | null => {
+  const getNWEAMath = (studentID: string, nweaData: RawNWEACDFRow[]): number | null => {
     const MATH_DISCIPLINE = 'Mathematics';
     for (const record of nweaData) {
       if (record.StudentID === studentID) {
@@ -203,7 +207,7 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
     return null;
   };
 
-  const getNWEARead = (studentID: string, nweaData: RawNWEACDF): number | null => {
+  const getNWEARead = (studentID: string, nweaData: RawNWEACDFRow[]): number | null => {
     const READ_DISCIPLINE = 'Reading';
     for (const record of nweaData) {
       if (record.StudentID === studentID) {

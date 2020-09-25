@@ -60,6 +60,8 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const currentTerm = getCurrentQuarter(SY_CURRENT)
     console.log(currentTerm)
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
+    console.log(rawESGrades)
+    console.log(aspESGrades)
     const rawAllAssignments = aspAllAssignments.filter(a => 
         a["Grade Term"].split(' ')[1] === currentTerm)
     
@@ -165,20 +167,20 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
 }
 
 const getDistribution = (grades: AspenESGradesRow[]): GradeDistribution => {
-    const failingStudents = grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) < 60)
+    const failingStudents = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) < 60)
                 .map(r => {
                     return {
                         studentName: r["Student First Name"] + ' ' + r["Student Last Name"],
-                        quarterGrade: parseFloat(r["Term Average"])
+                        quarterGrade: parseFloat(r["Running Term Average"])
                     }
                 })
     return {
-            A: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 89).length,
-            B: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 79 && parseFloat(r["Term Average"]) < 90).length,
-            C: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 69 && parseFloat(r["Term Average"]) < 80).length,
-            D: grades.filter(r => r["Term Average"] !== '' && parseFloat(r["Term Average"]) > 59 && parseFloat(r["Term Average"]) < 70).length,
+            A: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 89).length,
+            B: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 79 && parseFloat(r["Running Term Average"]) < 90).length,
+            C: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 69 && parseFloat(r["Running Term Average"]) < 80).length,
+            D: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 59 && parseFloat(r["Running Term Average"]) < 70).length,
             F: failingStudents.length,
-            Blank: grades.filter(r => r["Term Average"] === '').length,
+            Blank: grades.filter(r => r["Running Term Average"] === '').length,
             failingStudents: failingStudents,
             students: grades.map(r=>r["Student ID"]),
         }

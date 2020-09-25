@@ -27,7 +27,8 @@ import {
     RawStudentProfessionalSupportDetailsRow,
     AspenESGradesRow,
     RawNWEACDFRow,
-    MClassStudentSummary} from '../shared/file-interfaces'
+    MClassStudentSummary,
+    Tardies} from '../shared/file-interfaces'
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import { HSStudent } from '../student-one-pager/student-one-pager-backend'
 
@@ -115,12 +116,6 @@ interface Student {
 
 interface Students {
     [id: string]: Student
-}
-
-interface Tardies {
-    'Student ID': string
-    Attended: string
-    Absences: string
 }
 
 export interface HRSummary {

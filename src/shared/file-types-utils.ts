@@ -1,27 +1,27 @@
 import {
     FileTypes } from './file-types'
-import { keys } from 'ts-transformer-keys';
 
 import {
-    AspenESGradesRow,
-    AspenAssignmentRow,
-    AspenCategoriesRow,
-    RawStudentProfessionalSupportDetailsRow,
-    RawStaffAbsenceRow,
-    RawPunchcardRow,
-    StudentSearchListRow,
-    RawNWEACDFRow,
+    aspenAssignmentRowKeys,
+    aspenESGradesRowKeys,
+    aspenCategoriesRowKeys,
+    rawStudentProfessionalSupportDetailsRowKeys,
+    //rawStaffAbsenceRowKeys,
+    //rawPunchcardRowKeys,
+    tardiesKeys,
+    studentSearchListRowKeys,
+    rawNWEACDFRowKeys,
 
 } from './file-interfaces'
-
-const aspenESGradesRow : string[] = keys<AspenESGradesRow>()
-const aspenAssignmentRow: string[] = keys<AspenAssignmentRow>()
-const aspenCategoriesRow: string[] = keys<AspenCategoriesRow>()
-const rawStudentProfessionalSupportDetailsRow: string[] = keys<RawStudentProfessionalSupportDetailsRow>()
-const rawStaffAbsenceRow: string[] = keys<RawStaffAbsenceRow>()
-const rawPunchcardRow: string[] = keys<RawPunchcardRow>()
-const studentSearchListRow: string[] = keys<StudentSearchListRow>()
-const rawNWEACDFRow: string[] = keys<RawNWEACDFRow>()
+const aspenESGradesRow : string[] = Object.keys(aspenESGradesRowKeys)//keys<AspenESGradesRow>()
+const aspenAssignmentRow: string[] =  Object.keys(aspenAssignmentRowKeys)
+const aspenCategoriesRow: string[] =  Object.keys(aspenCategoriesRowKeys)
+const rawStudentProfessionalSupportDetailsRow: string[] =  Object.keys(rawStudentProfessionalSupportDetailsRowKeys)
+//const rawStaffAbsenceRow: string[] =  Object.keys(rawStaffAbsenceRowKeys)
+//const rawPunchcardRow: string[] =  Object.keys(rawPunchcardRowKeys)
+const studentSearchListRow: string[] = Object.keys(studentSearchListRowKeys)
+const rawNWEACDFRow: string[] =  Object.keys(rawNWEACDFRowKeys)
+const tardiesRow: string[] = Object.keys(tardiesKeys)
 
 export const getFileType = (fields: string[] | undefined): string => {
     if(fields !== undefined){
@@ -38,17 +38,20 @@ export const getFileType = (fields: string[] | undefined): string => {
         if(rawStudentProfessionalSupportDetailsRow.every(field => fieldStrings.includes(field))){
             return FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION
         }
-        if(rawStaffAbsenceRow.every(field => fieldStrings.includes(field))){
+       /*if(rawStaffAbsenceRow.every(field => fieldStrings.includes(field))){
             return FileTypes.KRONOS_DATA
         }
         if(rawPunchcardRow.every(field => fieldStrings.includes(field))){
             return FileTypes.KRONOS_DATA
-        }
+        }*/
         if(studentSearchListRow.every(field => fieldStrings.includes(field))){
             return FileTypes.STUDENT_INFO
         }
         if(rawNWEACDFRow.every(field => fieldStrings.includes(field))){
             return FileTypes.NWEA
+        }
+        if(tardiesRow.every(field => fieldStrings.includes(field))){
+            return FileTypes.ATTENDENCE
         }
     }
     return 'NA'
