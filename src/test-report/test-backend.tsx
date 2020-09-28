@@ -28,6 +28,51 @@ interface ScheduleInfo {
     'Parent Phone': string,
 }
 
+interface JijiSheet {
+    term: string,
+    district_mind_id: string,
+    district_organization_id: string,
+    district_name: string,
+    district_school_id: string,
+    school_mind_id: string,
+    school_organization_id: string,
+    school_name: string,
+    syllabus_state: string,
+    syllabus_grade: string,
+    student_grade: string,
+    class_name: string,
+    learner_status: string,
+    teacher_mind_ids: string,
+    teacher_district_ids: string,
+    teacher_names: string,
+    learner_gid: string,
+    external_student_id: string,
+    district_student_id: string,
+    student_mind_id: string,
+    student_first_name: string,
+    student_middle_name: string,
+    student_last_name: string,
+    monday_date: string,
+    monday_to_sunday_period: string,
+    weekly_puzzles_collected: string,
+    weekly_minutes: string,
+    cumulative_minutes: string,
+    cumulative_puzzles_collected: string,
+}
+
+const puzzlesByGrade:{string: number} = {
+    'Pre-K':760,
+    'K':2656,
+    '1':2931,
+    '2':3459,
+    '3':3189,
+    '4':3268,
+    '5':3293,
+    '6':3623,
+    '7MSS':3253,
+    '8MSS':2410,
+}
+
 interface TestProps {
     reportFiles?: ReportFiles
 }
