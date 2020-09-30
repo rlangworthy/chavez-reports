@@ -7,6 +7,7 @@ import CardDeck from 'react-bootstrap/CardDeck'
 import Navbar from 'react-bootstrap/Navbar'
 import Button from 'react-bootstrap/Button'
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
+import Alert from 'react-bootstrap/Alert'
 import { ReportCards } from '../../shared/report-types'
 import { ReportCard } from '../home-displays/report-card'
 import { ReportModal } from './report-modal'
@@ -112,6 +113,19 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         }
     }
 
+    /*<Dropzone onDrop={acceptedFiles => this.dropFiles(acceptedFiles)}>
+                        {({getRootProps, getInputProps}) => (
+                            <section>
+                            <div {...getRootProps()}>
+                                <input {...getInputProps()} />
+                                <Button>Drag 'n' drop some files here, or click to select files</Button>
+                            </div>
+                            </section>
+                        )}
+                        </Dropzone>
+
+    */
+    
 
     render () {
         return (
@@ -123,6 +137,23 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 <Navbar>
                     <Navbar.Brand>Chavez Report Suite</Navbar.Brand>
                 </Navbar>
+                <Alert variant={"warning"}>
+                    <Alert.Heading>Cumulative Grades Extract Workaround</Alert.Heading>
+                    <p>
+                    There have been issues downloading the Cumulative Grades Extract from Aspen, please follow these instructions to resolve them.<br/><br/>
+
+                    1. Open Notepad (PC) or Textedit (Mac) and open a blank document * <br/>
+                    2. Pull up the Cumulative Grades Export as normal<br/>
+                    3. Press ctrl/cmd+a to select the text of the export, and ctrl/cmd+v to copy it<br/>
+                    4. Go to your new blank document in Notepad or Textedit<br/>
+                    5. Press ctrl/cmd+v to paste the Cumulative Grades Export into your document<br/>
+                    6. Save your file naming it as your-file-name.csv<br/><br/>
+
+                    *note for mac users, if your new document has an editing bar at the top when first opened, you need to either press cmd+shift+T or select 'Make Plain Text' under the Format menu before pasting your Grades Export.<br/><br/>
+
+                    Thanks for your patience!
+                    </p>
+                </Alert>
                 <div className='home-btn-toolbar-container'>
                     <ButtonToolbar className='home-btn-toolbar'>
                         <Button onClick={() => this.activateModal('Instructions')}>
@@ -131,18 +162,11 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         <Button onClick={() => this.activateModal('Manage Files')}>
                             {this.state.loadingFiles ? 'Loading...':'Manage Local Files'}
                         </Button>
+                        
                     </ButtonToolbar>
-                    <Dropzone onDrop={acceptedFiles => this.dropFiles(acceptedFiles)}>
-                        {({getRootProps, getInputProps}) => (
-                            <section>
-                            <div {...getRootProps()}>
-                                <input {...getInputProps()} />
-                                <Button>Drag 'n' drop some files here, or click to select files</Button>
-                            </div>
-                            </section>
-                        )}
-                    </Dropzone>
+                
                 </div>
+                
                 <CardDeck>
                     {ReportCards.map( card => {return (<ReportCard 
                         key={card.title} 
@@ -160,7 +184,6 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
                     </Navbar.Text>
                 </Navbar>
-
                 <InstructionModal 
                     show={this.state.activeModal === 'Instructions'}
                     handleHide={this.handleHide}/>
@@ -168,7 +191,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 <FileManagerContainer
                     show={this.state.activeModal === 'Manage Files'}
                     handleHide={this.handleHide}/>
-
+                
                 {ReportCards.map( report => {
                     return(
                     <ReportModal key={report.title}

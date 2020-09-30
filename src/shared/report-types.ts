@@ -40,9 +40,20 @@ export interface ReportFiles {
     reportFiles: {[fileDesc: string]: RawFileParse}
 }
 
-//It is important here that each report have unique descriptions for each file
 
-export const ReportCards: ReportTitle[] = [
+const activeReports: string [] = [
+    'Gradebook Audit Report',
+    'Summerschool Report',
+    'Staff Absence Report',
+    'NWEA Summarizer',
+    'Homeroom One Pager',
+    'Student One Pager',
+    'Student Assignment Sheet',
+    'Test',
+]
+
+//It is important here that each report have unique descriptions for each file
+const allReportCards: ReportTitle[] = [
     {
         title: 'Gradebook Audit Report',
         description: 'Analyze gradebook by classroom (for Admin).',
@@ -124,3 +135,5 @@ export const ReportCards: ReportTitle[] = [
                 {fileType: FileTypes.SCHEDULE_INFO, fileDesc: FileTypes.SCHEDULE_INFO}],
     }
 ]
+
+export const ReportCards: ReportTitle[] = allReportCards.filter(report => activeReports.includes(report.title))

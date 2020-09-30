@@ -60,7 +60,7 @@ interface JijiSheet {
     cumulative_puzzles_collected: string,
 }
 
-const puzzlesByGrade:{string: number} = {
+const puzzlesByGrade:{[string:string]: number} = {
     'Pre-K':760,
     'K':2656,
     '1':2931,
