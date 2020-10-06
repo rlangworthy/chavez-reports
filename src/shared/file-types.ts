@@ -26,7 +26,8 @@ export enum FileTypes {
     HS_THRESHOLD = 'HS Threshold Report',
     STUDENT_SCHEDULE = 'Student Schedules (Sheet)',
     MCLASS_STUDENT_SUMMARY = 'Student Summary',
-    SCHEDULE_INFO = 'Schedule Info'
+    SCHEDULE_INFO = 'Schedule Info',
+    JIJI = 'Jiji Sheet'
 }
 
 /*
@@ -109,5 +110,8 @@ FileDescriptions[FileTypes.MCLASS_STUDENT_SUMMARY] = {
     description: '',
 }
 FileDescriptions[FileTypes.SCHEDULE_INFO] = {
+    description: ''
+}
+FileDescriptions[FileTypes.JIJI] = {
     description: ''
 }

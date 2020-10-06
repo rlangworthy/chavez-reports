@@ -142,9 +142,9 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     <p>
                     There have been issues downloading the Cumulative Grades Extract from Aspen, please follow these instructions to resolve them.<br/><br/>
 
-                    1. Open Notepad (PC) or Textedit (Mac) and open a blank document * <br/>
+                    1. Open Notepad (PC) or Textedit (Mac) and open a blank document *<br/>
                     2. Pull up the Cumulative Grades Export as normal<br/>
-                    3. Press ctrl/cmd+a to select the text of the export, and ctrl/cmd+v to copy it<br/>
+                    3. Press ctrl/cmd+c to select the text of the export, and ctrl/cmd+v to copy it<br/>
                     4. Go to your new blank document in Notepad or Textedit<br/>
                     5. Press ctrl/cmd+v to paste the Cumulative Grades Export into your document<br/>
                     6. Save your file naming it as your-file-name.csv<br/><br/>

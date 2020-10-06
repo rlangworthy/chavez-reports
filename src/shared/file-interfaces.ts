@@ -24,7 +24,6 @@ export interface AspenESGradesRow {
   'Final Grade': string
   'Final Grade Override Indicator': string
 }
-
 export const aspenESGradesRowKeys: KeysEnum<AspenESGradesRow> = {
   'Student Last Name': true,
   'Student First Name': true,
@@ -45,7 +44,6 @@ export const aspenESGradesRowKeys: KeysEnum<AspenESGradesRow> = {
   'Final Grade': true,
   'Final Grade Override Indicator': true,
 }
-
 export interface AspenHSThresholdRow {
   'Student ID': string
   'Student Name': string
@@ -57,7 +55,6 @@ export interface AspenHSThresholdRow {
   'Teacher Name':string
   
 }
-
 export interface AspenAssignmentRow {
   'Student Last Name': string
   'Student First Name': string
@@ -76,7 +73,6 @@ export interface AspenAssignmentRow {
   'Assignment Due': string
   'Grade entered on': string
 }
-
 export const aspenAssignmentRowKeys: KeysEnum<AspenAssignmentRow> = {
   'Student Last Name': true,
   'Student First Name': true,
@@ -95,7 +91,6 @@ export const aspenAssignmentRowKeys: KeysEnum<AspenAssignmentRow> = {
   'Assignment Due': true,
   'Grade entered on': true,
 }
-
 export interface AspenCategoriesRow {
   'Teacher First Name': string
   'Teacher Last Name' : string
@@ -106,7 +101,6 @@ export interface AspenCategoriesRow {
   'Category Weight' : string
   'Category Percentage' : string
 }
-
 export const aspenCategoriesRowKeys: KeysEnum<AspenCategoriesRow> = {
   'Teacher First Name': true,
   'Teacher Last Name' : true,
@@ -117,14 +111,12 @@ export const aspenCategoriesRowKeys: KeysEnum<AspenCategoriesRow> = {
   'Category Weight' : true,
   'Category Percentage' : true,
 }
-
 export interface MClassStudentSummary {
   'Student Primary ID': string
   'Assessment Measure-TRC Proficiency Level-Levels': string
   'Assessment Grade' : string
   'Reporting Class ID' : string //homeroom
 }
-
 export interface RawESCumulativeGradeExtractRow {
     SchoolID:string
     SchoolName: string
@@ -141,7 +133,6 @@ export interface RawESCumulativeGradeExtractRow {
     FinalAvg: string
     QuarterGrade: string
   }
-
 export interface RawStudentProfessionalSupportDetailsRow {
     'Student ID': string
     Name: string
@@ -151,7 +142,6 @@ export interface RawStudentProfessionalSupportDetailsRow {
     Grade: string
     LRE: string
 }
-
 export const rawStudentProfessionalSupportDetailsRowKeys: KeysEnum<RawStudentProfessionalSupportDetailsRow> = {
   'Student ID': true,
   Name: true,
@@ -161,7 +151,6 @@ export const rawStudentProfessionalSupportDetailsRowKeys: KeysEnum<RawStudentPro
   Grade: true,
   LRE: true,
 }
-
 export interface RawStaffAbsenceRow {
   AMOUNT: number | null
   Date: string
@@ -175,7 +164,6 @@ export interface RawStaffAbsenceRow {
   'Unit Name': string
   'Unit/Dept ID': number
 }
-
 export interface RawPunchcardRow {
   PERSONNUM: string
   PERSONFULLNAME: string
@@ -186,7 +174,6 @@ export interface RawPunchcardRow {
   ENDPUNCHDTM: string    
   HOURS: string
 }
-
 export interface RawAssignmentsRow {
   StuStudentId: string
   ClassName: string
@@ -199,7 +186,6 @@ export interface RawAssignmentsRow {
   CategoryWeight: string
   GradeEnteredOn: string
 }
-
 export interface RawTeacherCategoriesAndTotalPointsLogicRow {
   SchoolID: string
   SchoolName: string
@@ -214,7 +200,6 @@ export interface RawTeacherCategoriesAndTotalPointsLogicRow {
   CategoryWeight: string
   CategoryPercent: string
 }
-
 export interface ThresholdReport {
   'Student ID': string
   'Student Name': string
@@ -226,7 +211,6 @@ export interface ThresholdReport {
   'Cavg': string
   'Teacher Name': string
 }
-
 export interface StudentSearchListRow {
   STUDENT_ID: string
   STUDENT_NAME: string
@@ -236,7 +220,6 @@ export interface StudentSearchListRow {
   STUDENT_RACE: string //sex
   STUDENT_ESL_INDICATOR: string //race
 }
-
 export const studentSearchListRowKeys: KeysEnum<StudentSearchListRow> = {
   STUDENT_ID: true,
   STUDENT_NAME: true,
@@ -246,7 +229,6 @@ export const studentSearchListRowKeys: KeysEnum<StudentSearchListRow> = {
   STUDENT_RACE: true, //sex
   STUDENT_ESL_INDICATOR: true, //race
 }
-
 export interface RawNWEACDFRow {
   Requirement_Status: string
   SchoolName: string
@@ -328,7 +310,6 @@ export interface RawNWEACDFRow {
   ProjectedProficiency: string
   Textbox22: string
 }
-
 export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
   Requirement_Status: true,
   SchoolName: true,
@@ -410,13 +391,11 @@ export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
   ProjectedProficiency: true,
   Textbox22: true,
 }
-
 export interface Tardies {
   'Student ID': string
   Attended: string
   Absences: string
 }
-
 export const tardiesKeys: KeysEnum<Tardies> = {
     'Student ID': true,
     Attended: true,
