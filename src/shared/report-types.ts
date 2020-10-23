@@ -49,7 +49,7 @@ const activeReports: string [] = [
     'Homeroom One Pager',
     'Student One Pager',
     'Student Assignment Sheet',
-    //'Test',
+    'Test',
 ]
 
 //It is important here that each report have unique descriptions for each file
@@ -132,7 +132,7 @@ const allReportCards: ReportTitle[] = [
         link: process.env.PUBLIC_URL + '/test/upload/',
         component: TestReport,
         files: [
-                {fileType: FileTypes.SCHEDULE_INFO, fileDesc: FileTypes.SCHEDULE_INFO}],
+                {fileType: FileTypes.JIJI, fileDesc: FileTypes.JIJI}],
     }
 ]
 

@@ -140,7 +140,6 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
     if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[2].fileDesc]){
         const ogr = files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult
         const oaspGrades = ogr === null? null: ogr.data as AspenESGradesRow[]
-        //FIXME: hardcoded quarter
         const ogrades = oaspGrades ? oaspGrades.filter(g => g['Quarter']===currentQuarter).map(convertAspGrades): oaspGrades
         gradeHist = getStudentGrades(ogrades);
         tHist = files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[2].fileDesc] ? files.reportFiles[files.reportTitle.optionalFiles[2].fileDesc].parseResult : null;
@@ -540,10 +539,11 @@ const spreadGrades = (grades: AspenESGradesRow[]): RawESCumulativeGradeExtractRo
             const grade = rs.filter(g => g['Quarter']===currentQuarter);
             const prevGrade = rs.filter(g => g['Quarter']===prevQuarter);
             if(grade[0]===undefined){
-            }
-            if(grade[0]["Final Average"] === ''){
+                console.log(rs)
+            }/*
+            if(grade[0]["Cumulative Semester Average"] === ''){
                 grade[0]["Final Average"] = prevGrade[0]['Term Grade']
-            }
+            }*/
             return convertAspGrades(grade[0])
     }).object(grades)
     return Object.values(byStudent).map(a => Object.values(a)).flat(2)

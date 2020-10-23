@@ -107,7 +107,7 @@ FileDescriptions[FileTypes.STUDENT_SCHEDULE] = {
     link: 'https://docs.google.com/document/d/1mxzo9TQKwc76SaKb4MeVEOV3yERe5H2FBuXa7LTE4xk/edit?usp=sharing'
 }
 FileDescriptions[FileTypes.MCLASS_STUDENT_SUMMARY] = {
-    description: '',
+    description: 'MClass Student Summary',
 }
 FileDescriptions[FileTypes.SCHEDULE_INFO] = {
     description: ''

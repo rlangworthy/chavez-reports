@@ -144,10 +144,11 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
 
                     1. Open Notepad (PC) or Textedit (Mac) and open a blank document *<br/>
                     2. Pull up the Cumulative Grades Export as normal<br/>
-                    3. Press ctrl/cmd+c to select the text of the export, and ctrl/cmd+v to copy it<br/>
-                    4. Go to your new blank document in Notepad or Textedit<br/>
-                    5. Press ctrl/cmd+v to paste the Cumulative Grades Export into your document<br/>
-                    6. Save your file naming it as your-file-name.csv<br/><br/>
+                    3. Using the scroll bar, scroll to the bottom of your export<br/>
+                    4. Press ctrl/cmd+c to select the text of the export, and ctrl/cmd+v to copy it<br/>
+                    5. Go to your new blank document in Notepad or Textedit<br/>
+                    6. Press ctrl/cmd+v to paste the Cumulative Grades Export into your document<br/>
+                    7. Save your file naming it as your-file-name.csv<br/><br/>
 
                     *note for mac users, if your new document has an editing bar at the top when first opened, you need to either press cmd+shift+T or select 'Make Plain Text' under the Format menu before pasting your Grades Export.<br/><br/>
 

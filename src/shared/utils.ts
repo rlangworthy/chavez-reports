@@ -32,9 +32,9 @@ export const convertAspGrades = (grades: AspenESGradesRow):RawESCumulativeGradeE
     SubjectName: grades['Course Name'],
     TeacherLastName: grades['Teacher Last Name'],
     TeacherFirstName: grades['Teacher First Name'],
-    QuarterAvg: grades['Term Average'],
-    FinalAvg: grades['Final Average'],
-    QuarterGrade: grades['Term Grade'],
+    QuarterAvg: grades['Running Term Average'],
+    FinalAvg: grades['Cumulative Semester Average'],
+    QuarterGrade: grades['Running Term Letter Grade'],
   }
 }
 
