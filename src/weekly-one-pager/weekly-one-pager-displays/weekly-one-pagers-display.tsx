@@ -121,7 +121,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
 
 class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
     render(){
-        const summaryKeys = ['3','4','5','6','7','8', '3-8']
+        const summaryKeys = ['1', '2', '3','4','5','6','7','8', '3-8']
         const summary = this.props.summary.OT
         const averages = this.props.summary.grades
         return (
@@ -156,7 +156,7 @@ class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
                                             <td className={'summary-cell'} key={k}>{summary[key][k]}</td>
                                         )
                                     })}
-                                    <td className={'summary-cell'}>{getOTSQRP(summary[key]['Avg'] * 10)}</td>
+                                    <td className={'summary-cell'}>{key === '1' || key === '2' ? '-' : getOTSQRP(summary[key]['Avg'] * 10)}</td>
                                 </tr>
                             </tbody>
                         </Table>
