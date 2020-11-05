@@ -8,6 +8,11 @@ import {
     ReportFiles, } from '../../shared/report-types'
 import { 
     FileList,} from '../../shared/file-types'
+import {
+    getCurrentQuarter,
+    } from '../../shared/utils'
+import {SY_CURRENT} from '../../shared/initial-school-dates'
+
 
 import {
     FileInputs
@@ -21,12 +26,13 @@ interface ReportModalProps {
     fileList: FileList
     show: boolean
     handleHide: () => any
-    addFile: (fileType: string, file: File) => Promise<void>
+    addFile: (fileType: string, file: File, selectedQuarter?: string) => Promise<void>
     tag: () => void
 }
 
 interface ReportModalState {
     selectedValues: {[fileDesc: string]: string}
+    selectedQuarter: string
     isLoading: boolean
 }
 export class ReportModal extends React.Component<ReportModalProps, ReportModalState> {
@@ -46,9 +52,9 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         }) : null
         /* eslint-enable */
         if(this.props.report.optionalFiles){
-            this.state={selectedValues:selected, isLoading: false}
+            this.state={selectedValues:selected, isLoading: false, selectedQuarter: getCurrentQuarter(SY_CURRENT)}
         }else{
-            this.state={selectedValues:selected, isLoading: false}
+            this.state={selectedValues:selected, isLoading: false, selectedQuarter: getCurrentQuarter(SY_CURRENT)}
         }
     }
     private title = this.props.report.title;
@@ -80,6 +86,11 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         this.setState({selectedValues: selected});
     }
 
+    private handleQuarterChange = (ev: React.ChangeEvent<HTMLSelectElement>): void => {
+        ev.preventDefault();
+        this.setState({selectedQuarter: ev.target.value.split(' ')[1]})
+    }
+
     private generateSubmit = () => {
         var selectedFiles = {}
         this.fileTypes.forEach( t => {
@@ -107,7 +118,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
                 const ref:HTMLInputElement = this.fileRefs[t.fileDesc] as HTMLInputElement;
                 if(ref.files !== null && ref.files[0] !== undefined){
                     this.setState({isLoading: true});
-                    this.props.addFile(t.fileType, ref.files[0]).then(results => {                            
+                    this.props.addFile(t.fileType, ref.files[0], this.state.selectedQuarter).then(results => {                            
                         //set currently selected option
                         var selected = this.state.selectedValues;
                         const list = this.props.fileList[t.fileType];
@@ -148,7 +159,9 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
                             <FileInputs report={this.props.report} 
                                         fileRefs={this.fileRefs}
                                         selectedValues={this.state.selectedValues}
-                                        handleChange={this.handleChange}/>
+                                        handleChange={this.handleChange}
+                                        handleQuarterChange={this.handleQuarterChange}
+                                        selectedQuarter={this.state.selectedQuarter}/>
                         </Container>
                     </Form>
                 </Modal.Body>

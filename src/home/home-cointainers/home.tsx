@@ -145,7 +145,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     1. Open Notepad (PC) or Textedit (Mac) and open a blank document *<br/>
                     2. Pull up the Cumulative Grades Export as normal<br/>
                     3. Using the scroll bar, scroll to the bottom of your export<br/>
-                    4. Press ctrl/cmd+c to select the text of the export, and ctrl/cmd+v to copy it<br/>
+                    4. Press ctrl/cmd+a to select the text of the export, and ctrl/cmd+c to copy it<br/>
                     5. Go to your new blank document in Notepad or Textedit<br/>
                     6. Press ctrl/cmd+v to paste the Cumulative Grades Export into your document<br/>
                     7. Save your file naming it as your-file-name.csv<br/><br/>
@@ -234,17 +234,18 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
 
 
     //add file to the working instance of the app, should refactor into utils along with delete and save
-    private addFile = (fileType: string, file: File): Promise<void> => {
+    private addFile = (fileType: string, file: File, selectedQuarter?: string): Promise<void> => {
         if(fileType === FileTypes.ASSIGNMENTS_SLOW_LOAD){
             var download:AspenAssignmentRow[] = []
-            const qStart = getCurrentQuarter(SY_CURRENT)
+            const qStart = selectedQuarter !== undefined? selectedQuarter : getCurrentQuarter(SY_CURRENT)
             return new Promise ((resolve,reject) => {
                 Papa.parse(file, {complete: (result: ParseResult) => {
                     const newFileList = {};
                     Object.assign(newFileList, this.state.fileList);
-                    const fileName = newFileList[fileType].find( f => f.fileName === file.name) ? 
-                                        getUniqueFileName(file.name, this.state.fileList[fileType]):
-                                        file.name;
+                    const modName = file.name.slice(0,-4) + 'Quarter ' + selectedQuarter + file.name.slice(-4)
+                    const fileName = newFileList[fileType].find( f => f.fileName === modName) ? 
+                                        getUniqueFileName(modName, this.state.fileList[fileType]):
+                                        modName;
                     newFileList[fileType].push({
                             fileType: fileType, 
                             fileName: fileName, 

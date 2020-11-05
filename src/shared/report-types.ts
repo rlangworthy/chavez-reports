@@ -31,6 +31,7 @@ export interface ReportTitle {
 export interface ReportTitleFile {
     fileType: FileTypes
     fileDesc: string
+    quarter?: '1'|'2'|'3'|'4'
     altLink?: string
 }
 
@@ -49,7 +50,7 @@ const activeReports: string [] = [
     'Homeroom One Pager',
     'Student One Pager',
     'Student Assignment Sheet',
-    //'Test',
+    'Test',
 ]
 
 //It is important here that each report have unique descriptions for each file

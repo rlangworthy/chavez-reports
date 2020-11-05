@@ -135,6 +135,9 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
         schedule)
 
     let studentGradeObject = getStudentGrades(rawESGrades);
+    //console.log(currentTerm)
+    //console.log(rawESGrades)
+    //console.log(studentGradeObject)
     //const tardies = at === null ? null: at.data as Tardies[];
     const assignments = rawAllAssignments as Assignment[];
     if(tardies !== null){
@@ -150,11 +153,11 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const addresses = info === null? null: info.data as AddData[];
     const scores = nwea===null? null: nwea.data as NWEAScores[];
 
-
     if(addresses !== null && scores !== null){
         const students:HSStudent[] = Object.keys(studentGradeObject).map( (id:string):HSStudent => {
             const student = studentGradeObject[id];
             const address = addresses.find(a => a.STUDENT_ID===id);
+            console.log(scores.filter(a => a.StudentID === id))
             const NWEAm = scores.filter(a => a.StudentID === id).find(a=>a.Discipline==='Mathematics');
             const NWEAr = scores.filter(a => a.StudentID === id).find(a=>a.Discipline==='Reading');
             return {
@@ -254,15 +257,15 @@ const getStudentGrades = (file: AspenESGradesRow[]): Students => {
     }
 
     const students = d3.nest<AspenESGradesRow, Student>()
-        .key( r => r.StudentID)
+        .key( r => r['Student ID'])
         .rollup( rs => {
             const grades = [getReadingGrade(rs),getMathGrade(rs),getScienceGrade(rs),getSocialScienceGrade(rs)];
             const quarterGrades = grades.map(a => a[0]);
             const finalGrades = grades.map(a=>a[1]);
             const GPA = getGPA(finalGrades);
             return {
-                HR: rs[0].StudentHomeroom,
-                ID: rs[0].StudentID,
+                HR: rs[0].Homeroom,
+                ID: rs[0]['Student ID'],
                 fullName: '',
                 ELL: '',
                 quarterReadingGrade: quarterGrades[0],
@@ -282,7 +285,8 @@ const getStudentGrades = (file: AspenESGradesRow[]): Students => {
                 assignments: {}
             }
         }).object(file)
-    
+    console.log(students)
+    console.log(file)
     return students;
 }
 

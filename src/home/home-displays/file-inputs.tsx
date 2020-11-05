@@ -5,20 +5,26 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import { 
     FileDescripiton, 
-    FileDescriptions,  } from '../../shared/file-types';
+    FileDescriptions,
+    FileTypes,  } from '../../shared/file-types';
 import { 
     ReportTitle,
     ReportTitleFile } from '../../shared/report-types';
 import { FileContextConsumer } from '../home-cointainers/home';
+import './file-inputs.css'
+
+
 
 interface FileInputsProps {
     report: ReportTitle 
     fileRefs: {[type: string]: HTMLInputElement | null} 
     selectedValues: {[fileType: string]: string}
+    selectedQuarter: string
     handleChange: (ev: React.ChangeEvent<HTMLSelectElement>, f: string) => void
+    handleQuarterChange: (ev: React.ChangeEvent<HTMLSelectElement>) => void
 }
 
-export const FileInputs: React.SFC<FileInputsProps> = (props) => {
+export const FileInputs: React.FunctionComponent<FileInputsProps> = (props) => {
 
     const hideUpload = (f : string): 'hidden' | 'visible' => {
         if(props.selectedValues[f] === 'Upload New File'){
@@ -45,9 +51,21 @@ export const FileInputs: React.SFC<FileInputsProps> = (props) => {
                                             <Col>
                                                 <Form.Label>{f.fileDesc}</Form.Label>
                                                 <Form.Text>{FileDescriptions[f.fileType].description}</Form.Text>
-                                                <LinkButton 
-                                                    fDesc={FileDescriptions[f.fileType]}
-                                                    fLink={f.altLink}/>
+                                                <div className='file-upload-options'>
+                                                    <LinkButton 
+                                                        fDesc={FileDescriptions[f.fileType]}
+                                                        fLink={f.altLink}
+                                                        />
+                                                    {f.fileType === FileTypes.ASSIGNMENTS_SLOW_LOAD ?  <Form.Control 
+                                                        as='select'
+                                                        value={'Quarter ' + props.selectedQuarter}
+                                                        onChange = {(e) => props.handleQuarterChange(e as React.ChangeEvent<HTMLSelectElement>)}>
+                                                        <option>Quarter 1</option>
+                                                        <option>Quarter 2</option>
+                                                        <option>Quarter 3</option>
+                                                        <option>Quarter 4</option>
+                                                    </Form.Control> : <></>}
+                                                </div>
                                             </Col>
                                             <Col>
                                                 <Form.Control as='select' onChange={(e)=>props.handleChange(e as React.ChangeEvent<HTMLSelectElement>, f.fileDesc)}

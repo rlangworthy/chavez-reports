@@ -57,7 +57,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const aspCategoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
     const studentSched = parseSchedule(SS)
     //FIXME: hardcoded, should be a choice of the user
-    const currentTerm = getCurrentQuarter(SY_CURRENT)
+    const currentTerm = aspAllAssignments.length > 0 ? aspAllAssignments[0]['Grade Term'].split(' ')[1] : getCurrentQuarter(SY_CURRENT)
     console.log(currentTerm)
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
     console.log(rawESGrades)

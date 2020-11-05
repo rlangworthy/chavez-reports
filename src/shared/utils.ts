@@ -189,6 +189,7 @@ both sets and check for unique file logic, only has to be internally consistent
 */
 export const getUniqueFileName = (fileName: string, files: RawFileParse[]): string => {
   //search for files that start with the same name
+  
   const prefFiles = files.filter( f => f.fileName.startsWith(fileName))
   //get everything after the fileName
   const posts = prefFiles.map( f => {return f.fileName.slice(fileName.length + 1)})

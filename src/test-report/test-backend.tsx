@@ -285,20 +285,20 @@ export class TestReport extends React.Component<TestReportProps, TestReportState
                                     </tr>
                                     <tr>
                                         <td>Student Name</td>
-                                        <td>% Progress(# Puzzles to Monthly Target)</td>
+                                        <td>% Progress</td>
                                         <td>Time spent</td>
                                         <td>Total Progress (%)</td>
                                         <td>Minutes/Puzzle</td>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {this.state.puzzleClasses[cName].students.sort((a,b) => a.lastWeekCompleted - b.lastWeekCompleted).map(student => {
+                                    {this.state.puzzleClasses[cName].students.sort((a,b) => a.totalProgress - b.totalProgress).map(student => {
                                         return (
                                             <tr>
                                                 <td>{student.name}({student.sylGrade})</td>
-                                                <td>{student.lastWeekCompleted.toFixed(2)}%({(monthlyTargets[(new Date).getMonth()] * pctByGrade[student.sylGrade]) - student.cumulativePuzzles})</td>
+                                                <td>{student.lastWeekCompleted.toFixed(0)}%</td>
                                                 <td>{student.lastWeekMinutes}</td>
-                                                <td>{student.totalProgress.toFixed(2)}%</td>
+                                                <td>{student.totalProgress.toFixed(0)}%</td>
                                                 <td>{student.perPuzzleTime}</td>
                                             </tr>
                                         )
