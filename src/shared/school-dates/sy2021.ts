@@ -51,13 +51,13 @@ const irregularDayList: HolidayDate[] = [
     dates: [new Date(2020, 10,18), new Date(2021, 3, 21)]}]
 
 const defaultStartDay2021 = new Date(2020, 8, 8)
-const defaultEndDay = new Date(2019, 5, 22)
+const defaultEndDay2021 = new Date(2021, 5, 22)
 
 export const sy2021: SchoolYear = {
     holidays: holidayList2021,
     irregularDays: irregularDayList,
     startDate: defaultStartDay2021,
-    endDate: defaultEndDay,
+    endDate: defaultEndDay2021,
     q1End: new Date(2020, 10, 5),
     q2End: new Date(2021, 1, 4),
     q3End: new Date(2021, 3, 15),
