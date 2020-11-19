@@ -58,15 +58,13 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const studentSched = parseSchedule(SS)
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = aspAllAssignments.length > 0 ? aspAllAssignments[0]['Grade Term'].split(' ')[1] : getCurrentQuarter(SY_CURRENT)
-    console.log(currentTerm)
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
-    console.log(rawESGrades)
-    console.log(aspESGrades)
     const rawAllAssignments = aspAllAssignments.filter(a => 
         a["Grade Term"].split(' ')[1] === currentTerm)
     
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
+    console.log(rawCategoriesAndTPL)
 
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
     //first get classes and categories
@@ -78,6 +76,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     //combine assignments and classes
     const classesFinal = addAssignmentsToClasses(classGrades, studentAssignments)
     const teacherclasses = invertScheduleClasses(classesFinal)
+    console.log(teacherclasses)
     return teacherclasses
     
 }
@@ -94,6 +93,7 @@ const getScheduleClasses = (schedule: StudentClassList []): ScheduleClasses => {
                 className: rs[0].courseDesc,
                 tpl: "Categories and assignments", //random value to be filled in later
                 topAssignments:[],
+                defaultMode: false
             }
         }).object(schedule)
     return classes
@@ -120,11 +120,13 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
                                     }
                                 }).object(rs) as { [categoryName: string]: Category; },
                 tpl:rs[0]["Average Mode Setting"] as GradeLogic,
+                defaultMode: rs.some(j => {return j["Max Grades to Drop"].includes('^')}),
                 topAssignments: [],
                 students:[],
                 
                             }
         }).object(categories)
+    console.log(classes)
 
     Object.keys(classes).forEach(cID => {
         if(schedule[cID] !== undefined){
@@ -136,6 +138,7 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
                 tpl: classes[cID].tpl,
                 topAssignments: [],
                 students: schedule[cID].students,
+                defaultMode: classes[cID].defaultMode
             }
         }
     })

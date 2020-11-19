@@ -58,7 +58,7 @@ export const sy2021: SchoolYear = {
     irregularDays: irregularDayList,
     startDate: defaultStartDay2021,
     endDate: defaultEndDay2021,
-    q1End: new Date(2020, 10, 5),
+    q1End: new Date(2020, 10, 8),
     q2End: new Date(2021, 1, 4),
     q3End: new Date(2021, 3, 15),
     q4End: new Date(2021, 5, 22),

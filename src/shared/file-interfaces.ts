@@ -100,6 +100,7 @@ export interface AspenCategoriesRow {
   'Category Name' : string
   'Category Weight' : string
   'Category Percentage' : string
+  'Max Grades to Drop' : string
 }
 export const aspenCategoriesRowKeys: KeysEnum<AspenCategoriesRow> = {
   'Teacher First Name': true,
@@ -110,6 +111,7 @@ export const aspenCategoriesRowKeys: KeysEnum<AspenCategoriesRow> = {
   'Category Name' : true,
   'Category Weight' : true,
   'Category Percentage' : true,
+  'Max Grades to Drop': true,
 }
 export interface MClassStudentSummary {
   'Student Primary ID': string

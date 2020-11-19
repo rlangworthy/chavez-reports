@@ -28,6 +28,7 @@ export interface TeacherClass {
     distribution: GradeDistribution
     className: string
     tpl: GradeLogic
+    defaultMode: boolean
     topAssignments: AssignmentImpact[]
 }
 

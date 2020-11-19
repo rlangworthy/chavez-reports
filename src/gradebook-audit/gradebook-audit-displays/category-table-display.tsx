@@ -63,7 +63,8 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
                       </div>
                     }
                   </td>
-                  <td>{props.classes[c].categories[cat].TPL}</td>
+                  <td style={ props.classes[c].defaultMode ? invertedRedBGStyle : {}} 
+                  className='category-warning'>{props.classes[c].categories[cat].TPL}</td>
                   <td>{assignments.length !== 0 ? stats.averageGrade.toFixed(0) : 'Unknown'}</td>
                   <td style={assignments.length === 0 ? invertedRedBGStyle : {}} className='category-warning'>
                     {assignments.length}
@@ -79,14 +80,15 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
               rows.push(row);
         });
         const NUM_COLS = 11;
-        if (badCategoryWeight) {
+        if (badCategoryWeight || props.classes[c].defaultMode) {
           rows.push(
-            <tr key={c + '-warning'} className='warning-key-row'>
+            <tr key={c + '-warning'} className='warning-key-row category-warning'>
               <td colSpan={NUM_COLS} className='warning-key-cell'>
                 <div className='cell-icon'>
                   <WarningIcon className='warning-icon' />
                 </div>
-                Category Weights do not add up to 100%.
+                {props.classes[c].defaultMode ? 'Teacher has not set grading logic for this class. ': ''}
+                {badCategoryWeight ? 'Category Weights do not add up to 100%.  ' : ''}
               </td>
             </tr>
           )

@@ -242,7 +242,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 Papa.parse(file, {complete: (result: ParseResult) => {
                     const newFileList = {};
                     Object.assign(newFileList, this.state.fileList);
-                    const modName = file.name.slice(0,-4) + 'Quarter ' + selectedQuarter + file.name.slice(-4)
+                    const modName = file.name.slice(0,-4) + ' Quarter ' + selectedQuarter + file.name.slice(-4)
                     const fileName = newFileList[fileType].find( f => f.fileName === modName) ? 
                                         getUniqueFileName(modName, this.state.fileList[fileType]):
                                         modName;
