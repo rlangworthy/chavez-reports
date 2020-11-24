@@ -14,12 +14,14 @@ import {
     AssignmentImpact,
     TeacherClasses,
     } from '../gradebook-audit-interfaces'
+
 import {
     GradeDistributionDisplay,
     CategoryTableRender,
     FailingGradesRender,
     HighImpactAssignmentsRender,
-    GradesByAssignmentRender,} from '../gradebook-audit-displays'
+    GradesByAssignmentRender,
+    AdminOverviewSheet} from '../gradebook-audit-displays'
 import {
     MultiSelect
     } from '../../shared/components/multi-select'
@@ -65,6 +67,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                         />
                     </Col>
                     <Col className='gpa-display-container'>
+                        <AdminOverviewSheet teacherClasses={this.state.teacherClasses}/>
                         <React.Fragment>
                         {teachers.map( teacher => {
                             const tKey: string = teacher
@@ -72,18 +75,13 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                                 //hasGrades and noGrades are names of classes
                                 const [hasGrades, noGrades]: string[][] = partition( (cn: string) => {
                                     if(teacherClasses[tKey][cn].distribution === undefined){
-                                        console.log(teacherClasses[tKey])
-                                        console.log(cn)
-                                    }
-                                    const gd = teacherClasses[tKey][cn].distribution
-                                    return (gd.A > 0 || 
-                                            gd.B > 0 || 
-                                            gd.C > 0 || 
-                                            gd.D > 0 ||
-                                            gd.F > 0)}, Object.keys(teacherClasses[tKey]))
+                                            console.log(teacherClasses[tKey])
+                                            console.log(cn)
+                                        }                                    
+                                    return teacherClasses[tKey][cn].hasGrades}, Object.keys(teacherClasses[tKey]))
                                 //hasAsgn list of classes with assignments
                                 const hasAsgn: string[] = Object.keys(teacherClasses[tKey]).filter( cn => {
-                                    return Object.keys(teacherClasses[tKey][cn].categories).some( cat => teacherClasses[tKey][cn].categories[cat].assignments.length > 0)
+                                    return teacherClasses[tKey][cn].hasAsgn
                                 })
 
                                 return (

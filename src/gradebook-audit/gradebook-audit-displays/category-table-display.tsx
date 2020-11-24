@@ -87,7 +87,7 @@ export const CategoryTableRender: React.SFC<CategoryTableRenderProps> = props =>
                 <div className='cell-icon'>
                   <WarningIcon className='warning-icon' />
                 </div>
-                {props.classes[c].defaultMode ? 'Teacher has not set grading logic for this class. ': ''}
+                {props.classes[c].defaultMode ? 'Teacher has not set the average mode for this class. ': ''}
                 {badCategoryWeight ? 'Category Weights do not add up to 100%.  ' : ''}
               </td>
             </tr>

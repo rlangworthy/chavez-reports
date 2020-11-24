@@ -30,6 +30,8 @@ export interface TeacherClass {
     tpl: GradeLogic
     defaultMode: boolean
     topAssignments: AssignmentImpact[]
+    hasGrades: boolean
+    hasAsgn: boolean
 }
 
 //experimental schedule nonsense
@@ -88,6 +90,7 @@ export interface Assignment {
     assignmentName: string
     categoryName: string
     categoryWeight: string
+    dueDate: Date
     grades: Score[]
     stats: AssignmentStats
 }

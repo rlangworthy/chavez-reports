@@ -93,7 +93,9 @@ const getScheduleClasses = (schedule: StudentClassList []): ScheduleClasses => {
                 className: rs[0].courseDesc,
                 tpl: "Categories and assignments", //random value to be filled in later
                 topAssignments:[],
-                defaultMode: false
+                defaultMode: false,
+                hasAsgn: false,
+                hasGrades:false
             }
         }).object(schedule)
     return classes
@@ -123,8 +125,10 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
                 defaultMode: rs.some(j => {return j["Max Grades to Drop"].includes('^')}),
                 topAssignments: [],
                 students:[],
+                hasGrades:false,
+                hasAsgn: false,
                 
-                            }
+                }
         }).object(categories)
     console.log(classes)
 
@@ -138,7 +142,9 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
                 tpl: classes[cID].tpl,
                 topAssignments: [],
                 students: schedule[cID].students,
-                defaultMode: classes[cID].defaultMode
+                defaultMode: classes[cID].defaultMode,
+                hasAsgn: false,
+                hasGrades: false,
             }
         }
     })
@@ -161,9 +167,16 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
         const grades: AspenESGradesRow[] = students
             .filter(sID => studentGrades[sID] !== undefined && studentGrades[sID][className]!==undefined)
             .map(sID => studentGrades[sID][className][0])
+        const distribution = getDistribution(grades)
         distClasses[cID] = {
             ...classes[cID],
-            distribution: getDistribution(grades),
+            distribution: distribution,
+            hasGrades: (
+                distribution.A > 0 || 
+                distribution.B > 0 || 
+                distribution.C > 0 || 
+                distribution.D > 0 ||
+                distribution.F > 0)
         }
     })
     return distClasses;
@@ -215,6 +228,7 @@ const addAssignmentsToClasses = (classes:ScheduleClasses, assignments: StudentAs
         classesFinal[cID].categories = addCategoryAssignments(categories, studentAssignments)
         classesFinal[cID].topAssignments = getSortedAssignments(classesFinal[cID].categories)
         classesFinal[cID].className = classesFinal[cID].className + '-' + cID.split('-').slice(-2).join('-')
+        classesFinal[cID].hasAsgn = Object.keys(categories).some( cat => classesFinal[cID].categories[cat].assignments.length > 0)
         }
     )
     return classesFinal
@@ -240,6 +254,7 @@ const addCategoryAssignments = (categories: {[category: string]: Category}, assi
             const scorePossible = parseInt(rs[0]["Score Possible"])
             return {
                 maxPoints: scorePossible,
+                dueDate: stringToDate(rs[0]["Assignment Due"]),
                 assignmentName: rs[0]["Assignment Name"],
                 categoryName: rs[0]["Category Name"],
                 categoryWeight: rs[0]["Category Weight"],

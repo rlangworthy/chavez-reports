@@ -267,4 +267,8 @@ table.data-table td div.cell-icon {
   .gradebook-audit-display {
     page-break-inside: avoid;
   }
+
+  .admin-overview-sheet {
+    page-break-after: always;
+  }
 }
