@@ -5,12 +5,14 @@ import { StaffAbsenceReport } from '../staff-absence-report/absence-containers/s
 import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-containers/gradebook-audit-container'
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
+import {GradeValidationReport} from '../grade-validation/grade-validation-display'
 import { TestReport } from '../test-report/test-backend'
 
 /*
  *To add a new report: 
- *  First add any addtional files to file-types.ts
+ *  First add any addtional files to file-types.ts and corresponding interfaces in file-interfaces.ts
  *  Second come here and make a new ReportTitle for it
+ *  Third create a folder and add a front and back end for it
  */
 
 import {
@@ -50,6 +52,7 @@ const activeReports: string [] = [
     'Homeroom One Pager',
     'Student One Pager',
     'Student Assignment Sheet',
+    //'Gradebook Validation',
     //'Test',
 ]
 
@@ -128,8 +131,16 @@ const allReportCards: ReportTitle[] = [
                 {fileType: FileTypes.STUDENT_SCHEDULE, fileDesc: FileTypes.STUDENT_SCHEDULE}],
     },
     {
+        title: 'Gradebook Validation',
+        description: '',
+        link: process.env.PUBLIC_URL + '/gradebook-validation/upload/',
+        component: GradeValidationReport,
+        files: [
+                {fileType: FileTypes.GRADE_VALIDATION, fileDesc: FileTypes.GRADE_VALIDATION}],
+    },
+    {
         title: 'Test',
-        description: 'All student assignments by class and category',
+        description: '',
         link: process.env.PUBLIC_URL + '/test/upload/',
         component: TestReport,
         files: [

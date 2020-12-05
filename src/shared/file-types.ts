@@ -27,7 +27,8 @@ export enum FileTypes {
     STUDENT_SCHEDULE = 'Student Schedules (Sheet)',
     MCLASS_STUDENT_SUMMARY = 'Student Summary',
     SCHEDULE_INFO = 'Schedule Info',
-    JIJI = 'Jiji Sheet'
+    GRADE_VALIDATION = 'CPS Grade Validation Export',
+    JIJI = 'Jiji Sheet',
 }
 
 /*
@@ -113,5 +114,8 @@ FileDescriptions[FileTypes.SCHEDULE_INFO] = {
     description: ''
 }
 FileDescriptions[FileTypes.JIJI] = {
+    description: ''
+}
+FileDescriptions[FileTypes.GRADE_VALIDATION] = {
     description: ''
 }

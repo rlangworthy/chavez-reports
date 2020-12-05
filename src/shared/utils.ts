@@ -159,6 +159,19 @@ export const stringToDate = (s: string): Date => {
   }
 }
 
+/*
+ * parses dates of the form mm/dd/yyyy 1:40 PM
+ */
+
+export const validationStringToDate = (s: string): Date => {
+  const d = s.split(' ')
+  const date = d[0].split('/').map(a=> parseInt(a))
+  const timeOffset:number = d[2] === 'AM' ? 0:12;
+  const time = d[1].split(':').map(a=>parseInt(a, 10))
+  const newDate = new Date(date[2], date[0]-1, date[1], time[0]+timeOffset, time[1])
+  return newDate
+}
+
 //parses dates of the form mm-dd-yyyy tt:tt:tt AM/PM
 export const punchcardStringToDate = (s: string): Date => {
   const d = s.split(' ')

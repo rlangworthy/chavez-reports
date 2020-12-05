@@ -18,7 +18,9 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
         <div className='admin-overview-sheet'>
             <h3>Chavez Gradebook Audit</h3>
             <h4>Teachers with Average Mode set to Gradebook Default</h4>
-            <p>This is a list of teachers and their classes that have the average mode set to Gradebook Default.  This is an issue since if an admin and the teacher have different defaults they may not be seeing the same grades.  This should be addressed to be sure grade books are calcluated in the same way.</p>
+            <hr/>
+            <p /*className='admin-overview-description'*/>This is a list of teachers and their classes that have the Average Mode set to Gradebook Default.  This is an issue since if an admin and the teacher have different defaults they may not be seeing the same grades.  This should be addressed to be sure grade books are calcluated in the same way.</p>
+            <hr/>
             {gradebookDefaultTeachers.map(t => {
                 return (
                 <p key={t}>

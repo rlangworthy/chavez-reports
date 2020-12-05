@@ -192,6 +192,9 @@ table.data-table td div.cell-icon {
   display: inline-block;
 }
 
+.admin-overview-description {
+  border-style: solid;
+}
 
 @media (min-width: 768px){
   .gpa-filter-container {
