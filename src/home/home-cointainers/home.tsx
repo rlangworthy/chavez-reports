@@ -2,12 +2,10 @@ import * as React from 'react'
 import * as Papa from 'papaparse'
 import * as idb from 'idb-keyval'
 import * as d3 from 'd3'
-import { isAfter, isBefore } from 'date-fns'
 import CardDeck from 'react-bootstrap/CardDeck'
 import Navbar from 'react-bootstrap/Navbar'
 import Button from 'react-bootstrap/Button'
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
-import Alert from 'react-bootstrap/Alert'
 import { ReportCards } from '../../shared/report-types'
 import { ReportCard } from '../home-displays/report-card'
 import { ReportModal } from './report-modal'
@@ -115,9 +113,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
 
     /*
 
-    <Button onClick={() => this.activateModal('Folder Drop')}>
-                            Bulk Upload
-                        </Button>
+    
                         */
     
 
@@ -139,7 +135,9 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         <Button onClick={() => this.activateModal('Manage Files')}>
                             {this.state.loadingFiles ? 'Loading...':'Manage Local Files'}
                         </Button>
-                        
+                        <Button onClick={() => this.activateModal('Folder Drop')}>
+                            Bulk Upload
+                        </Button>
                     </ButtonToolbar>
                 
                 </div>
@@ -223,7 +221,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 Papa.parse(file, {complete: (result: ParseResult) => {
                     const newFileList = {};
                     Object.assign(newFileList, this.state.fileList);
-                    const modName = file.name.slice(0,-4) + ' Quarter ' + selectedQuarter + file.name.slice(-4)
+                    const modName = file.name.slice(0,-4) + ' Quarter ' + qStart + file.name.slice(-4)
                     const fileName = newFileList[fileType].find( f => f.fileName === modName) ? 
                                         getUniqueFileName(modName, this.state.fileList[fileType]):
                                         modName;

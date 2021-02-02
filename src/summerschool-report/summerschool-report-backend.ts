@@ -194,7 +194,7 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
     const MATH_DISCIPLINE = 'Mathematics';
     for (const record of nweaData) {
       if (record.StudentID === studentID) {
-        if (record.Discipline === MATH_DISCIPLINE) {
+        if (record.Discipline1 === MATH_DISCIPLINE) {
           const parsed = Number.parseInt(record.TestPercentile, 10);
           if (Number.isNaN(parsed)) {
             throw new Error(`Failed to parse NWEA test percentile ${record.TestPercentile}`);
@@ -211,7 +211,7 @@ export const getStudentsFromAspenData = ({nweaLY, nweaCY, grades, paraProp}: Imp
     const READ_DISCIPLINE = 'Reading';
     for (const record of nweaData) {
       if (record.StudentID === studentID) {
-        if (record.Discipline === READ_DISCIPLINE) {
+        if (record.Discipline1 === READ_DISCIPLINE) {
           const parsed = Number.parseInt(record.TestPercentile, 10);
           if (Number.isNaN(parsed)) {
             throw new Error(`Failed to parse NWEA test percentile ${record.TestPercentile}`);

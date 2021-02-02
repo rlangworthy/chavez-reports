@@ -232,6 +232,42 @@ export const studentSearchListRowKeys: KeysEnum<StudentSearchListRow> = {
   STUDENT_ESL_INDICATOR: true, //race
 }
 export interface RawNWEACDFRow {
+  Network:string
+  School:string
+	CurrentGradeLevel:string
+	CurrentHomeroom:string
+	StudentName:string
+	StudentID:string
+	TestedSchoolName:string
+	Discipline1:string
+	GrowthMeasureYN:string
+	TestName:string
+	TestStartDate:string
+	TestStartTime1:string
+	TestDurationMinutes:string
+	Pauses:string
+	PercentageCorrect:string
+	RapidGuessingPercentage:string
+	TestRITScore:string
+	TestStdError:string
+	TestPercentile:string
+	TestPercentile_32:string
+	TypicalFallToFallGrowth:string
+	TypicalSpringToSpringGrowth:string
+	TypicalFallToSpringGrowth:string
+	TypicalFallToWinter:string
+	StartGrade:string
+	LYSpringTestDate:string
+	LYSpringRITScore:string
+	SpringProjectedGain:string
+	CYSpringProjectedRIT:string
+	GrowthNeededtoAchieveProjected:string
+	RITtoReadingScore:string
+	RITtoReadingMin:string
+	RITtoReadingMax:string
+
+  
+  /*
   Requirement_Status: string
   SchoolName: string
   StudentID: string
@@ -311,9 +347,44 @@ export interface RawNWEACDFRow {
   PercentCorrect: string
   ProjectedProficiency: string
   Textbox22: string
+  */
 }
 export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
-  Requirement_Status: true,
+  Network: true,
+	School: true,
+	CurrentGradeLevel: true,
+	CurrentHomeroom: true,
+	StudentName: true,
+	StudentID: true,
+	TestedSchoolName: true,
+	Discipline1: true,
+	GrowthMeasureYN: true,
+	TestName: true,
+	TestStartDate: true,
+	TestStartTime1: true,
+	TestDurationMinutes: true,
+	Pauses: true,
+	PercentageCorrect: true,
+	RapidGuessingPercentage: true,
+	TestRITScore: true,
+	TestStdError: true,
+	TestPercentile: true,
+	TestPercentile_32: true,
+	TypicalFallToFallGrowth: true,
+	TypicalSpringToSpringGrowth: true,
+	TypicalFallToSpringGrowth: true,
+	TypicalFallToWinter: true,
+	StartGrade: true,
+	LYSpringTestDate: true,
+	LYSpringRITScore: true,
+	SpringProjectedGain: true,
+	CYSpringProjectedRIT: true,
+	GrowthNeededtoAchieveProjected: true,
+	RITtoReadingScore: true,
+	RITtoReadingMin: true,
+	RITtoReadingMax: true,
+
+  /*Requirement_Status: true,
   SchoolName: true,
   StudentID: true,
   StudentLastName: true,
@@ -392,6 +463,7 @@ export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
   PercentCorrect: true,
   ProjectedProficiency: true,
   Textbox22: true,
+  */
 }
 export interface Tardies {
   'Student ID': string

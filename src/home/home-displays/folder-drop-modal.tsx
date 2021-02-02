@@ -25,7 +25,7 @@ export const FolderDropModal: React.FunctionComponent<FolderDropModalProps> = (p
                             <div {...getRootProps()}>
                                 <input {...getInputProps()} />
                                 <div className='file-drop'> 
-                                    <Button>Drag 'n' drop some files here, or click to select files</Button>
+                                    <Button>Drag and drop files or a folder, or click to select files</Button>
                                 </div>
                             </div>
                             </section>

@@ -53,6 +53,9 @@ export const getFileType = (fields: string[] | undefined): string => {
         if(tardiesRow.every(field => fieldStrings.includes(field))){
             return FileTypes.ATTENDENCE
         }
+        if(fieldStrings[0] !== '' && fieldStrings[13] !== '' && fieldStrings[1] === ''){
+            return FileTypes.STUDENT_SCHEDULE
+        }
     }
     return 'NA'
 }

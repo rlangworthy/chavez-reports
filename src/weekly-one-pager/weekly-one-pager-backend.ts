@@ -209,7 +209,7 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
 const parseNWEA = (nwea: RawNWEACDFRow[]): {[id:string]:any} => {
     return d3.nest()
                 .key(r => r.StudentID)
-                .key(r => r.Discipline)
+                .key(r => r.Discipline1)
                 .object(nwea)
 }
 
