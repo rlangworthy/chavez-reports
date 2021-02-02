@@ -19,3 +19,7 @@
     margin-left: .4rem;
     margin-right: .4rem;
 }
+
+.file-drop {
+    border-style: dashed;
+}

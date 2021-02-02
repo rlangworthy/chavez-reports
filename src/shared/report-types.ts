@@ -52,7 +52,7 @@ const activeReports: string [] = [
     'Homeroom One Pager',
     'Student One Pager',
     'Student Assignment Sheet',
-    //'Gradebook Validation',
+    'Gradebook Validation',
     //'Test',
 ]
 

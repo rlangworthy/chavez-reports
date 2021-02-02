@@ -66,6 +66,7 @@ export interface GradeDistribution {
     failingStudents: {
         studentName: string
         quarterGrade: number
+        studentID: string
     }[]
     students?: string[] //array of student id's
 }

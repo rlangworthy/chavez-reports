@@ -21,6 +21,7 @@ export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props =>
       <tr key={'Failing Students Header'} className='gradebook-header-row'>
         <th>Class Name</th>
         <th>Student Name</th>
+        <th>Student ID</th>
         <th>Quarter Grade</th>
       </tr>
     );
@@ -34,6 +35,7 @@ export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props =>
             <td className='index-column' rowSpan={students.length}>{props.classes[c].className}</td>
             }
             <td>{studentName}</td>
+            <td>{s.studentID}</td>
             <td>{s.quarterGrade}</td>
           </tr>
         );

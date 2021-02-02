@@ -92,7 +92,7 @@ interface Students {
 
 interface NWEAScores {
     StudentID: string
-    Discipline: string
+    Discipline1: string
     TestPercentile: string
 }
 
@@ -158,8 +158,8 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
             const student = studentGradeObject[id];
             const address = addresses.find(a => a.STUDENT_ID===id);
             console.log(scores.filter(a => a.StudentID === id))
-            const NWEAm = scores.filter(a => a.StudentID === id).find(a=>a.Discipline==='Mathematics');
-            const NWEAr = scores.filter(a => a.StudentID === id).find(a=>a.Discipline==='Reading');
+            const NWEAm = scores.filter(a => a.StudentID === id).find(a=>a.Discipline1==='Mathematics');
+            const NWEAr = scores.filter(a => a.StudentID === id).find(a=>a.Discipline1==='Reading');
             return {
                 homeRoom: student.HR,
                 ID: id,

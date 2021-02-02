@@ -11,11 +11,11 @@ import Alert from 'react-bootstrap/Alert'
 import { ReportCards } from '../../shared/report-types'
 import { ReportCard } from '../home-displays/report-card'
 import { ReportModal } from './report-modal'
+import {FolderDropModal} from '../home-displays/folder-drop-modal'
 import { InstructionModal } from '../home-displays/instructions-modal'
 import { FileManagerContainer } from './file-manager-container'
 import { getFileType } from '../../shared/file-types-utils'
 import { reportTag } from '../../shared/gtag'
-import Dropzone from 'react-dropzone'
 
 import { 
     FileList,
@@ -113,18 +113,12 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         }
     }
 
-    /*<Dropzone onDrop={acceptedFiles => this.dropFiles(acceptedFiles)}>
-                        {({getRootProps, getInputProps}) => (
-                            <section>
-                            <div {...getRootProps()}>
-                                <input {...getInputProps()} />
-                                <Button>Drag 'n' drop some files here, or click to select files</Button>
-                            </div>
-                            </section>
-                        )}
-                        </Dropzone>
+    /*
 
-    */
+    <Button onClick={() => this.activateModal('Folder Drop')}>
+                            Bulk Upload
+                        </Button>
+                        */
     
 
     render () {
@@ -137,24 +131,6 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 <Navbar>
                     <Navbar.Brand>Chavez Report Suite</Navbar.Brand>
                 </Navbar>
-                <Alert variant={"warning"}>
-                    <Alert.Heading>Cumulative Grades Extract Workaround</Alert.Heading>
-                    <p>
-                    There have been issues downloading the Cumulative Grades Extract from Aspen, please follow these instructions to resolve them.<br/><br/>
-
-                    1. Open Notepad (PC) or Textedit (Mac) and open a blank document *<br/>
-                    2. Pull up the Cumulative Grades Export as normal<br/>
-                    3. Using the scroll bar, scroll to the bottom of your export<br/>
-                    4. Press ctrl/cmd+a to select the text of the export, and ctrl/cmd+c to copy it<br/>
-                    5. Go to your new blank document in Notepad or Textedit<br/>
-                    6. Press ctrl/cmd+v to paste the Cumulative Grades Export into your document<br/>
-                    7. Save your file naming it as your-file-name.csv<br/><br/>
-
-                    *note for mac users, if your new document has an editing bar at the top when first opened, you need to either press cmd+shift+T or select 'Make Plain Text' under the Format menu before pasting your Grades Export.<br/><br/>
-
-                    Thanks for your patience!
-                    </p>
-                </Alert>
                 <div className='home-btn-toolbar-container'>
                     <ButtonToolbar className='home-btn-toolbar'>
                         <Button onClick={() => this.activateModal('Instructions')}>
@@ -167,7 +143,6 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     </ButtonToolbar>
                 
                 </div>
-                
                 <CardDeck>
                     {ReportCards.map( card => {return (<ReportCard 
                         key={card.title} 
@@ -188,6 +163,12 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 <InstructionModal 
                     show={this.state.activeModal === 'Instructions'}
                     handleHide={this.handleHide}/>
+                
+                <FolderDropModal
+                    show={this.state.activeModal === 'Folder Drop'}
+                    handleHide={this.handleHide}
+                    dropFiles={this.dropFiles}
+                />
 
                 <FileManagerContainer
                     show={this.state.activeModal === 'Manage Files'}

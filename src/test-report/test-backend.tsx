@@ -1,5 +1,4 @@
 import { ReportFiles } from '../shared/report-types'
-import { parseSchedule } from '../shared/schedule-parser'
 import {stringToDate} from '../shared/utils'
 import * as React from 'react'
 import * as idb from 'idb-keyval'
@@ -21,7 +20,7 @@ interface JijiSheet {
     syllabus_state: string,
     syllabus_grade: string,
     student_grade: string,
-    class_name: string,
+    class_names: string,
     learner_status: string,
     teacher_mind_ids: string,
     teacher_district_ids: string,
@@ -136,7 +135,7 @@ interface PuzzleStudent {
 const getPuzzleClasses = (studentWeeks: JijiSheet[]): PuzzleClasses => {
     
     const classes = d3.nest()
-        .key((c:JijiSheet)=>c.class_name)
+        .key((c:JijiSheet)=>c.class_names)
         .key((c:JijiSheet)=>c.district_student_id)
         .rollup((cs:JijiSheet[]):PuzzleStudent=>{
             const name = cs[0].student_first_name + ' ' + cs[0].student_last_name
@@ -148,7 +147,7 @@ const getPuzzleClasses = (studentWeeks: JijiSheet[]): PuzzleClasses => {
                 name: name,
                 classGrade: cs[0].student_grade,
                 sylGrade: cs[0].syllabus_grade,
-                class: cs[0].class_name,
+                class: cs[0].class_names,
                 totalProgress: totalProgress,
                 perPuzzleTime: perPuzzleTime,
                 lastWeekCompleted: 100 * parseInt(lastWeek.weekly_puzzles_collected)/puzzlesByGrade[cs[0].syllabus_grade],

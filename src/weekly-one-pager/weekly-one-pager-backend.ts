@@ -127,7 +127,7 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const aspGrades = gr === null? null: gr.data as AspenESGradesRow[]
     const currentQuarter = getCurrentQuarter(SY_CURRENT)
-    const grades = aspGrades ? spreadGrades(aspGrades): aspGrades
+    const grades = aspGrades ? spreadGrades(aspGrades, currentQuarter): aspGrades
     let studentGradeObject = getStudentGrades(grades);
 
     const sp = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult;
@@ -525,8 +525,7 @@ const getNWEAData = (hr: HomeRoom): {NWEARead: NWEAData, NWEAMath: NWEAData} => 
 
 }
 
-const spreadGrades = (grades: AspenESGradesRow[]): RawESCumulativeGradeExtractRow[] => {
-    const currentQuarter = getCurrentQuarter(SY_CURRENT)
+const spreadGrades = (grades: AspenESGradesRow[], currentQuarter: string): RawESCumulativeGradeExtractRow[] => {
     const prevQuarter  = parseInt(currentQuarter) > 1 ? (parseInt(currentQuarter) - 1).toString() : currentQuarter
     const byStudent : {
         [id: string]: {

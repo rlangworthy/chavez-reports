@@ -64,7 +64,8 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
-    console.log(rawCategoriesAndTPL)
+    console.log(currentTerm)
+    console.log(rawESGrades)
 
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
     //first get classes and categories
@@ -135,7 +136,7 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
     Object.keys(classes).forEach(cID => {
         if(schedule[cID] !== undefined){
             classCats[cID]= {
-                teachers: classes[cID].teachers.concat(schedule[cID].teachers),
+                teachers: Array.from(new Set([...classes[cID].teachers, ...schedule[cID].teachers])),
                 className: schedule[cID].className,
                 distribution: blankDistribution,
                 categories: classes[cID].categories,
@@ -164,9 +165,13 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
     Object.keys(classes).forEach(cID => {
         const students = classes[cID].students
         const className = classes[cID].className
+        const teacherNames = classes[cID].teachers
         const grades: AspenESGradesRow[] = students
             .filter(sID => studentGrades[sID] !== undefined && studentGrades[sID][className]!==undefined)
-            .map(sID => studentGrades[sID][className][0])
+            .map(sID => studentGrades[sID][className].filter(a => teacherNames.includes(a["Teacher Last Name"] + ', ' + a["Teacher First Name"])).length > 0 ? 
+            studentGrades[sID][className].filter(a => teacherNames.includes(a["Teacher Last Name"] + ', ' + a["Teacher First Name"]))[0]: studentGrades[sID][className][0])
+            //Filter to make sure student grade record is pointing to class with correct teacher
+            
         const distribution = getDistribution(grades)
         distClasses[cID] = {
             ...classes[cID],
@@ -183,18 +188,19 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
 }
 
 const getDistribution = (grades: AspenESGradesRow[]): GradeDistribution => {
-    const failingStudents = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) < 60)
+    const failingStudents = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) < 59.5 )
                 .map(r => {
                     return {
                         studentName: r["Student First Name"] + ' ' + r["Student Last Name"],
-                        quarterGrade: parseFloat(r["Running Term Average"])
+                        quarterGrade: parseFloat(r["Running Term Average"]),
+                        studentID: r['Student ID']
                     }
                 })
     return {
-            A: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 89).length,
-            B: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 79 && parseFloat(r["Running Term Average"]) < 90).length,
-            C: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 69 && parseFloat(r["Running Term Average"]) < 80).length,
-            D: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) > 59 && parseFloat(r["Running Term Average"]) < 70).length,
+            A: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 89.5).length,
+            B: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 79.5 && parseFloat(r["Running Term Average"]) < 89.5).length,
+            C: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 69.5 && parseFloat(r["Running Term Average"]) < 79.5).length,
+            D: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 59.5 && parseFloat(r["Running Term Average"]) < 69.5).length,
             F: failingStudents.length,
             Blank: grades.filter(r => r["Running Term Average"] === '').length,
             failingStudents: failingStudents,
@@ -265,7 +271,7 @@ const addCategoryAssignments = (categories: {[category: string]: Category}, assi
     
     const catsAndAsgns: {[category: string]: Category} = {}
     Object.keys(categories).forEach(category => {
-        const asgs = asgnCats[category] === undefined ? [] : Object.keys(asgnCats[category]).map(name => asgnCats[category][name])
+        const asgs = asgnCats[category] === undefined ? [] : Object.keys(asgnCats[category]).map(name => asgnCats[category][name]).sort((a,b) => a["Assignment Due"] - b["Assignment Due"])
         const stats = asgs.length > 0 ? getTotalAssignmentStats(asgs) : blankAssignmentStats
         catsAndAsgns[category] = {
             ...categories[category],
