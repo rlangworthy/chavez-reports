@@ -53,7 +53,7 @@ const activeReports: string [] = [
     'Student One Pager',
     'Student Assignment Sheet',
     'Gradebook Validation',
-    //'Test',
+    'Test',
 ]
 
 //It is important here that each report have unique descriptions for each file

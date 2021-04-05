@@ -32,6 +32,10 @@ export interface TeacherClass {
     topAssignments: AssignmentImpact[]
     hasGrades: boolean
     hasAsgn: boolean
+    totalAsgn: number
+    pctDF: number
+    numberOver15: number
+    pctStudentsFailing: number
 }
 
 //experimental schedule nonsense
@@ -63,6 +67,7 @@ export interface GradeDistribution {
     D : number
     F : number
     Blank : number
+    total: number
     failingStudents: {
         studentName: string
         quarterGrade: number
@@ -123,6 +128,7 @@ export const blankDistribution: GradeDistribution = {
     D : 0,
     F : 0,
     Blank : 0,
+    total: 0,
     failingStudents: [],
     students: []
 }
@@ -136,4 +142,14 @@ export const blankAssignmentStats: AssignmentStats = {
     averageGrade: 0,
     medianGrade: 0,
     lowestGrade: 0,
+}
+
+// Class Summary information for the admin overview
+export interface ClassSummary {
+    className: string
+    totalAssignments: number
+    pctDF: number
+    numberOver15: number
+    pctStudentsFailing: number
+
 }

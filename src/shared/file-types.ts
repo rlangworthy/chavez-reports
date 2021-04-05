@@ -19,7 +19,7 @@ export enum FileTypes {
     ASSIGNMENTS_SLOW_LOAD = 'All Assignments and Grades Extract',
     TEACHER_CATEGORIES_TPL = 'CPS Teacher Categories and Average Mode',
     TOTAL_STUDENTS_SPED_INSTRUCTION = 'Total Students Special Education Instruction Details',
-    NWEA= 'NWEA Report Details',
+    NWEA= 'NWEA Raw Scores Report',
     ATTENDENCE = '% Students Present, Not Present, Excused, or Tardy',
     KRONOS_DATA = 'Kronos Data',
     STUDENT_INFO = 'Student Search List Report',

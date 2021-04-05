@@ -186,10 +186,11 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
             }
         })
     }
+    console.log(mClassData)
     if(mClassData !== {}){
         Object.keys(studentGradeObject).forEach(id => {
             if(mClassData[id]!== undefined){
-                studentGradeObject[id].mClass = mClassData[id][0]['Assessment Measure-TRC Proficiency Level-Levels']
+                studentGradeObject[id].mClass = mClassData[id]['Assessment Measure-TRC Proficiency Level-Levels']
             }
         })
     }
@@ -216,8 +217,10 @@ const parseNWEA = (nwea: RawNWEACDFRow[]): {[id:string]:any} => {
 const parseMClass = (mClass: MClassStudentSummary[]): {[id:string]:MClassStudentSummary} => {
     return d3.nest()
     .key((r:MClassStudentSummary) => r["Student Primary ID"])
+    .rollup(rs=> rs[rs.length-1])
     .object(mClass)
 }
+
 
 const mergeStudents = (current: Students, past: Students) => {
     Object.keys(current).forEach( k => {

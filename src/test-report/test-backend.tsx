@@ -10,29 +10,17 @@ const ObjectsToCsv = require('objects-to-csv');
 
 interface JijiSheet {
     term: string,
-    district_mind_id: string,
-    district_organization_id: string,
-    district_name: string,
-    district_school_id: string,
-    school_mind_id: string,
-    school_organization_id: string,
-    school_name: string,
-    syllabus_state: string,
-    syllabus_grade: string,
+    syllabus_grade_student: string,
     student_grade: string,
-    class_names: string,
+    group_names: string,
     learner_status: string,
-    teacher_mind_ids: string,
-    teacher_district_ids: string,
     teacher_names: string,
-    learner_gid: string,
-    external_student_id: string,
     district_student_id: string,
     student_mind_id: string,
     student_first_name: string,
     student_middle_name: string,
     student_last_name: string,
-    monday_date: string,
+    sunday_date: string,
     monday_to_sunday_period: string,
     weekly_puzzles_collected: string,
     weekly_minutes: string,
@@ -137,23 +125,23 @@ interface PuzzleStudent {
 const getPuzzleClasses = (studentWeeks: JijiSheet[]): PuzzleClasses => {
     
     const classes = d3.nest()
-        .key((c:JijiSheet)=>c.class_names)
+        .key((c:JijiSheet)=>c.group_names)
         .key((c:JijiSheet)=>c.district_student_id)
         .rollup((cs:JijiSheet[]):PuzzleStudent=>{
             const name = cs[0].student_first_name + ' ' + cs[0].student_last_name
             const lastWeek:JijiSheet = getLastWeek(cs)
             const prevWeek = get2WeeksAgo(cs)
-            const totalProgress = parseInt(cs[0].cumulative_puzzles_collected)/puzzlesByGrade[cs[0].syllabus_grade] * 100   //puzzlesByGrade[cs[0].syllabus_grade]
+            const totalProgress = parseInt(cs[0].cumulative_puzzles_collected)/puzzlesByGrade[cs[0].syllabus_grade_student] * 100   //puzzlesByGrade[cs[0].syllabus_grade]
             const perPuzzleTime = parseInt(cs[0].cumulative_minutes) > 0 ? (parseInt(cs[0].cumulative_puzzles_collected)/parseInt(cs[0].cumulative_minutes)).toFixed(1): '-'
             return {
                 name: name,
                 classGrade: cs[0].student_grade,
-                sylGrade: cs[0].syllabus_grade,
-                class: cs[0].class_names,
+                sylGrade: cs[0].syllabus_grade_student,
+                class: cs[0].group_names,
                 totalProgress: totalProgress,
                 perPuzzleTime: perPuzzleTime,
-                lastWeekCompleted: 100 * parseInt(lastWeek.weekly_puzzles_collected)/puzzlesByGrade[cs[0].syllabus_grade],
-                prevWeekCompleted: prevWeek !== 0 ? 100 * parseInt(prevWeek.weekly_puzzles_collected)/puzzlesByGrade[cs[0].syllabus_grade] : prevWeek,
+                lastWeekCompleted: 100 * parseInt(lastWeek.weekly_puzzles_collected)/puzzlesByGrade[cs[0].syllabus_grade_student],
+                prevWeekCompleted: prevWeek !== 0 ? 100 * parseInt(prevWeek.weekly_puzzles_collected)/puzzlesByGrade[cs[0].syllabus_grade_student] : prevWeek,
                 lastWeekMinutes: parseInt(lastWeek.weekly_minutes),
                 cumulativePuzzles: parseInt(lastWeek.cumulative_puzzles_collected)
             }
@@ -194,11 +182,11 @@ const getJijiClass = (room: {[student: string]:PuzzleStudent}):PuzzleClass => {
 }
 
 const getLastWeek = (cs: JijiSheet[]):JijiSheet => {
-    const sorted = cs.sort((a,b) => datefns.compareAsc(stringToDate(b.monday_date), stringToDate(a.monday_date)))
+    const sorted = cs.sort((a,b) => datefns.compareAsc(stringToDate(b.sunday_date.split(' ')[0]), stringToDate(a.sunday_date.split(' ')[0])))
     return sorted[0]
 }
 const get2WeeksAgo = (cs: JijiSheet[]):JijiSheet | 0 => {
-    const sorted = cs.sort((a,b) => datefns.compareAsc(stringToDate(b.monday_date), stringToDate(a.monday_date)))
+    const sorted = cs.sort((a,b) => datefns.compareAsc(stringToDate(b.sunday_date.split(' ')[0]), stringToDate(a.sunday_date.split(' ')[0])))
     return sorted.length > 1 ? sorted[1] : 0
 }
 

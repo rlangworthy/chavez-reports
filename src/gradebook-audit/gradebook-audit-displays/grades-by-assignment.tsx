@@ -48,7 +48,7 @@ const ClassAssignmentBreakdown: React.SFC<{classAssignments: TeacherClass, class
         if(category.length === 0){return <React.Fragment key={name}/>}
         const rows: JSX.Element [] = []
         let totals: number[] = []
-        category.forEach( (a, i) => {
+        category.sort((a,b) => b.dueDate > a.dueDate ? -1:1).forEach( (a, i) => {
             if (a.stats.grades){
                 const total = a.stats.grades.length
                 totals = totals.concat(a.stats.grades);

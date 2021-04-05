@@ -44,7 +44,8 @@ import {
     blankAssignmentStats,
     blankDistribution,
     ScheduleClass,
-    ScheduleClasses,} from './gradebook-audit-interfaces'
+    ScheduleClasses,
+    ClassSummary} from './gradebook-audit-interfaces'
 
 export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
@@ -76,8 +77,12 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const studentAssignments = getStudentAssignment(rawAllAssignments)
     //combine assignments and classes
     const classesFinal = addAssignmentsToClasses(classGrades, studentAssignments)
+    console.log(classesFinal)
     const teacherclasses = invertScheduleClasses(classesFinal)
     console.log(teacherclasses)
+
+    
+
     return teacherclasses
     
 }
@@ -96,7 +101,11 @@ const getScheduleClasses = (schedule: StudentClassList []): ScheduleClasses => {
                 topAssignments:[],
                 defaultMode: false,
                 hasAsgn: false,
-                hasGrades:false
+                hasGrades:false,
+                totalAsgn: 0,
+                pctDF: 0,
+                numberOver15: 0,
+                pctStudentsFailing: 0,
             }
         }).object(schedule)
     return classes
@@ -128,7 +137,10 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
                 students:[],
                 hasGrades:false,
                 hasAsgn: false,
-                
+                totalAsgn: 0,
+                pctDF: 0,
+                numberOver15: 0,
+                pctStudentsFailing: 0,
                 }
         }).object(categories)
     console.log(classes)
@@ -136,16 +148,11 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
     Object.keys(classes).forEach(cID => {
         if(schedule[cID] !== undefined){
             classCats[cID]= {
+                ...classes[cID],
                 teachers: Array.from(new Set([...classes[cID].teachers, ...schedule[cID].teachers])),
                 className: schedule[cID].className,
                 distribution: blankDistribution,
-                categories: classes[cID].categories,
-                tpl: classes[cID].tpl,
-                topAssignments: [],
                 students: schedule[cID].students,
-                defaultMode: classes[cID].defaultMode,
-                hasAsgn: false,
-                hasGrades: false,
             }
         }
     })
@@ -176,6 +183,8 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
         distClasses[cID] = {
             ...classes[cID],
             distribution: distribution,
+            pctDF: (distribution.F+distribution.D)/distribution.total * 100,
+            pctStudentsFailing: distribution.F/classes[cID].students.length * 100, 
             hasGrades: (
                 distribution.A > 0 || 
                 distribution.B > 0 || 
@@ -196,12 +205,20 @@ const getDistribution = (grades: AspenESGradesRow[]): GradeDistribution => {
                         studentID: r['Student ID']
                     }
                 })
-    return {
-            A: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 89.5).length,
-            B: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 79.5 && parseFloat(r["Running Term Average"]) < 89.5).length,
-            C: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 69.5 && parseFloat(r["Running Term Average"]) < 79.5).length,
-            D: grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 59.5 && parseFloat(r["Running Term Average"]) < 69.5).length,
-            F: failingStudents.length,
+        const A = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 89.5).length
+        const B = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 79.5 && parseFloat(r["Running Term Average"]) < 89.5).length
+        const C = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 69.5 && parseFloat(r["Running Term Average"]) < 79.5).length
+        const D = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 59.5 && parseFloat(r["Running Term Average"]) < 69.5).length
+        const F = failingStudents.length
+        const total = A+B+C+D+F
+
+        return {
+            A: A,
+            B: B,
+            C: C,
+            D: D,
+            F: F,
+            total:total,
             Blank: grades.filter(r => r["Running Term Average"] === '').length,
             failingStudents: failingStudents,
             students: grades.map(r=>r["Student ID"]),
@@ -222,7 +239,7 @@ const getStudentAssignment = (assignments: AspenAssignmentRow[]):StudentAssignme
 const addAssignmentsToClasses = (classes:ScheduleClasses, assignments: StudentAssignments): ScheduleClasses => {
     const classesFinal: ScheduleClasses = {}
     Object.keys(classes).forEach(cID => {
-        classesFinal[cID] = classes[cID]
+        classesFinal[cID] = {...classes[cID]}
         const className = classesFinal[cID].className
         const students = classesFinal[cID].students
     
@@ -233,8 +250,10 @@ const addAssignmentsToClasses = (classes:ScheduleClasses, assignments: StudentAs
         const categories = classesFinal[cID].categories
         classesFinal[cID].categories = addCategoryAssignments(categories, studentAssignments)
         classesFinal[cID].topAssignments = getSortedAssignments(classesFinal[cID].categories)
+        classesFinal[cID].numberOver15 = classesFinal[cID].topAssignments.filter(a => a.impact >= 15).length
         classesFinal[cID].className = classesFinal[cID].className + '-' + cID.split('-').slice(-2).join('-')
-        classesFinal[cID].hasAsgn = Object.keys(categories).some( cat => classesFinal[cID].categories[cat].assignments.length > 0)
+        classesFinal[cID].totalAsgn = Object.keys(categories).reduce((a,b) => a + classesFinal[cID].categories[b].assignments.length, 0)
+        classesFinal[cID].hasAsgn = classesFinal[cID].totalAsgn > 0 ? true:false
         }
     )
     return classesFinal
@@ -267,12 +286,14 @@ const addCategoryAssignments = (categories: {[category: string]: Category}, assi
                 grades: rs.map(r => r.Score),
                 stats: getAssignmentStats(scores, scorePossible, ''),
             }
-        }).object(assignments)
-    
+        }).object(assignments) 
+    const asgnTotal = uniq(assignments.map(a=> a['Assignment Name'])).length
+
+    const categoryKeys = Object.keys(categories)
     const catsAndAsgns: {[category: string]: Category} = {}
-    Object.keys(categories).forEach(category => {
+    categoryKeys.forEach(category => {
         const asgs = asgnCats[category] === undefined ? [] : Object.keys(asgnCats[category]).map(name => asgnCats[category][name]).sort((a,b) => a["Assignment Due"] - b["Assignment Due"])
-        const stats = asgs.length > 0 ? getTotalAssignmentStats(asgs) : blankAssignmentStats
+        const stats = asgs.length > 0 ? getCategoryAssignmentStats(asgs) : blankAssignmentStats
         catsAndAsgns[category] = {
             ...categories[category],
             assignments: asgs,
@@ -298,7 +319,7 @@ export const hasCategoryWeightsNot100 = (categories: {
     }
 };
 
-export const getTotalAssignmentStats = (assignments: Assignment[]):AssignmentStats => {
+export const getCategoryAssignmentStats = (assignments: Assignment[]):AssignmentStats => {
     const stats = assignments.map( a => a.stats).filter(a => isFinite(a.averageGrade));
     const avg = Math.floor(stats.reduce( (a,b) => a - (Number.isNaN(b.averageGrade) ? 0:b.averageGrade), 0)/(-assignments.length))
     return stats.reduce( (a,b) => {
@@ -402,18 +423,43 @@ export const getChartData = (assignments: AssignmentImpact[]):any => {
 
 
 const invertScheduleClasses = (schedule: ScheduleClasses): TeacherClasses => {
-      const teacherclasses: TeacherClasses = {}
+    const teacherclasses: TeacherClasses = {}
+    const gradeClasses = {}
+
 
       Object.keys(schedule).forEach(cID => {
         const teachers = getUniqueTeachers(schedule[cID].teachers)
+        if(gradeClasses[getGL(cID)]===undefined){
+            gradeClasses[getGL(cID)]={}
+        }
         if(teacherclasses[teachers] === undefined){
             teacherclasses[teachers] = {}
+            gradeClasses[getGL(cID)][teachers]={}
         }
+        
         teacherclasses[teachers][cID] = schedule[cID]
+        gradeClasses[getGL(cID)][teachers] = getClassSummary(schedule[cID])
       })
       return teacherclasses
   }
 
+const getClassSummary = (c: ScheduleClass): ClassSummary => {
+    
+    
+    
+    return {
+        className: c.className,
+        totalAssignments: 0,
+        pctDF: 0,
+        numberOver15: 0,
+        pctStudentsFailing: 0,
+    }
+}
+
 const getUniqueTeachers = (teachers: string[]):string => {
       return uniq(teachers).sort().join('; ')
   }
+
+const getGL = (cid: string):string=> {
+    return cid.split('-')[1]
+}

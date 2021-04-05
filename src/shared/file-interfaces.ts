@@ -118,6 +118,7 @@ export interface MClassStudentSummary {
   'Assessment Measure-TRC Proficiency Level-Levels': string
   'Assessment Grade' : string
   'Reporting Class ID' : string //homeroom
+  'Benchmark Period' : 'BOY' | 'MOY' | 'EOY'
 }
 export interface RawESCumulativeGradeExtractRow {
     SchoolID:string
