@@ -204,6 +204,21 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
             homeRooms[hr] = {...homeRooms[hr], ...getNWEAData(homeRooms[hr])}
         })
     }
+
+    const students= homeRooms.map(hr => {return hr.students.map(s => {
+        
+        return {
+        ...s,
+        quarterGPA: s.quarterGPA[0],
+        finalGPA: s.finalGPA[0],
+        absences: s.absences[0],
+        tardies: s.tardies[0],
+        enrollmentDays: s.enrollmentDays[0]
+        
+        }}).flat()
+    }).flat()
+    console.log(papa.unparse(JSON.stringify(students)))
+    //console.log(students)
     return [homeRooms.sort((a,b) => a.grade.localeCompare(b.grade)), summary];
 }
 

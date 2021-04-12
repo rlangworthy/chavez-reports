@@ -51,7 +51,7 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
                                                         <th># Unique Assignments</th>
                                                         <th>% Assignments Graded D or F</th>
                                                         <th># Assignments Over 15% of Total Grade</th>
-                                                        <th>% Sutdents Failing</th>
+                                                        <th>% Students Failing</th>
                                                     </tr>
                             {Object.keys(props.teacherClasses[t]).map(cn => {
                                 if(cn.split('-')[1] === gl && props.teacherClasses[t][cn].totalAsgn>0){
