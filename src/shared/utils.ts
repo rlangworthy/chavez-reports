@@ -17,7 +17,7 @@ import {
   getHours,
   getMinutes} from 'date-fns'
 
-export const CoreClassList = ['SCIENCE  STANDARDS', 'SOCIAL SCIENCE STD', 'MATHEMATICS STD', 'ALGEBRA', 'CHGO READING FRMWK']
+export const CoreClassList = ['SCIENCE STANDARDS', 'SOCIAL SCIENCE STD', 'MATHEMATICS STD', 'ALGEBRA', 'CHGO READING FRMWK']
 
 export const convertAspGrades = (grades: AspenESGradesRow):RawESCumulativeGradeExtractRow => {
   return {
@@ -148,7 +148,7 @@ export const getCPSOnTrack = (math: number, reading: number, attendancePCT: numb
 /*
   formats strings from the all assignments extracts into date objects
 */
-export const stringToDate = (s: string): Date => {
+export const stringToDate = (s: string, t?: string): Date => {
   if(s.split('/').length === 3){
     const d = s.split('/').map(a => parseInt(a))
     const year = d[2] > 2000 ? d[2] : 2000 + d[2]
@@ -188,7 +188,10 @@ export const punchcardStringToDate = (s: string): Date => {
     }
     return newDate
   }else if(d.length === 2){
-    return stringToDate(d[0])
+    const day= stringToDate(d[0])
+    const time = d[1].split(':').map(a=> parseInt(a))
+    day.setHours(time[0], time[1])
+    return day
   }
   throw new Error('Date string ' + s + ' is malformed')
 }

@@ -279,7 +279,7 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
         return [quarterAvg, finalAvg];
     }
     const getScienceGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'SCIENCE  STANDARDS' || r.SubjectName === 'KG SCIENCE');
+        const row = rows.find( r => r.SubjectName === 'SCIENCE STANDARDS' || r.SubjectName === 'KG SCIENCE');
         if(row === undefined){return [-1, -1]}
         const finalAvg = row.FinalAvg !== '' ? parseGrade(row.FinalAvg): parseGrade(row.QuarterGrade)
         const quarterAvg = row.QuarterAvg !== '' ? parseGrade(row.QuarterAvg): -1

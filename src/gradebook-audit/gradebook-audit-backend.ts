@@ -12,7 +12,10 @@ import {
     AspenAssignmentRow,
     AspenCategoriesRow,
     AspenESGradesRow,
-    Score,  } from '../shared/file-interfaces'
+    Score,
+    missingValues,
+    incompleteValues,
+    excusedValues,  } from '../shared/file-interfaces'
 
 import {
     parseGrade,
@@ -338,9 +341,9 @@ export const getCategoryAssignmentStats = (assignments: Assignment[]):Assignment
 
 export const getAssignmentStats = (grades: Score[], scorePosible: number, gradeLogic: string, name?: string ):AssignmentStats => {
     const blanks = grades.filter( g => g === '').length;
-    const excused = grades.filter( g => g === 'Exc' || g === '/').length;
-    const inc = grades.filter( g => g === 'Inc').length;
-    const missing = grades.filter( g => g === 'Msg').length;
+    const excused = grades.filter( g => excusedValues.includes(g)).length;
+    const inc = grades.filter( g => incompleteValues.includes(g)).length;
+    const missing = grades.filter( g => missingValues.includes(g)).length;
     const zeroes = grades.filter( g => g === '0').length;
     const numberGrades: number[] = grades.filter( g => g!=='Exc'&&g!=='Inc'&&g!==''&&g!=='/')
         .map( g => parseGrade(g)/scorePosible*100)

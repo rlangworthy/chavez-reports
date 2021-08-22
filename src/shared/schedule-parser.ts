@@ -4,6 +4,8 @@
  * First draft just picks up the common case
  */
 
+import * as Papa from 'papaparse'
+
 const SCHED_IND=5
 const NAME=4
 const SCHOOL_COL=13
@@ -101,6 +103,6 @@ export const parseSchedule = (rawSched: string[][]): StudentClassList[] => {
             i++
         }
     }
-    console.log(sched.flat())
+    console.log(Papa.unparse(sched.flat()))
     return sched.flat()
 }

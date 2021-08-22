@@ -2,6 +2,10 @@ export type LetterGrade = 'A' | 'B' | 'C' | 'D' | 'F' | 'a' | 'b' | 'c' | 'd' | 
 export const LetterGradeList = ['A' , 'B' , 'C' , 'D' , 'F' , 'a' , 'b' , 'c' , 'd' , 'f']
 
 export type Score = string | 'Msg' | 'Exc' | 'Inc' | '' | LetterGrade;
+export const missingValues = ['Msg', 'MSG', 'msg']
+export const incompleteValues = ['Inc', 'INC', 'inc']
+export const excusedValues = ['Exc', 'EXC', 'exc', '/']
+
 type KeysEnum<T> = { [P in keyof Required<T>]: true };
 
 export interface AspenESGradesRow {

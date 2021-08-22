@@ -230,7 +230,7 @@ const getStudentGrades = (file: AspenESGradesRow[]): Students => {
         return [quarterAvg, finalAvg];
     }
     const getScienceGrade = (rows: AspenESGradesRow[]): number[] => {
-        const row = rows.find( r => r["Course Name"] === 'SCIENCE  STANDARDS');
+        const row = rows.find( r => r["Course Name"] === 'SCIENCE STANDARDS');
         if(row === undefined){return [-1, -1]}
         const finalAvg = row["Cumulative Semester Average"] !== '' ? parseInt(row["Cumulative Semester Average"], 10): -1;
         const quarterAvg = row["Running Term Average"] !== '' ? parseInt(row["Running Term Average"], 10): -1

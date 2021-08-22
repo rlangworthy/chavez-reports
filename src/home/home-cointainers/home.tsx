@@ -5,6 +5,7 @@ import * as d3 from 'd3'
 import CardDeck from 'react-bootstrap/CardDeck'
 import Navbar from 'react-bootstrap/Navbar'
 import Button from 'react-bootstrap/Button'
+import Alert from 'react-bootstrap/Alert'
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
 import { ReportCards } from '../../shared/report-types'
 import { ReportCard } from '../home-displays/report-card'
@@ -14,6 +15,7 @@ import { InstructionModal } from '../home-displays/instructions-modal'
 import { FileManagerContainer } from './file-manager-container'
 import { getFileType } from '../../shared/file-types-utils'
 import { reportTag } from '../../shared/gtag'
+import AspenRequest from '../../shared/icons/Aspen Support Request.png'
 
 import { 
     FileList,
@@ -34,6 +36,7 @@ import { GoogleLoginResponse } from 'react-google-login'
 export type Action = 'Delete' | 'Save' | 'Rename'
  
 export interface FileContextInterface{
+    
     fileList: FileList
     savedFiles: RawFileParse[]
     addFile: (fileType: string, file: File) => Promise<void>
@@ -141,6 +144,11 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     </ButtonToolbar>
                 
                 </div>
+                <Alert variant='warning'>
+                <p>Do you love our reports, but hate having to track down a gaggle of csv files? Well good news!</p>
+                <p>By going to <a href="https://portal.feedback.eu.pendo.io/app/#/case/136226?vid=3989">this link</a> and clicking on the like button as shown below you can help us get Aspen to consolidate everything we need into one convenient download.</p>
+                <img style={{width:'60%'}} src={AspenRequest} alt='Aspen Service Request'/>
+                </Alert>
                 <CardDeck>
                     {ReportCards.map( card => {return (<ReportCard 
                         key={card.title} 
