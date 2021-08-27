@@ -144,11 +144,6 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     </ButtonToolbar>
                 
                 </div>
-                <Alert variant='warning'>
-                <p>Do you love our reports, but hate having to track down a gaggle of csv files? Well good news!</p>
-                <p>By going to <a href="https://portal.feedback.eu.pendo.io/app/#/case/136226?vid=3989">this link</a> and clicking on the like button as shown below you can help us get Aspen to consolidate everything we need into one convenient download.</p>
-                <img style={{width:'60%'}} src={AspenRequest} alt='Aspen Service Request'/>
-                </Alert>
                 <CardDeck>
                     {ReportCards.map( card => {return (<ReportCard 
                         key={card.title} 
