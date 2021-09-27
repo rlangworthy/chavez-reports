@@ -34,11 +34,11 @@ const holidayList2022: HolidayDate[] = [
     },
     {
         name: 'Winter Break',
-        dates: fns.eachDay(new Date(2020111,20), new Date(2021, 11,31))
+        dates: fns.eachDay(new Date(2021, 11,20), new Date(2021, 11,31))
     },
     {
         name: 'Spring Break',
-        dates: fns.eachDay(new Date(2022,3,11), new Date(2021, 3,15))
+        dates: fns.eachDay(new Date(2022,3,11), new Date(2022, 3,15))
     }
 ]
 
