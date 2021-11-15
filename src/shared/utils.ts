@@ -292,7 +292,7 @@ export const parseGrade = (g: string): number => {
   if(g==='F'||g==='f'){
     return 59;
   }
-  if(g==='Msg' || g === '' || g === 'M' || g==='m'){
+  if(g==='Msg' || g === 'M' || g==='m'){
     return 0;
   }
   console.log('Invalid Grade ' + g)

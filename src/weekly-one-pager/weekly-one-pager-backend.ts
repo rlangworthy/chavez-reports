@@ -9,7 +9,8 @@ import {
     getGPA,
     pcorr,
     linearRegression, 
-    parseGrade} from '../shared/utils'
+    parseGrade,
+    stringToDate} from '../shared/utils'
 
 import {
     ReportFiles, } from '../shared/report-types'
@@ -26,9 +27,9 @@ import {
     RawESCumulativeGradeExtractRow,
     RawStudentProfessionalSupportDetailsRow,
     AspenESGradesRow,
-    RawNWEACDFRow,
     MClassStudentSummary,
-    Tardies} from '../shared/file-interfaces'
+    Tardies,
+    AspenAssignmentRow} from '../shared/file-interfaces'
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import { HSStudent } from '../student-one-pager/student-one-pager-backend'
 
@@ -76,6 +77,7 @@ export interface HRStudent {
     nweaMath: number  //-1 if none
     LRE: string
     mClass?: string
+    failureRate: number
 }
 
 export interface ChartHRStudent extends HRStudent {
@@ -112,6 +114,7 @@ interface Student {
     nweaMath: number //-1 if none
     LRE: string
     mClass?: string
+    failureRate?: number
 }
 
 interface Students {
@@ -129,6 +132,8 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
     const currentQuarter = getCurrentQuarter(SY_CURRENT)
     const grades = aspGrades ? spreadGrades(aspGrades, currentQuarter): aspGrades
     let studentGradeObject = getStudentGrades(grades);
+    console.log('grades')
+    console.log(grades)
 
     const sp = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult;
     const tr = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
@@ -146,19 +151,39 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
         tardiesHist = tHist === null ? null: tHist.data as Tardies[];
 
     }
+    
+    let mClassData = {}
 
-    let nweaData = {}
+    let assignmentData = {}
     if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc]){
         const nwea = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
-        nweaData = parseNWEA(nwea === null ? []:nwea.data as RawNWEACDFRow[])
-    }
-    let mClassData = {}
-    if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc]){
-        const mClass = files.reportFiles[files.reportTitle.optionalFiles[1].fileDesc].parseResult
-        mClassData = parseMClass(mClass === null ? []:mClass.data as MClassStudentSummary[])
+        const assignments = nwea === null ? []:nwea.data as AspenAssignmentRow[]
+        const current = assignments.filter(r => stringToDate(r['Assignment Due']) < new Date())
+        .map(r => {
+            return {...r, 'Score': parseGrade(r['Score'])}
+        })
+        .filter(r=> r['Score'] > -1)
+        assignmentData = d3.nest<AspenAssignmentRow, number>()
+            .key((r:AspenAssignmentRow) => r['Student ID'])
+            .rollup((rs:AspenAssignmentRow[]):number => {
+                const current = rs
+                    .filter(r => stringToDate(r['Assignment Due']) < new Date())
+                    .map(r => {
+                        return {...r, 'Score': parseGrade(r['Score'])}
+                    })
+                    .filter(r=> r['Score'] > -1)
+                return current.filter(r => r['Score']/parseInt(r['Score Possible']) < .595).length/current.length
+            })
+            .object(current)
+        //console.log(papa.unparse(JSON.stringify(Object.keys(assignmentData).map(a => {return {ID: a,pctF:assignmentData[a]}}))))
     }
 
-    
+    Object.keys(assignmentData).forEach(id => {
+        if(studentGradeObject[id] != null){
+            studentGradeObject[id].failureRate = assignmentData[id]
+        }
+    })
+
     if (spps !== null){spps.forEach(row => {
         if(studentGradeObject[row['Student ID']]!== undefined){
             studentGradeObject[row['Student ID']].ELL = row['ELL Program Year Code'];
@@ -174,19 +199,6 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
         getAttendanceData(gradeHist, tardiesHist);
     }
 
-    if(nweaData !== {}){
-        Object.keys(studentGradeObject).forEach(id => {
-            if(nweaData[id]!== undefined){
-                if(nweaData[id]['Mathematics']!==undefined){
-                    studentGradeObject[id].nweaMath = parseInt(nweaData[id]['Mathematics'][0].TestPercentile)
-                }
-                if(nweaData[id]['Reading']!==undefined){
-                    studentGradeObject[id].nweaRead = parseInt(nweaData[id]['Reading'][0].TestPercentile)
-                }
-            }
-        })
-    }
-    console.log(mClassData)
     if(mClassData !== {}){
         Object.keys(studentGradeObject).forEach(id => {
             if(mClassData[id]!== undefined){
@@ -198,12 +210,6 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
     mergeStudents(studentGradeObject, gradeHist);
 
     const [homeRooms, summary] = flattenStudents(studentGradeObject);
-
-    if(nweaData !== {}){
-        Object.keys(homeRooms).forEach(hr => {
-            homeRooms[hr] = {...homeRooms[hr], ...getNWEAData(homeRooms[hr])}
-        })
-    }
 
     const students= homeRooms.map(hr => {return hr.students.map(s => {
         
@@ -220,13 +226,6 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
     console.log(papa.unparse(JSON.stringify(students)))
     //console.log(students)
     return [homeRooms.sort((a,b) => a.grade.localeCompare(b.grade)), summary];
-}
-
-const parseNWEA = (nwea: RawNWEACDFRow[]): {[id:string]:any} => {
-    return d3.nest()
-                .key(r => r.StudentID)
-                .key(r => r.Discipline1)
-                .object(nwea)
 }
 
 const parseMClass = (mClass: MClassStudentSummary[]): {[id:string]:MClassStudentSummary} => {
@@ -257,7 +256,7 @@ const mergeStudents = (current: Students, past: Students) => {
 
 const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Students => {
     const getReadingGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'CHGO READING FRMWK' || r.SubjectName === 'KG CHGO READ FRMWRK' );
+        const row = rows.find( r => (r.SubjectName === 'CHGO READING FRMWK' || r.SubjectName === 'KG CHGO READ FRMWRK') && r.FinalAvg !== '' );
         if(row === undefined){return [-1, -1]}
         const finalAvg = row.FinalAvg !== '' ? parseGrade(row.FinalAvg): parseGrade(row.QuarterGrade)
         const quarterAvg = row.QuarterAvg !== '' ? parseGrade(row.QuarterAvg): -1
@@ -265,8 +264,8 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
 
     }
     const getMathGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'MATHEMATICS STD' || r.SubjectName === 'KG MATH STANDARDS');
-        const alg = rows.find( r => r.SubjectName === 'ALGEBRA');
+        const row = rows.find( r => (r.SubjectName === 'MATHEMATICS STD' || r.SubjectName === 'KG MATH STANDARDS') && r.FinalAvg !== '' );
+        const alg = rows.find( r => (r.SubjectName === 'ALGEBRA') && r.FinalAvg !== '' );
         if(row === undefined){
             if(alg === undefined){return [-1, -1]}
             else{
@@ -279,14 +278,14 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
         return [quarterAvg, finalAvg];
     }
     const getScienceGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'SCIENCE STANDARDS' || r.SubjectName === 'KG SCIENCE');
+        const row = rows.find( r => (r.SubjectName === 'SCIENCE STANDARDS' || r.SubjectName === 'KG SCIENCE') && r.FinalAvg !== '' );
         if(row === undefined){return [-1, -1]}
         const finalAvg = row.FinalAvg !== '' ? parseGrade(row.FinalAvg): parseGrade(row.QuarterGrade)
         const quarterAvg = row.QuarterAvg !== '' ? parseGrade(row.QuarterAvg): -1
         return [quarterAvg, finalAvg];
     }
     const getSocialScienceGrade = (rows: RawESCumulativeGradeExtractRow[]): number[] => {
-        const row = rows.find( r => r.SubjectName === 'SOCIAL SCIENCE STD' || r.SubjectName === 'KG SOCIAL SCIENCE');
+        const row = rows.find( r => (r.SubjectName === 'SOCIAL SCIENCE STD' || r.SubjectName === 'KG SOCIAL SCIENCE') && r.FinalAvg !== '' );
         if(row === undefined){return [-1, -1]}
         const finalAvg = row.FinalAvg !== '' ? parseGrade(row.FinalAvg): parseGrade(row.QuarterGrade)
         const quarterAvg = row.QuarterAvg !== '' ? parseGrade(row.QuarterAvg): -1
@@ -300,7 +299,7 @@ const getStudentGrades = (file: RawESCumulativeGradeExtractRow[] | null): Studen
             const grades = [getReadingGrade(rs),getMathGrade(rs),getScienceGrade(rs),getSocialScienceGrade(rs)];
             const quarterGrades = grades.map(a => a[0]);
             const finalGrades = grades.map(a=>a[1]);
-            const GPA = getGPA(finalGrades);
+            const GPA = getGPA(finalGrades.filter(g => g>=0));
             return {
                 HR: rs[0].StudentHomeroom,
                 GradeLevel: '',
@@ -416,6 +415,7 @@ const flattenStudents = (students: Students): [HomeRoom[], HRSummary] => {
                         nweaRead: r.nweaRead,
                         LRE: r.LRE,
                         mClass: r.mClass,
+                        failureRate: r.failureRate ? r.failureRate : -1,
                     }
                 })
             }
@@ -561,7 +561,7 @@ const spreadGrades = (grades: AspenESGradesRow[], currentQuarter: string): RawES
             if(grade[0]["Cumulative Semester Average"] === ''){
                 grade[0]["Final Average"] = prevGrade[0]['Term Grade']
             }*/
-            return convertAspGrades(grade[0])
+            return convertAspGrades(grade.sort().reverse()[0])
     }).object(grades)
     return Object.values(byStudent).map(a => Object.values(a)).flat(2)
 }

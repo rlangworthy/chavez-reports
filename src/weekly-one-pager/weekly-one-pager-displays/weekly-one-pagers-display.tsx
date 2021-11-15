@@ -30,11 +30,12 @@ interface OnePageState {
     homeRooms: HomeRoom[],
     summary: HRSummary,
     twoSided: boolean
+    pctFailure:boolean
 }
 
 const printGrade = (quarter: number, final: number) => {
     if (quarter < 0 && final < 0 ){ return '--'}
-    return '(' + ((quarter > 0 ) ? quarter.toFixed(1): '-') + ', ' + ((final > 0 ) ? final.toFixed(1): '-') + ')';
+    return '(' + ((quarter > 0 ) ? quarter.toFixed(0): '-') + ', ' + ((final > 0 ) ? final.toFixed(0): '-') + ')';
 }
 
 const dateString= dateFns.format(new Date(), 'Do MMM, YYYY');
@@ -49,23 +50,26 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
             homeRooms: [],
             summary: {OT:{},grades:{}},
             twoSided: false,
+            pctFailure: false,
         }
     }
 
     componentWillMount(){
-        const twoSided = this.props.reportFiles && 
+        const pctFailure = this.props.reportFiles && 
             this.props.reportFiles.reportTitle.optionalFiles && 
             (this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ||
                 this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[1].fileDesc]   ) ? true:false
         const [homeRooms, summary]: [HomeRoom[], HRSummary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : 
         [[] as HomeRoom[],{} as HRSummary]
         const grades = [... new Set(homeRooms.map(hr => hr.grade))].sort()
-        console.log(twoSided)
+        const twoSided = false
+
         this.setState({
             homeRooms: homeRooms,
             summary: summary,
             twoSided: twoSided,
             grades: grades,
+            pctFailure:pctFailure,
         })
     
     } 
@@ -91,7 +95,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
                         {homeRooms.map( hr => {
                                 if(this.state.selectedGrades.length===0 || this.state.selectedGrades.includes(hr.grade)){
                                     return (
-                                        <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided}/>
+                                        <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided} pctFailure={this.state.pctFailure}/>
                                     )
                                 }else{
                                     return null
@@ -177,11 +181,11 @@ class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
                                 </tr>
                                 <tr>
                                     <td className={'summary-cell'}>{key}</td>
-                                    <td className={'summary-cell'}>{averages[key].mathGrade.toFixed(1)}</td>
-                                    <td className={'summary-cell'}>{averages[key].readingGrade.toFixed(1)}</td>
-                                    <td className={'summary-cell'}>{averages[key].scienceGrade.toFixed(1)}</td>
-                                    <td className={'summary-cell'}>{averages[key].ssGrade.toFixed(1)}</td>
-                                    <td className={'summary-cell'}>{averages[key].attendanceAvg.toFixed(1)}</td>
+                                    <td className={'summary-cell'}>{averages[key].mathGrade.toFixed(0)}</td>
+                                    <td className={'summary-cell'}>{averages[key].readingGrade.toFixed(0)}</td>
+                                    <td className={'summary-cell'}>{averages[key].scienceGrade.toFixed(0)}</td>
+                                    <td className={'summary-cell'}>{averages[key].ssGrade.toFixed(0)}</td>
+                                    <td className={'summary-cell'}>{averages[key].attendanceAvg.toFixed(0)}</td>
                                 </tr>
                             </tbody>
                         </Table>
@@ -191,7 +195,7 @@ class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
     }
 }
 
-class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolean}> {
+class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolean, pctFailure: boolean}> {
     render(){
         const hr = this.props.hr
         return (
@@ -216,7 +220,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                         <td>Sci(Q,F)</td>
                                         <td>SS(Q,F)</td>
                                         <td>GPA</td>
-                                        <td>Tardies</td>
+                                        <td>{this.props.pctFailure? "Percent F's": 'Tardies'}</td>
                                         <td>Attendance</td>
                                     </tr>
                                     {hr.students.map( (student, i) => {
@@ -230,14 +234,14 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                                 <td>{printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>
                                                 <td>{printGrade(student.quarterScienceGrade, student.finalScienceGrade)}</td>
                                                 <td>{printGrade(student.quarterSocialScienceGrade, student.finalSocialScienceGrade)}</td>
-                                                <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(1):
-                                                    student.finalGPA[0].toFixed(1) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(1)+')'}</td>
-                                                <td>{student.tardies[0] === student.tardies[1] ? student.tardies[0]:
+                                                <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(0):
+                                                    student.finalGPA[0].toFixed(0) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(0)+')'}</td>
+                                                <td>{this.props.pctFailure ? student.failureRate >= 0 ? (student.failureRate*100).toFixed(0)+ '%': 'N/A' : student.tardies[0] === student.tardies[1] ? student.tardies[0]:
                                                     student.tardies[0] + '(' + (student.tardies[0]-student.tardies[1])+')'}</td>
                                                 <td>{student.enrollmentDays[0]===student.enrollmentDays[1] ? 
-                                                ((student.enrollmentDays[0]-student.absences[0])/student.enrollmentDays[0]*100).toFixed(1) + '%(' +
+                                                ((student.enrollmentDays[0]-student.absences[0])/student.enrollmentDays[0]*100).toFixed(0) + '%(' +
                                                 (student.enrollmentDays[0]-student.absences[0]) + '/' + student.enrollmentDays[0] + ')': 
-                                                ((student.enrollmentDays[0]-student.absences[0])/student.enrollmentDays[0]*100).toFixed(1) + '%'}</td>
+                                                ((student.enrollmentDays[0]-student.absences[0])/student.enrollmentDays[0]*100).toFixed(0) + '%'}</td>
                                             </tr>
                                         )
                                     })}

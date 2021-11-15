@@ -42,8 +42,8 @@ export interface HSStudent {
     ELL: string
     address: string
     attendance: number
-    NWEAMath: number
-    NWEAReading: number
+    //NWEAMath: number
+    //NWEAReading: number
     quarterReadingGrade: number
     quarterMathGrade: number
     quarterScienceGrade: number
@@ -114,10 +114,9 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult;
     const at = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult;
     const info = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
-    const nwea = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
-    const mz = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult;
-    const cats = files.reportFiles[files.reportTitle.files[5].fileDesc].parseResult
-    const sched = files.reportFiles[files.reportTitle.files[6].fileDesc].parseResult
+    const mz = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
+    const cats = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult
+    const sched = files.reportFiles[files.reportTitle.files[5].fileDesc].parseResult
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = getCurrentQuarter(SY_CURRENT)
     const startDate = getCurrentQuarterDate(SY_CURRENT)
@@ -151,15 +150,11 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
         })
     }
     const addresses = info === null? null: info.data as AddData[];
-    const scores = nwea===null? null: nwea.data as NWEAScores[];
 
-    if(addresses !== null && scores !== null){
+    if(addresses !== null){
         const students:HSStudent[] = Object.keys(studentGradeObject).map( (id:string):HSStudent => {
             const student = studentGradeObject[id];
             const address = addresses.find(a => a.STUDENT_ID===id);
-            console.log(scores.filter(a => a.StudentID === id))
-            const NWEAm = scores.filter(a => a.StudentID === id).find(a=>a.Discipline1==='Mathematics');
-            const NWEAr = scores.filter(a => a.StudentID === id).find(a=>a.Discipline1==='Reading');
             return {
                 homeRoom: student.HR,
                 ID: id,
@@ -168,8 +163,6 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
                 ELL: address === undefined? '':address.textbox5,
                 address: address === undefined? '':address.StudentAddress,
                 attendance: student.absencePercent,
-                NWEAMath: NWEAm === undefined? -1: parseInt(NWEAm.TestPercentile),
-                NWEAReading: NWEAr === undefined? -1 : parseInt(NWEAr.TestPercentile),
                 quarterReadingGrade: student.quarterReadingGrade,
                 quarterMathGrade: student.quarterMathGrade,
                 quarterScienceGrade: student.quarterScienceGrade,

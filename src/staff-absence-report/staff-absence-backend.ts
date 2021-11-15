@@ -49,7 +49,6 @@ const punchcardParser = (files: ReportFiles): {punchTimes: StaffPunchTimes, posi
                                 const sortedDates = rs.map( (s:RawPunchcardRow):SortedPunchcardRow => {
                                     return {...s, parsedEventDate: punchcardStringToDate(s.EVENTDATE)}}).sort(compareAsc)
                                 if(isAfter(sortedDates[sortedDates.length-1].parsedEventDate, endDate)){
-                                    console.log('here')
                                     endDate = sortedDates[sortedDates.length-1].parsedEventDate;
                                 }
                                 const dates = d3.nest<SortedPunchcardRow>()

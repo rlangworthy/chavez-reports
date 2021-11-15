@@ -60,7 +60,7 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
     const codes = props.codes.length > 0 ? 
         props.codes.filter(k=> Object.keys(props.absences.absences).includes(k)) : 
         Object.keys(props.absences.absences).filter(k=> AbsencePaycodes.includes(k))
-    const visibility = codes.length > 0 && props.visibility
+    const visibility = (codes.length > 0 && props.visibility) || (props.visibility && props.absences.attDays && props.absences.tardies)
     const headRow = (
         <tr key={'Absences Header'}>
           <th>Pay Code</th>

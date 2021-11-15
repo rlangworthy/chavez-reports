@@ -46,14 +46,7 @@ export const StudentOnePagers: React.SFC<StudentOnePagerProps> = props => {
                                             <td>You attendance percentage</td>
                                             <td>{Math.floor(student.attendance)}</td>
                                         </tr>
-                                        <tr>
-                                            <td>NWEA Math</td>
-                                            <td>{student.NWEAMath < 0 ? 'unknown':student.NWEAMath}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>NWEA Reading</td>
-                                            <td>{student.NWEAReading < 0 ? 'unknown':student.NWEAReading}</td>
-                                        </tr>
+                                        
                                     </tbody>
                                 </Table>
                                 <div style={{height: '2em'}}></div>
