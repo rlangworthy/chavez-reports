@@ -10,9 +10,10 @@ interface FailingGradesRenderProps{
     [className: string]: TeacherClass
   }
   hasGrades: string[]
+  hasSped: boolean
 }
 
-export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props => {
+export const FailingGradesRender: React.FunctionComponent<FailingGradesRenderProps> = props => {
     // flatten categoryTable
     /* tslint:disable-next-line:prefer-const */
     let rows: JSX.Element[] = [];
@@ -23,6 +24,7 @@ export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props =>
         <th>Student Name</th>
         <th>Student ID</th>
         <th>Quarter Grade</th>
+        {props.hasSped? (<><th>PDIS</th><th>ELL</th></>):null}
       </tr>
     );
     props.hasGrades.forEach( c => {
@@ -37,6 +39,7 @@ export const FailingGradesRender: React.SFC<FailingGradesRenderProps> = props =>
             <td>{studentName}</td>
             <td>{s.studentID}</td>
             <td>{s.quarterGrade}</td>
+            {props.hasSped? (<><td>{s.dl}</td><td>{s.el}</td></>):null}
           </tr>
         );
         rows.push(row);

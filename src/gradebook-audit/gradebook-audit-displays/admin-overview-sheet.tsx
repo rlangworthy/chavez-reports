@@ -16,7 +16,7 @@ interface AdminOverviewSheetProps {
 export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps> = props => {
     const teachers = Object.keys(props.teacherClasses)
     const gradebookDefaultTeachers = teachers.filter(t => Object.keys(props.teacherClasses[t]).some(k => props.teacherClasses[t][k].defaultMode && props.teacherClasses[t][k].hasGrades))
-    const gradeLevels = uniq(teachers.map(t => Object.keys(props.teacherClasses[t]).map(c=>props.teacherClasses[t][c].className.split('-')[1])).flat()).sort()
+    const gradeLevels = uniq(teachers.map(t => Object.keys(props.teacherClasses[t]).map(c=>props.teacherClasses[t][c].gradeLevel)).flat()).sort()
 
     return (
         <div className='admin-overview-sheet'>
@@ -40,7 +40,7 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
                 return ( 
                 <>
                     <h4>{gl==="KG" ? 'KG' : 'Grade ' + gl}</h4>    
-                    {teachers.map(t => {if(Object.keys(props.teacherClasses[t]).every(cn => cn.split('-')[1] !== gl || props.teacherClasses[t][cn].totalAsgn===0)){return (<></>)}
+                    {teachers.map(t => {if(Object.keys(props.teacherClasses[t]).every(cn => props.teacherClasses[t][cn].gradeLevel !== gl || props.teacherClasses[t][cn].totalAsgn===0)){return (<></>)}
                     return (
                         <>
                             <h5 style={{marginLeft:'50px'}}>{t}</h5>
@@ -54,7 +54,7 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
                                                         <th>% Students Failing</th>
                                                     </tr>
                             {Object.keys(props.teacherClasses[t]).map(cn => {
-                                if(cn.split('-')[1] === gl && props.teacherClasses[t][cn].totalAsgn>0){
+                                if(props.teacherClasses[t][cn].gradeLevel === gl && props.teacherClasses[t][cn].totalAsgn>0){
                                     return (            
                                                 <tr>
                                                     <td>{props.teacherClasses[t][cn].className}</td>

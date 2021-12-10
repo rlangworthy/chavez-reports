@@ -12,10 +12,12 @@ import {
     AspenAssignmentRow,
     AspenCategoriesRow,
     AspenESGradesRow,
+    RawStudentProfessionalSupportDetailsRow,
     Score,
     missingValues,
     incompleteValues,
-    excusedValues,  } from '../shared/file-interfaces'
+    excusedValues,
+    rawStudentProfessionalSupportDetailsRowKeys,  } from '../shared/file-interfaces'
 
 import {
     parseGrade,
@@ -70,12 +72,18 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
         c['CLS Cycle'] ==='All Cycles')
     console.log(currentTerm)
     console.log(rawESGrades)
-
+    let spedStatus = {}
+    if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc]){
+        const sp = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
+        spedStatus = getSpedStatus(sp === null? []: sp.data as RawStudentProfessionalSupportDetailsRow[])
+        console.log(spedStatus)
+    }
+    
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
     //first get classes and categories
     const classCats: ScheduleClasses = getClassesAndCategories(rawCategoriesAndTPL, scheduleClasses)
     //second add grade distributions (including student list) and class names through the grades extract
-    const classGrades: ScheduleClasses = getGradeDistributions(rawESGrades, classCats)
+    const classGrades: ScheduleClasses = getGradeDistributions(rawESGrades, classCats, spedStatus)
     //associate student id's and assignments
     const studentAssignments = getStudentAssignment(rawAllAssignments)
     //combine assignments and classes
@@ -83,11 +91,24 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     console.log(classesFinal)
     const teacherclasses = invertScheduleClasses(classesFinal)
     console.log(teacherclasses)
-
     
-
+    
     return teacherclasses
     
+}
+
+const getSpedStatus = (sped: RawStudentProfessionalSupportDetailsRow[]) : {[id:string] : {dl:string, el:string}} => {
+    const obj = d3.nest<RawStudentProfessionalSupportDetailsRow, {dl:string, el:string}>()
+        .key((r:RawStudentProfessionalSupportDetailsRow) => r['Student ID'])
+        .rollup((rs: RawStudentProfessionalSupportDetailsRow[]) => {
+            return {
+                el: rs[0]['ELL Program Year Code'],
+                dl: rs[0].PDIS
+            }
+        })
+        .object(sped)
+
+    return obj
 }
 
 const getScheduleClasses = (schedule: StudentClassList []): ScheduleClasses => {
@@ -109,6 +130,7 @@ const getScheduleClasses = (schedule: StudentClassList []): ScheduleClasses => {
                 pctDF: 0,
                 numberOver15: 0,
                 pctStudentsFailing: 0,
+                gradeLevel:'',
             }
         }).object(schedule)
     return classes
@@ -144,6 +166,7 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
                 pctDF: 0,
                 numberOver15: 0,
                 pctStudentsFailing: 0,
+                gradeLevel: '',
                 }
         }).object(categories)
     console.log(classes)
@@ -163,7 +186,16 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
     return classCats
 }
 
-const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClasses): ScheduleClasses => {
+const getGradeLevel = (grades: AspenESGradesRow[]): string => {
+    const gl = d3.nest<AspenESGradesRow, number>()
+        .key((r:AspenESGradesRow) => r['Grade Level'])
+        .rollup(rs => rs.length)
+        .object(grades)
+    const max = Object.keys(gl).reduce((a,b) => gl[a] > gl[b] ? a:b)
+    return max
+}
+
+const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClasses, sped: {[id:string] : {dl:string, el:string}}): ScheduleClasses => {
     const distClasses: ScheduleClasses = {}
     const studentGrades = d3.nest<AspenESGradesRow, GradeDistribution>()
         .key((r:AspenESGradesRow) => r["Student ID"])
@@ -182,9 +214,10 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
             studentGrades[sID][className].filter(a => teacherNames.includes(a["Teacher Last Name"] + ', ' + a["Teacher First Name"]))[0]: studentGrades[sID][className][0])
             //Filter to make sure student grade record is pointing to class with correct teacher
             
-        const distribution = getDistribution(grades)
+        const distribution = getDistribution(grades, sped)
         distClasses[cID] = {
             ...classes[cID],
+            gradeLevel: getGradeLevel(grades),
             distribution: distribution,
             pctDF: (distribution.F+distribution.D)/distribution.total * 100,
             pctStudentsFailing: distribution.F/classes[cID].students.length * 100, 
@@ -199,13 +232,16 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
     return distClasses;
 }
 
-const getDistribution = (grades: AspenESGradesRow[]): GradeDistribution => {
+const getDistribution = (grades: AspenESGradesRow[], sped: {[id:string] : {dl:string, el:string}}): GradeDistribution => {
     const failingStudents = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) < 59.5 )
                 .map(r => {
+                    const dl = sped[r['Student ID']] ? sped[r['Student ID']] : {}
                     return {
                         studentName: r["Student First Name"] + ' ' + r["Student Last Name"],
                         quarterGrade: parseFloat(r["Running Term Average"]),
-                        studentID: r['Student ID']
+                        studentID: r['Student ID'],
+                        ...dl,
+                        
                     }
                 })
         const A = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 89.5).length

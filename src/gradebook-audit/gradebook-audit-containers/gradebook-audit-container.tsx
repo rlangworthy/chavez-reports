@@ -35,7 +35,7 @@ interface GradebookAuditReportState{
     selectedTeachers: string[]
     teacherClasses: TeacherClasses
     teachers: string[]
-    
+    sped: boolean
 }
 
 export class GradebookAuditReport extends React.PureComponent<GradebookAuditReportProps, GradebookAuditReportState>{
@@ -46,7 +46,10 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
         this.setState({
             selectedTeachers:[],
             teacherClasses: teacherClasses,
-            teachers: selectedTeachers
+            teachers: selectedTeachers,
+            sped: (this.props.reportFiles && 
+            this.props.reportFiles.reportTitle.optionalFiles && 
+            this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ? true:false)
         })
     }
 
@@ -96,7 +99,8 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                                             hasGrades={hasAsgn}/>
                                         <FailingGradesRender 
                                             classes={teacherClasses[tKey]}
-                                            hasGrades={hasGrades}/>
+                                            hasGrades={hasGrades}
+                                            hasSped={this.state.sped}/>
                                         <HighImpactAssignmentsRender 
                                             classes={teacherClasses[tKey]}
                                             hasGrades={hasGrades}/>

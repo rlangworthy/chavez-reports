@@ -36,6 +36,7 @@ export interface TeacherClass {
     pctDF: number
     numberOver15: number
     pctStudentsFailing: number
+    gradeLevel: string
 }
 
 //experimental schedule nonsense
@@ -72,6 +73,8 @@ export interface GradeDistribution {
         studentName: string
         quarterGrade: number
         studentID: string
+        el? : string
+        dl? : string
     }[]
     students?: string[] //array of student id's
 }
