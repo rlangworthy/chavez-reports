@@ -58,12 +58,14 @@ export const FileInputs: React.FunctionComponent<FileInputsProps> = (props) => {
                                                         />
                                                     {f.fileType === FileTypes.ASSIGNMENTS_SLOW_LOAD ?  <Form.Control 
                                                         as='select'
-                                                        value={'Quarter ' + props.selectedQuarter}
+                                                        value={props.selectedQuarter.length === 1 ? 'Quarter ' + props.selectedQuarter : props.selectedQuarter}
                                                         onChange = {(e) => props.handleQuarterChange(e as React.ChangeEvent<HTMLSelectElement>)}>
                                                         <option>Quarter 1</option>
                                                         <option>Quarter 2</option>
                                                         <option>Quarter 3</option>
                                                         <option>Quarter 4</option>
+                                                        <option>Semester 1</option>
+                                                        <option>Semester 2</option>
                                                     </Form.Control> : <></>}
                                                 </div>
                                             </Col>

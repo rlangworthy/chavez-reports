@@ -65,9 +65,9 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     //FIXME: hardcoded, should be a choice of the user
     const currentTerm = aspAllAssignments.length > 0 ? aspAllAssignments[0]['Grade Term'].split(' ')[1] : getCurrentQuarter(SY_CURRENT)
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
-    const rawAllAssignments = aspAllAssignments.filter(a => 
-        a["Grade Term"].split(' ')[1] === currentTerm)
-    
+    const rawAllAssignments = aspAllAssignments
+    const termGradeIndicator = files.reportFiles[files.reportTitle.files[1].fileDesc].fileName.includes('Semester') ? 'Cumulative Semester Average' : 'Running Term Average'
+
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
     console.log(currentTerm)
@@ -83,7 +83,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     //first get classes and categories
     const classCats: ScheduleClasses = getClassesAndCategories(rawCategoriesAndTPL, scheduleClasses)
     //second add grade distributions (including student list) and class names through the grades extract
-    const classGrades: ScheduleClasses = getGradeDistributions(rawESGrades, classCats, spedStatus)
+    const classGrades: ScheduleClasses = getGradeDistributions(rawESGrades, classCats, spedStatus, termGradeIndicator)
     //associate student id's and assignments
     const studentAssignments = getStudentAssignment(rawAllAssignments)
     //combine assignments and classes
@@ -191,11 +191,11 @@ const getGradeLevel = (grades: AspenESGradesRow[]): string => {
         .key((r:AspenESGradesRow) => r['Grade Level'])
         .rollup(rs => rs.length)
         .object(grades)
-    const max = Object.keys(gl).reduce((a,b) => gl[a] > gl[b] ? a:b)
+    const max = Object.keys(gl).reduce((a,b) => gl[a] > gl[b] ? a:b, '')
     return max
 }
 
-const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClasses, sped: {[id:string] : {dl:string, el:string}}): ScheduleClasses => {
+const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClasses, sped: {[id:string] : {dl:string, el:string}}, termIndicator: string): ScheduleClasses => {
     const distClasses: ScheduleClasses = {}
     const studentGrades = d3.nest<AspenESGradesRow, GradeDistribution>()
         .key((r:AspenESGradesRow) => r["Student ID"])
@@ -214,7 +214,7 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
             studentGrades[sID][className].filter(a => teacherNames.includes(a["Teacher Last Name"] + ', ' + a["Teacher First Name"]))[0]: studentGrades[sID][className][0])
             //Filter to make sure student grade record is pointing to class with correct teacher
             
-        const distribution = getDistribution(grades, sped)
+        const distribution = getDistribution(grades, sped, termIndicator)
         distClasses[cID] = {
             ...classes[cID],
             gradeLevel: getGradeLevel(grades),
@@ -232,22 +232,22 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
     return distClasses;
 }
 
-const getDistribution = (grades: AspenESGradesRow[], sped: {[id:string] : {dl:string, el:string}}): GradeDistribution => {
-    const failingStudents = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) < 59.5 )
+const getDistribution = (grades: AspenESGradesRow[], sped: {[id:string] : {dl:string, el:string}}, termIndicator: string): GradeDistribution => {
+    const failingStudents = grades.filter(r => r[termIndicator] !== '' && parseFloat(r[termIndicator]) < 59.5 )
                 .map(r => {
                     const dl = sped[r['Student ID']] ? sped[r['Student ID']] : {}
                     return {
                         studentName: r["Student First Name"] + ' ' + r["Student Last Name"],
-                        quarterGrade: parseFloat(r["Running Term Average"]),
+                        quarterGrade: parseFloat(r[termIndicator]),
                         studentID: r['Student ID'],
                         ...dl,
                         
                     }
                 })
-        const A = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 89.5).length
-        const B = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 79.5 && parseFloat(r["Running Term Average"]) < 89.5).length
-        const C = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 69.5 && parseFloat(r["Running Term Average"]) < 79.5).length
-        const D = grades.filter(r => r["Running Term Average"] !== '' && parseFloat(r["Running Term Average"]) >= 59.5 && parseFloat(r["Running Term Average"]) < 69.5).length
+        const A = grades.filter(r => r[termIndicator] !== '' && parseFloat(r[termIndicator]) >= 89.5).length
+        const B = grades.filter(r => r[termIndicator] !== '' && parseFloat(r[termIndicator]) >= 79.5 && parseFloat(r[termIndicator]) < 89.5).length
+        const C = grades.filter(r => r[termIndicator] !== '' && parseFloat(r[termIndicator]) >= 69.5 && parseFloat(r[termIndicator]) < 79.5).length
+        const D = grades.filter(r => r[termIndicator] !== '' && parseFloat(r[termIndicator]) >= 59.5 && parseFloat(r[termIndicator]) < 69.5).length
         const F = failingStudents.length
         const total = A+B+C+D+F
 

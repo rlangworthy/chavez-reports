@@ -219,12 +219,12 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
     private addFile = (fileType: string, file: File, selectedQuarter?: string): Promise<void> => {
         if(fileType === FileTypes.ASSIGNMENTS_SLOW_LOAD){
             var download:AspenAssignmentRow[] = []
-            const qStart = selectedQuarter !== undefined? selectedQuarter : getCurrentQuarter(SY_CURRENT)
+            const qStart = selectedQuarter !== undefined? selectedQuarter : 'Quarter ' + getCurrentQuarter(SY_CURRENT)
             return new Promise ((resolve,reject) => {
                 Papa.parse(file, {complete: (result: ParseResult) => {
                     const newFileList = {};
                     Object.assign(newFileList, this.state.fileList);
-                    const modName = file.name.slice(0,-4) + ' Quarter ' + qStart + file.name.slice(-4)
+                    const modName = file.name.slice(0,-4) + ' ' + qStart + file.name.slice(-4)
                     const fileName = newFileList[fileType].find( f => f.fileName === modName) ? 
                                         getUniqueFileName(modName, this.state.fileList[fileType]):
                                         modName;
@@ -240,8 +240,15 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                     chunk: (result: ParseResult) => {
                         const d = new Date()
                         d.setDate(d.getDate()-1)
-                        download = download.concat(result.data.filter((a:AspenAssignmentRow) => 
-                            a["Grade Term"].split(' ')[1]===qStart))
+                        download = download.concat(result.data.filter((a:AspenAssignmentRow) => {
+                            if(qStart.split(' ')[0] === 'Quarter'){
+                                return a["Grade Term"].split(' ')[1]===qStart.split(' ')[1]}
+                            else if(qStart === 'Semester 1'){
+                                return a["Grade Term"].split(' ')[1]==='1' || a["Grade Term"].split(' ')[1]==="2" 
+                            }
+                            return a["Grade Term"].split(' ')[1]==='3' || a["Grade Term"].split(' ')[1]==="4" 
+                        }))
+                            
                     }})
             })
         }

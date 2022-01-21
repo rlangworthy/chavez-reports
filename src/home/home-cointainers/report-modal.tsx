@@ -52,9 +52,9 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         }) : null
         /* eslint-enable */
         if(this.props.report.optionalFiles){
-            this.state={selectedValues:selected, isLoading: false, selectedQuarter: getCurrentQuarter(SY_CURRENT)}
+            this.state={selectedValues:selected, isLoading: false, selectedQuarter: 'Quarter ' + getCurrentQuarter(SY_CURRENT)}
         }else{
-            this.state={selectedValues:selected, isLoading: false, selectedQuarter: getCurrentQuarter(SY_CURRENT)}
+            this.state={selectedValues:selected, isLoading: false, selectedQuarter: 'Quarter ' + getCurrentQuarter(SY_CURRENT)}
         }
     }
     private title = this.props.report.title;
@@ -88,7 +88,8 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
 
     private handleQuarterChange = (ev: React.ChangeEvent<HTMLSelectElement>): void => {
         ev.preventDefault();
-        this.setState({selectedQuarter: ev.target.value.split(' ')[1]})
+        console.log(ev.target.value)
+        this.setState({selectedQuarter: ev.target.value}) //.split(' ')[1]})
     }
 
     private generateSubmit = () => {

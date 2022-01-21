@@ -102,6 +102,9 @@ interface AddData {
     STUDENT_ID: string
     STUDENT_SPECIAL_ED_INDICATOR1: string
     StudentAddress: string
+    //Name: string
+    //'Student Physical Address': string
+    //'Student ID': string
 }
 
 interface Tardies {
@@ -159,8 +162,8 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
                 homeRoom: student.HR,
                 ID: id,
                 name: address === undefined? '':address.STUDENT_NAME,
-                IEP: address === undefined? '':address.STUDENT_SPECIAL_ED_INDICATOR1,
-                ELL: address === undefined? '':address.textbox5,
+                IEP: '',//address === undefined? '':address.STUDENT_SPECIAL_ED_INDICATOR1,
+                ELL: '',//address === undefined? '':address.textbox5,
                 address: address === undefined? '':address.StudentAddress,
                 attendance: student.absencePercent,
                 quarterReadingGrade: student.quarterReadingGrade,
