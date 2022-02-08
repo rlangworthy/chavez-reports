@@ -12,7 +12,7 @@
   table.data-table tbody td {
     font-size: 13px;
   }
-  table.data-table tr:nth-child(even) {
+  table.data-table tr:nth-child(even) td{
     background: #EBEBEB;
   }
   table.data-table thead {

@@ -103,9 +103,14 @@ table.data-table td, table.data-table th {
 table.data-table tbody td {
   font-size: 13px;
 }
-table.data-table tr:nth-child(even) {
+table.data-table tr:nth-child(even) td{
   background: #EBEBEB;
 }
+
+table.data-table tr:first-child{
+  background: #EBEBEB;
+}
+
 .gradebook-header-row {
   border-bottom: 4px solid #333333;
 }
@@ -125,6 +130,7 @@ table.data-table tbody .index-column {
   font-size: 15px;
   font-weight: bold;
   color: #333333;
+  background-color: #EBEBEB;
   text-align: center;
   border: 2px solid #333;
 
@@ -144,7 +150,7 @@ table.data-table tfoot td {
 }
 
 table.data-table td.warning {
-  background-color: #FFF76B;
+  background-color: #FFF76B !important;
 }
 
 table.data-table td div.cell-icon {
@@ -160,7 +166,7 @@ table.data-table td div.cell-icon {
 }
 
 .warning-key-cell {
-  background-color: #FFF76B;
+  background-color: #FFF76B !important;
   text-align: left;
 }
 
