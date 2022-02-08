@@ -473,12 +473,12 @@ export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
 export interface Tardies {
   'Student ID': string
   Attended: string
-  Absences: string
+  Days: string
 }
 export const tardiesKeys: KeysEnum<Tardies> = {
     'Student ID': true,
     Attended: true,
-    Absences: true,
+    Days: true,
 }
 export interface GradeValidation {
   'Network Name': string,

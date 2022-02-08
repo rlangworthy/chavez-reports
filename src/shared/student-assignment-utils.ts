@@ -4,7 +4,8 @@ import {
     AspenAssignmentRow,
     AspenCategoriesRow,
     AspenESGradesRow,
-    StudentSearchListRow, } from './file-interfaces'
+    StudentSearchListRow,
+    Tardies, } from './file-interfaces'
 
 import {
     ScheduleClass,
@@ -28,12 +29,6 @@ import {
     ClassCategories,} from './teacher-class-interfaces'
 
 import { StudentClassList } from '../shared/schedule-parser'
-
-export interface Tardies {
-    'Student ID': string
-    Attended: string
-    Absences: string
-}
 
 /*
  * Simply collect schedules from the student schedule extract
@@ -355,14 +350,14 @@ const getOnTrackfromClasses = (students: StudentAssignments, attData: Tardies[])
 
     const getTardies = (rs: Tardies[]):number =>{
         const t = rs.find(r=>r.Attended ==='Tardy');
-        if(t !== undefined){return parseInt(t.Absences)}
+        if(t !== undefined){return parseInt(t.Days)}
         return 0;
     }
 
     const getAbsences = (rs: Tardies[]):number =>{
         return rs.filter(r=> r.Attended !== 'Tardy' && r.Attended !== 'Present')
                     .reduce((a,b) => {return a + ((b.Attended === '1/2 Day Excused' || b.Attended === '1/2 Day Unexcused') ?
-                                                    parseInt(b.Absences)/2.0 : parseInt(b.Absences))}, 0)
+                                                    parseInt(b.Days)/2.0 : parseInt(b.Days))}, 0)
     }
 
     d3.nest<Tardies, Tardies[]>()

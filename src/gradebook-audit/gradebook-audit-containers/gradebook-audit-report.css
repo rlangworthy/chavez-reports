@@ -196,6 +196,10 @@ table.data-table td div.cell-icon {
   border-style: solid;
 }
 
+.individual-report-button {
+  margin: 20px auto;
+}
+
 @media (min-width: 768px){
   .gpa-filter-container {
     position: absolute;
@@ -204,6 +208,8 @@ table.data-table td div.cell-icon {
     left: 0;
     width: 25%;
     overflow-y: scroll; 
+    display: flex;
+    flex-direction: column;
   }
 
   .gpa-display-container {

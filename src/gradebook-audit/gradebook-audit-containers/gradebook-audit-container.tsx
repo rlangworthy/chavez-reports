@@ -1,5 +1,9 @@
 import * as React from 'react';
+import * as JSZip from 'jszip';
 import {partition} from 'ramda';
+import {jsPDF} from 'jspdf';
+import {saveAs} from 'file-saver';
+import html2canvas from 'html2canvas';
 
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -27,6 +31,7 @@ import {
     } from '../../shared/components/multi-select'
 
 import './gradebook-audit-report.css'
+import { Button } from 'react-bootstrap';
 
 interface GradebookAuditReportProps{
     reportFiles?: ReportFiles
@@ -53,6 +58,42 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
         })
     }
 
+    generatePDFReports() {
+        var zip = new JSZip.default();
+        const teachers = this.state.selectedTeachers.length === 0 ? this.state.teachers : this.state.selectedTeachers
+        Promise.all(teachers.map( (t):Promise<void> => {
+            const htmlReport = document.getElementById(t) as HTMLElement
+            return html2canvas(htmlReport).then(canvas => {
+                var imgData = canvas.toDataURL('image/png');
+                var imgWidth = 210; 
+                var pageHeight = 295;  
+                var imgHeight = canvas.height * imgWidth / canvas.width;
+                var heightLeft = imgHeight;
+                var doc = new jsPDF('p', 'mm', 'a4', true);
+                var position = 0;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight,'','FAST');
+                heightLeft -= pageHeight;
+                
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight,'','FAST');
+                    heightLeft -= pageHeight;
+                }
+                
+                zip.file(t+'.pdf', doc.output('blob'));
+                
+            })
+        })).then(results => {
+            zip.generateAsync({type:"blob"}).then(blob => {
+                saveAs(blob, "GradebookAudits.zip");
+            })
+        })
+    }
+
+
+
     render(){
         window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')});
         //expects sorted teachers
@@ -62,6 +103,9 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
             <Container>
                 <Row>
                     <Col className='gpa-filter-container'>
+                        <Button  
+                        className='individual-report-button'
+                        onClick={this.generatePDFReports.bind(this)}>Generate Individual Report PDF's</Button>
                         <MultiSelect
                             items={this.state.teachers}
                             selected={this.state.selectedTeachers}
@@ -88,7 +132,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                                 })
 
                                 return (
-                                    <div key={tKey} className='gradebook-audit-report'>
+                                    <div key={tKey} className='gradebook-audit-report' id={tKey}>
                                         <h1>{tKey}</h1>
                                         <GradeDistributionDisplay 
                                             classes={teacherClasses[tKey]}

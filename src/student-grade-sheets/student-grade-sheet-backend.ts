@@ -4,7 +4,8 @@ import * as papa from 'papaparse'
 import {
     AspenAssignmentRow,
     AspenCategoriesRow,
-    StudentSearchListRow } from '../shared/file-interfaces'
+    StudentSearchListRow,
+    Tardies } from '../shared/file-interfaces'
 
 import { 
     parseSchedule,
@@ -18,7 +19,7 @@ import { ReportFiles } from '../shared/report-types'
 import {
     getStudentAssignments,
     studentSearchToGrade,
-    Tardies} from '../shared/student-assignment-utils'
+    } from '../shared/student-assignment-utils'
 
 import {
     StudentAssignments, } from '../shared/student-assignment-interfaces'

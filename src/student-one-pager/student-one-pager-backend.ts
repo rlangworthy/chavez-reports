@@ -31,7 +31,7 @@ import {
     AspenESGradesRow,
     AspenAssignmentRow,
     AspenCategoriesRow,
-    } from '../shared/file-interfaces'
+    Tardies } from '../shared/file-interfaces'
 
 
 export interface HSStudent {
@@ -105,12 +105,6 @@ interface AddData {
     //Name: string
     //'Student Physical Address': string
     //'Student ID': string
-}
-
-interface Tardies {
-    'Student ID': string
-    Attended: string
-    Absences: string
 }
 
 export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
@@ -290,14 +284,14 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
 
     const getTardies = (rs: Tardies[]):number =>{
         const t = rs.find(r=>r.Attended ==='Tardy');
-        if(t !== undefined){return parseInt(t.Absences)}
+        if(t !== undefined){return parseInt(t.Days)}
         return 0;
     }
 
     const getAbsences = (rs: Tardies[]):number =>{
         return rs.filter(r=> r.Attended !== 'Tardy' && r.Attended !== 'Present')
                     .reduce((a,b) => {return a + (b.Attended === ('1/2 Day Excused' || b.Attended === '1/2 Day Unexcused') ?
-                                                    parseInt(b.Absences)/2 : parseInt(b.Absences))}, 0)
+                                                    parseInt(b.Days)/2 : parseInt(b.Days))}, 0)
     }
 
     d3.nest<Tardies, Tardies[]>()
