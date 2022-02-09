@@ -8,6 +8,98 @@ export const excusedValues = ['Exc', 'EXC', 'exc', '/']
 
 type KeysEnum<T> = { [P in keyof Required<T>]: true };
 
+
+export interface StudentReportingDataExportRow {
+  'School ID': string
+  'School Name': string
+  'Student Last Name': string
+  'Student First Name': string
+  'Student ID': string
+  'Grade Level': string
+  'Grade Term': string
+  'Class ID': string
+  'Room': string
+  'Period': string
+  'Teacher Name': string
+  'Assignment Name': string
+  'Assignment ID': string
+  'Assignment Due': string
+  'Assignment Date': string
+  'Grade Entered on': string
+  'Score	Score Possible': string
+  'Category Code': string
+  'Category Name': string
+  'Category Weight': string
+  'Average Mode': string
+  'Gradebook Default Indicator': string
+  'Max Grades to Drop': string
+  'Drop Mode': string
+  'Running Term Average': string
+  'Running Term Letter Grade': string
+  'Posted Term Grade': string
+  'Term Grade Override Indicator': string
+  'Cumulative/Overall Average': string
+  'Semester/Final Letter Grade': string
+  'Posted Final Grade': string
+  'Homeroom': string
+  'FRM Status': string
+  'Gender': string
+  'Student Address': string
+  'Enrollment Days': string
+  'Present': string
+  'Full Day Unexcused': string
+  'Tardy	1/2 Day Unexcused': string
+  '1/2 Day Excused': string
+  'Full Day Excused': string
+  'DL Status': string
+  'EL Status': string
+}
+
+export const StudentReportingDataExportRowKeys: KeysEnum<StudentReportingDataExportRow> = {
+  'School ID': true,
+  'School Name': true,
+  'Student Last Name': true,
+  'Student First Name': true,
+  'Student ID': true,
+  'Grade Level': true,
+  'Grade Term': true,
+  'Class ID': true,
+  'Room': true,
+  'Period': true,
+  'Teacher Name': true,
+  'Assignment Name': true,
+  'Assignment ID': true,
+  'Assignment Due': true,
+  'Assignment Date': true,
+  'Grade Entered on': true,
+  'Score	Score Possible': true,
+  'Category Code': true,
+  'Category Name': true,
+  'Category Weight': true,
+  'Average Mode': true,
+  'Gradebook Default Indicator': true,
+  'Max Grades to Drop': true,
+  'Drop Mode': true,
+  'Running Term Average': true,
+  'Running Term Letter Grade': true,
+  'Posted Term Grade': true,
+  'Term Grade Override Indicator': true,
+  'Cumulative/Overall Average': true,
+  'Semester/Final Letter Grade': true,
+  'Posted Final Grade': true,
+  'Homeroom': true,
+  'FRM Status': true,
+  'Gender': true,
+  'Student Address': true,
+  'Enrollment Days': true,
+  'Present': true,
+  'Full Day Unexcused': true,
+  'Tardy	1/2 Day Unexcused': true,
+  '1/2 Day Excused': true,
+  'Full Day Excused': true,
+  'DL Status': true,
+  'EL Status': true,
+}
 export interface AspenESGradesRow {
   'Student Last Name': string
   'Student First Name': string
