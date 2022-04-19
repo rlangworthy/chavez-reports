@@ -149,6 +149,9 @@ export const getCPSOnTrack = (math: number, reading: number, attendancePCT: numb
   formats strings from the all assignments extracts into date objects
 */
 export const stringToDate = (s: string, t?: string): Date => {
+  if(s === undefined){
+    return new Date
+  }
   if(s.split('/').length === 3){
     const d = s.split('/').map(a => parseInt(a))
     const year = d[2] > 2000 ? d[2] : 2000 + d[2]
@@ -329,7 +332,20 @@ export const getCurrentQuarter = (sy: SchoolYear): string => {
   return '4'
 }
 //returns cutoff date; for school
-export const getCurrentQuarterDate = (sy: SchoolYear): Date => {
+export const getCurrentQuarterDate = (sy: SchoolYear, currentTerm?:string): Date => {
+  if(currentTerm!= null){
+    if(currentTerm ==='4'){
+      return sy.q3End
+    }
+    if(currentTerm ==='3'){
+      return sy.q2End
+    }
+    if(currentTerm ==='2'){
+      return sy.q1End
+    }
+    return sy.startDate
+  }
+
   const date = new Date()
   if(date >= sy.q3End){
     return sy.q3End

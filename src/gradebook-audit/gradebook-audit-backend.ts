@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {convertSchooltoScheduleClasses} from './data-export-conversion'
 import {
     mean,
     median,
@@ -53,6 +54,10 @@ import {
     ClassSummary} from './gradebook-audit-interfaces'
 
 export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => {
+    if(files.schooData!== undefined && Object.keys(files.schooData.students).length > 0){
+        const schedule = convertSchooltoScheduleClasses(files)
+        return invertScheduleClasses(schedule)
+    }
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const asg = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult
     const cat = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult
@@ -62,8 +67,8 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const aspAllAssignments = asg ? asg.data as AspenAssignmentRow[] : []
     const aspCategoriesAndTPL = cat ? cat.data as AspenCategoriesRow[] : []
     const studentSched = parseSchedule(SS)
-    //FIXME: hardcoded, should be a choice of the user
     const currentTerm = aspAllAssignments.length > 0 ? aspAllAssignments[0]['Grade Term'].split(' ')[1] : getCurrentQuarter(SY_CURRENT)
+    //double check this works with semesters
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
     const rawAllAssignments = aspAllAssignments
     const termGradeIndicator = files.reportFiles[files.reportTitle.files[1].fileDesc].fileName.includes('Semester') ? 'Cumulative Semester Average' : 'Running Term Average'
@@ -298,7 +303,7 @@ const addAssignmentsToClasses = (classes:ScheduleClasses, assignments: StudentAs
     return classesFinal
 }
 
-const getSortedAssignments = (categories : {[category: string]: Category}): AssignmentImpact[] => {
+export const getSortedAssignments = (categories : {[category: string]: Category}): AssignmentImpact[] => {
     
     
     const sorted =  Object.keys(categories)
@@ -316,6 +321,7 @@ const addCategoryAssignments = (categories: {[category: string]: Category}, assi
         .rollup((rs:AspenAssignmentRow[]): Assignment => {
             const scores: Score[] = rs.map(r => r.Score)
             const scorePossible = parseInt(rs[0]["Score Possible"])
+            console.log(rs[0])
             return {
                 maxPoints: scorePossible,
                 dueDate: stringToDate(rs[0]["Assignment Due"]),
@@ -413,8 +419,8 @@ export const getAssignmentImpacts = (c: {
     [categoryName: string]: Category
   }): {[categoryName:string]: ImpactCategory} => {
     const tpl = c[Object.keys(c)[0]].TPL
-    const zeroCatsFactor = tpl === 'Total points' ? 1 : -100/(Object.keys(c).reduce( (a,b) => a - (c[b].assignments.length > 0 ? c[b].weight:0), 0))
-    const totalPoints = tpl === 'Total points' ? 
+    const zeroCatsFactor = tpl === 'Total points' || tpl === 'Total Points' ? 1 : -100/(Object.keys(c).reduce( (a,b) => a - (c[b].assignments.length > 0 ? c[b].weight:0), 0))
+    const totalPoints = tpl === 'Total points' || tpl === 'Total Points' ? 
         0 - Object.keys(c)
             .reduce( (a,b) => a - c[b].assignments.reduce( (a1,b1) => a1 + b1.maxPoints,0),0) : undefined
 
@@ -422,7 +428,7 @@ export const getAssignmentImpacts = (c: {
     Object.keys(c).forEach( cat => {
         //the divisor for assignment weight
         const total = totalPoints ? totalPoints :
-            tpl === 'Categories only' ? c[cat].assignments.length : Math.abs(c[cat].assignments.reduce((a,b) => a - b.maxPoints, 0))
+            tpl === 'Categories only' || tpl === 'Categories Only' ? c[cat].assignments.length : Math.abs(c[cat].assignments.reduce((a,b) => a - b.maxPoints, 0))
         classAsgns[cat] = {
             ...c[cat], 
             assignments: c[cat].assignments.map( (a):AssignmentImpact => {
@@ -443,9 +449,9 @@ export const getAssignmentImpacts = (c: {
 
 //
 const getImpact = (tpl: GradeLogic, a: Assignment, total: number): number =>{
-      if(tpl === 'Total points'){
+      if(tpl === 'Total points' || tpl === 'Total Points'){
         return a.maxPoints/total * 100
-      }else if(tpl ==='Category total points'){
+      }else if(tpl ==='Category total points' || tpl ==='Category Total Points'){
         return (a.maxPoints/total) * parseInt(a.categoryWeight)
       }else{
         return parseInt(a.categoryWeight)/total

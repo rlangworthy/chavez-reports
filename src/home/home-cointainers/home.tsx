@@ -22,11 +22,15 @@ import {
     FileTypes,
     ParseResult,
     RawFileParse, } from '../../shared/file-types'
+
 import { 
     fileListHas, 
     getUniqueFileName, 
     getCurrentQuarter, 
     stringToDate} from '../../shared/utils'
+
+import {updateReportingDatabase} from '../../data-handling/data-processing'
+import {School} from '../../data-handling/data-interfaces'
 
 import './home.css'
 import { AspenAssignmentRow } from '../../shared/file-interfaces'
@@ -36,7 +40,7 @@ import { GoogleLoginResponse } from 'react-google-login'
 export type Action = 'Delete' | 'Save' | 'Rename'
  
 export interface FileContextInterface{
-    
+    school: School
     fileList: FileList
     savedFiles: RawFileParse[]
     addFile: (fileType: string, file: File) => Promise<void>
@@ -44,6 +48,7 @@ export interface FileContextInterface{
 }
 
 export const FileContext = React.createContext<FileContextInterface>({
+    school: {fileName: '', students:{}, classes:{}},
     fileList: {},
     savedFiles: [],
     addFile: () => {return new Promise<void>( (resolve, reject) => null)},
@@ -54,6 +59,7 @@ export const FileContextConsumer = FileContext.Consumer;
 export const FileContextProvider = FileContext.Provider;
 
 interface ReportHomeState {
+    school: School
     fileList: FileList
     activeModal: string | null
     savedFiles: RawFileParse[]
@@ -73,6 +79,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         var emptyFileList: FileList = {};
         Object.values(FileTypes).forEach(v => emptyFileList[v]=[]);
         this.state = {
+            school:{fileName: '', students:{}, classes:{}},
             fileList: emptyFileList,
             activeModal: null,
             savedFiles: [],
@@ -123,6 +130,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
     render () {
         return (
             <FileContextProvider value={{
+                school: this.state.school,
                 fileList: this.state.fileList, 
                 addFile: this.addFile, 
                 savedFiles: this.state.savedFiles,
@@ -139,7 +147,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                             {this.state.loadingFiles ? 'Loading...':'Manage Local Files'}
                         </Button>
                         <Button onClick={() => this.activateModal('Folder Drop')}>
-                            Bulk Upload
+                            Student Reporting Data Export Upload
                         </Button>
                     </ButtonToolbar>
                 
@@ -178,6 +186,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                 {ReportCards.map( report => {
                     return(
                     <ReportModal key={report.title}
+                        school={this.state.school}
                         fileList={this.state.fileList} 
                         report={report} 
                         show={this.state.activeModal === report.title}
@@ -197,15 +206,15 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         this.setState({activeModal: null});
     }
 
-    private dropFiles = (files: File[]): Promise<void[]> => {
-        return Promise.all(files.map((file):Promise<void> => {
+    private dropFiles = (files: File[]): Promise<string[]> => {
+        return Promise.all(files.map((file):Promise<string> => {
             return new Promise ((resolve, reject) => {
                 Papa.parse(file, {complete: (result: ParseResult, f: File) => {
                     const fileType = getFileType(result.meta.fields)
                     if(fileType !== 'NA'){
                         this.addFile(fileType, f)
                     }
-                    resolve();
+                    resolve(file.name);
                 },
                 skipEmptyLines: true,
                 header: true,
@@ -250,6 +259,22 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         }))
                             
                     }})
+            })
+        }
+
+        if(fileType === FileTypes.STUDENT_REPORTING_DATA_EXPORT){
+            const school:School = {fileName: file.name, students:{}, classes:{}}
+            return new Promise ((resolve,reject) => {
+                Papa.parse(file, {complete: (result: ParseResult) => {
+                    this.setState({school:school})
+                    resolve();
+                    },
+                    skipEmptyLines: true,
+                    header: true,
+                    chunk: (result:ParseResult) => {
+                        updateReportingDatabase(result.data, school)
+                    }
+                })
             })
         }
 

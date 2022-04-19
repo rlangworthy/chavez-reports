@@ -11,7 +11,7 @@ import {
     tardiesKeys,
     studentSearchListRowKeys,
     rawNWEACDFRowKeys,
-
+    StudentReportingDataExportRowKeys,
 } from './file-interfaces'
 const aspenESGradesRow : string[] = Object.keys(aspenESGradesRowKeys)//keys<AspenESGradesRow>()
 const aspenAssignmentRow: string[] =  Object.keys(aspenAssignmentRowKeys)
@@ -22,6 +22,7 @@ const rawStudentProfessionalSupportDetailsRow: string[] =  Object.keys(rawStuden
 const studentSearchListRow: string[] = Object.keys(studentSearchListRowKeys)
 const rawNWEACDFRow: string[] =  Object.keys(rawNWEACDFRowKeys)
 const tardiesRow: string[] = Object.keys(tardiesKeys)
+const studentReportingDataRow: string[] = Object.keys(StudentReportingDataExportRowKeys)
 
 export const getFileType = (fields: string[] | undefined): string => {
     if(fields !== undefined){
@@ -52,6 +53,9 @@ export const getFileType = (fields: string[] | undefined): string => {
         }
         if(tardiesRow.every(field => fieldStrings.includes(field))){
             return FileTypes.ATTENDENCE
+        }
+        if(studentReportingDataRow.every(field => fieldStrings.includes(field))){
+            return FileTypes.STUDENT_REPORTING_DATA_EXPORT
         }
         if(fieldStrings[0] !== '' && fieldStrings[13] !== '' && fieldStrings[1] === ''){
             return FileTypes.STUDENT_SCHEDULE

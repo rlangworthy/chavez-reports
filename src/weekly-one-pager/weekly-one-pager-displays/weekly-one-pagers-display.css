@@ -1,11 +1,14 @@
 .weekly-wrapper {
     padding: .5cm;
-    page-break-after: always;
+    position: relative;
+    break-after: page;
 }
 
 .summary-page {
     padding: 1cm;
-    page-break-after: always;
+    break-after: page;
+    position: relative;
+
 }
 
 .summary-page-table {
@@ -25,13 +28,13 @@ td.two-grade {
 }
 
 .inline {
-    display: inline-block;
-    margin-right: 1.5rem;
+    margin-right: 24px;
 }
 
 .backpage {
     padding: 1cm;
-    page-break-after: always;
+    break-after: page;
+    position: relative;
 }
 
 
@@ -63,6 +66,7 @@ td.two-grade {
     }
   
     .grades-display-container {
+      float:none;
       position: relative;
       overflow: clip;
       width: 100%;  

@@ -18,6 +18,7 @@ export interface StudentReportingDataExportRow {
   'Grade Level': string
   'Grade Term': string
   'Class ID': string
+  'Description':string
   'Room': string
   'Period': string
   'Teacher Name': string
@@ -26,7 +27,8 @@ export interface StudentReportingDataExportRow {
   'Assignment Due': string
   'Assignment Date': string
   'Grade Entered on': string
-  'Score	Score Possible': string
+  'Score':string	
+  'Score Possible': string
   'Category Code': string
   'Category Name': string
   'Category Weight': string
@@ -48,11 +50,12 @@ export interface StudentReportingDataExportRow {
   'Enrollment Days': string
   'Present': string
   'Full Day Unexcused': string
-  'Tardy	1/2 Day Unexcused': string
+  'Tardy': string
+  '1/2 Day Unexcused': string
   '1/2 Day Excused': string
   'Full Day Excused': string
   'DL Status': string
-  'EL Status': string
+  'EL Program Year': string
 }
 
 export const StudentReportingDataExportRowKeys: KeysEnum<StudentReportingDataExportRow> = {
@@ -60,6 +63,7 @@ export const StudentReportingDataExportRowKeys: KeysEnum<StudentReportingDataExp
   'School Name': true,
   'Student Last Name': true,
   'Student First Name': true,
+  'Description':true,
   'Student ID': true,
   'Grade Level': true,
   'Grade Term': true,
@@ -72,7 +76,8 @@ export const StudentReportingDataExportRowKeys: KeysEnum<StudentReportingDataExp
   'Assignment Due': true,
   'Assignment Date': true,
   'Grade Entered on': true,
-  'Score	Score Possible': true,
+  'Score': true,
+  'Score Possible': true,
   'Category Code': true,
   'Category Name': true,
   'Category Weight': true,
@@ -94,11 +99,12 @@ export const StudentReportingDataExportRowKeys: KeysEnum<StudentReportingDataExp
   'Enrollment Days': true,
   'Present': true,
   'Full Day Unexcused': true,
-  'Tardy	1/2 Day Unexcused': true,
+  'Tardy':true,
+  '1/2 Day Unexcused': true,
   '1/2 Day Excused': true,
   'Full Day Excused': true,
   'DL Status': true,
-  'EL Status': true,
+  'EL Program Year': true,
 }
 export interface AspenESGradesRow {
   'Student Last Name': string

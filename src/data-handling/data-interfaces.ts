@@ -5,27 +5,69 @@ export interface Student{
     classes: string[]
 }
 export interface StudentInfo{
-    StudentID: number
+  'Student Last Name': string
+  'Student First Name': string
+  'Student ID': string
+  'Grade Level': string
+  'Homeroom': string
+  'FRM Status': string
+  'Gender': string
+  'Student Address': string
+  'Enrollment Days': string
+  'Present': string
+  'Full Day Unexcused': string
+  'Tardy':string	
+  '1/2 Day Unexcused': string
+  '1/2 Day Excused': string
+  'Full Day Excused': string
+  'DL Status': string
+  'EL Program Year': string
 }
 
 export interface SchoolClass{
     teachers: string[]
-    students: string[]
-    info: ClassInfo
+    students: {[id:string]:{[term:string]:StudentClassInfo}}
+    assignments: {[term:string]:{[id:string]:Assignment}}
+    'Class ID': string
+    'Description': string
+    'Average Mode': string
+    'Gradebook Default Indicator': string
+    'Max Grades to Drop': string
+    'Drop Mode': string
+    'Room': string
+    'Period': string
 }
-
-export interface ClassInfo{
-    assignments: Assignment[]
-    averageMode: string
+//modify to accomodate more than one term
+export interface StudentClassInfo{
+    'Student ID': string
+    'Grade Term': string
+    'Running Term Average': string
+    'Running Term Letter Grade': string
+    'Posted Term Grade': string
+    'Term Grade Override Indicator': string
+    'Cumulative/Overall Average': string
+    'Semester/Final Letter Grade': string
+    'Posted Final Grade': string
 }
 
 export interface Assignment{
-    scores: {id: Score}
+    scores: {[id:string]: {
+        Score: string
+        'Grade Entered on': string
+    }}
+    'Grade Term':string
+    'Assignment Name': string
+    'Assignment ID':string
+    'Assignment Due': string
+    'Assignment Date': string
+    'Score Possible': string
+    'Category Code': string
+    'Category Name': string
+    'Category Weight': string
 }
 
-export type Score = number
-
 export interface School {
-    students: {id: Student}
-    classes: {cid: SchoolClass}
+    fileName: string
+    students: {[id:string]: Student}
+    classes: {[cid:string]: SchoolClass}
 }

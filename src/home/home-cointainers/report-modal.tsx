@@ -3,6 +3,9 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import ToggleButton from 'react-bootstrap/ToggleButton'
 import { 
     ReportTitle,
     ReportFiles, } from '../../shared/report-types'
@@ -20,6 +23,8 @@ import {
 
 import './report-modal.css'
 import { reportTag } from '../../shared/gtag'
+import { School } from '../../data-handling/data-interfaces'
+import { SymbolDisplayPartKind } from 'typescript'
 
 interface ReportModalProps {
     report: ReportTitle
@@ -28,12 +33,14 @@ interface ReportModalProps {
     handleHide: () => any
     addFile: (fileType: string, file: File, selectedQuarter?: string) => Promise<void>
     tag: () => void
+    school: School
 }
 
 interface ReportModalState {
     selectedValues: {[fileDesc: string]: string}
     selectedQuarter: string
     isLoading: boolean
+    useSchool: boolean
 }
 export class ReportModal extends React.Component<ReportModalProps, ReportModalState> {
     //The file form is the workhorse of this app.  It displays existing files and allows new ones to be uploaded    
@@ -50,12 +57,16 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
             const list = this.props.fileList[f.fileType];
             selected[f.fileDesc] = list.length > 0 ? list[list.length-1].fileName :'Upload New File';
         }) : null
+        
+        //NOTE right now only enables on Gradebook Audit, as new reports use the data suite can add them here
+        const useSchool = Object.keys(this.props.school.students).length > 0 && this.props.report.title === 'Gradebook Audit Report'
         /* eslint-enable */
         if(this.props.report.optionalFiles){
-            this.state={selectedValues:selected, isLoading: false, selectedQuarter: 'Quarter ' + getCurrentQuarter(SY_CURRENT)}
+            this.state={selectedValues:selected, isLoading: false, selectedQuarter: 'Quarter ' + getCurrentQuarter(SY_CURRENT), useSchool:useSchool}
         }else{
-            this.state={selectedValues:selected, isLoading: false, selectedQuarter: 'Quarter ' + getCurrentQuarter(SY_CURRENT)}
+            this.state={selectedValues:selected, isLoading: false, selectedQuarter: 'Quarter ' + getCurrentQuarter(SY_CURRENT), useSchool:useSchool}
         }
+
     }
     private title = this.props.report.title;
     private fileTypes = this.props.report.optionalFiles ? 
@@ -86,9 +97,12 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         this.setState({selectedValues: selected});
     }
 
+    private handleSchoolToggleChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
+        this.setState({useSchool: ev.target.checked})
+    }
+
     private handleQuarterChange = (ev: React.ChangeEvent<HTMLSelectElement>): void => {
         ev.preventDefault();
-        console.log(ev.target.value)
         this.setState({selectedQuarter: ev.target.value}) //.split(' ')[1]})
     }
 
@@ -103,7 +117,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         });
         //FIXME copies component correctly so broadcast works.  Seems unnecessary.
         const report = JSON.parse(JSON.stringify(this.props.report))
-        const reportFiles: ReportFiles = {reportTitle: report, reportFiles: selectedFiles};
+        const reportFiles: ReportFiles = {reportTitle: report, reportFiles: selectedFiles, schooData: this.props.school, term: this.state.selectedQuarter as any};
         const channel = new BroadcastChannel(reportFiles.reportTitle.title)
         channel.onmessage = (message: MessageEvent) => {
             channel.postMessage(reportFiles)
@@ -133,7 +147,18 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         this.setState({isLoading: false})
     }
 
+    componentDidUpdate(prevProps) {
+        if(Object.keys(prevProps.school.students).length !== Object.keys(this.props.school.students).length)
+        {
+            this.setState({useSchool: Object.keys(this.props.school.students).length > 0 && this.props.report.title === 'Gradebook Audit Report'})
+        }
+    }
+
     private hideGenerate = ():boolean => {
+        
+        if(this.state.useSchool){
+            return false
+        }
         return this.props.report.files.some( (f) => this.state.selectedValues[f.fileDesc] === 'Upload New File');
     }
 
@@ -142,11 +167,15 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
 
     }
 
+
+
     render(){
         //file types not unique, file descriptions are unique within each report
         
         this.fileTypes.map( t => this.fileRefs[t.fileDesc]=null);
-
+        //NOTE Update this along with useSchool in the coinstructor
+        const showSchoolOption = Object.keys(this.props.school.students).length > 0 && this.props.report.title === 'Gradebook Audit Report'
+        
         //submits all the files currently selected.  Depending on disabling button for safety/completeness
 
         return (    
@@ -157,12 +186,50 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
                 <Modal.Body>
                     <Form id={`${this.title}-file-form`}>
                         <Container>
+                        {showSchoolOption? 
+                            <>
+                            <Row style={{paddingBottom: '20px', borderBottom:'solid'}}>
+                             <Col>
+                                <Form.Control 
+                                as='select'
+                                value={this.state.selectedQuarter.length === 1 ? 'Quarter ' + this.state.selectedQuarter : this.state.selectedQuarter}
+                                onChange = {(e) => this.handleQuarterChange(e as React.ChangeEvent<HTMLSelectElement>)}>
+                                <option>Quarter 1</option>
+                                <option>Quarter 2</option>
+                                <option>Quarter 3</option>
+                                <option>Quarter 4</option>
+                                <option>Semester 1</option>
+                                <option>Semester 2</option> 
+                            </Form.Control> 
+                            </Col> 
+                            <Col>
+                                Use Student Reporting Data Export "{this.props.school.fileName}"
+                            </Col>
+                            <Col md="auto">
+                                <Form.Check
+                                    type='checkbox'
+                                    checked={this.state.useSchool}
+                                    onChange={this.handleSchoolToggleChange}
+                                />
+                            </Col>
+                            
+                        </Row>
+                        <br></br>
+                        </>
+                    : <></>}  
+                            <div
+                            style={{
+                                opacity: this.state.useSchool ? 0.25 : 1,
+                                pointerEvents: this.state.useSchool ? "none" : "initial"
+                              }}>
                             <FileInputs report={this.props.report} 
                                         fileRefs={this.fileRefs}
                                         selectedValues={this.state.selectedValues}
                                         handleChange={this.handleChange}
                                         handleQuarterChange={this.handleQuarterChange}
-                                        selectedQuarter={this.state.selectedQuarter}/>
+                                        selectedQuarter={this.state.selectedQuarter}
+                                        />
+                            </div>
                         </Container>
                     </Form>
                 </Modal.Body>

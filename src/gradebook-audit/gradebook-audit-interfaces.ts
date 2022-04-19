@@ -3,7 +3,7 @@ import {
     LetterGrade,
     AspenAssignmentRow, } from '../shared/file-interfaces'
 
-export type GradeLogic = 'Categories only' | 'Categories and assignments' | 'Category total points' | 'Total points'
+export type GradeLogic = 'Categories only' | 'Categories and assignments' | 'Category total points' | 'Total points' | 'Categories Only' | 'Categories and Assignments' | 'Category Total Points' | 'Total Points'
 
 
 

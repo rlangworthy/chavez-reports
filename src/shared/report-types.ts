@@ -7,6 +7,7 @@ import { StudentGradeSheets } from '../student-grade-sheets/student-grade-displa
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 import {GradeValidationReport} from '../grade-validation/grade-validation-display'
 import { TestReport } from '../test-report/test-backend'
+import { School } from '../data-handling/data-interfaces'
 
 /*
  *To add a new report: 
@@ -41,6 +42,8 @@ export interface ReportTitleFile {
 export interface ReportFiles {
     reportTitle: ReportTitle
     reportFiles: {[fileDesc: string]: RawFileParse}
+    schooData?: School
+    term?: 'Quarter 1' | 'Quarter 2'| 'Quarter 3'| 'Quarter 4'| 'Semester 1'| 'Semester 2'
 }
 
 

@@ -15,6 +15,7 @@ export const DBNAME = 'reportFileStore'
 
 //remember to add file descripiton for every new file type
 export enum FileTypes {
+    STUDENT_REPORTING_DATA_EXPORT = 'Student Reporting Data Export',
     ES_GRADES_EXTRACT = 'Cumulative Grades Export',
     ASSIGNMENTS_SLOW_LOAD = 'All Assignments and Grades Extract',
     TEACHER_CATEGORIES_TPL = 'CPS Teacher Categories and Average Mode',
@@ -118,4 +119,7 @@ FileDescriptions[FileTypes.JIJI] = {
 }
 FileDescriptions[FileTypes.GRADE_VALIDATION] = {
     description: ''
+}
+FileDescriptions[FileTypes.STUDENT_REPORTING_DATA_EXPORT] = {
+    description:''
 }

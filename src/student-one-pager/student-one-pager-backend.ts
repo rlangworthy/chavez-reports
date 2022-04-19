@@ -114,12 +114,11 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const mz = files.reportFiles[files.reportTitle.files[3].fileDesc].parseResult;
     const cats = files.reportFiles[files.reportTitle.files[4].fileDesc].parseResult
     const sched = files.reportFiles[files.reportTitle.files[5].fileDesc].parseResult
-    //FIXME: hardcoded, should be a choice of the user
-    const currentTerm = getCurrentQuarter(SY_CURRENT)
-    const startDate = getCurrentQuarterDate(SY_CURRENT)
+    const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
+    const currentTerm = aspAllAssignments.length > 0 ? aspAllAssignments[0]['Grade Term'].split(' ')[1] : getCurrentQuarter(SY_CURRENT)
+    const startDate = getCurrentQuarterDate(SY_CURRENT, currentTerm)
     const schedule = sched !== null ? parseSchedule(sched.data) : []
     const aspESGrades = gr ? gr.data as AspenESGradesRow[] : []
-    const aspAllAssignments = mz ? mz.data as AspenAssignmentRow[] : []
     const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
     const rawESGrades = aspESGrades.filter(g => g['Quarter']===currentTerm)
     const rawAllAssignments = aspAllAssignments.filter(a => parseGrade(a['Score'])===0 
@@ -147,7 +146,6 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
         })
     }
     const addresses = info === null? null: info.data as AddData[];
-
     if(addresses !== null){
         const students:HSStudent[] = Object.keys(studentGradeObject).map( (id:string):HSStudent => {
             const student = studentGradeObject[id];
@@ -275,8 +273,6 @@ const getStudentGrades = (file: AspenESGradesRow[]): Students => {
                 assignments: {}
             }
         }).object(file)
-    console.log(students)
-    console.log(file)
     return students;
 }
 
@@ -298,10 +294,11 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
         .key( r => r['Student ID'])
         .rollup( rs => {
             if(students[rs[0]['Student ID']]!==undefined){
-                const total = rs.reduce((a,b) => a + parseInt(b.Absences),0);
+                const total = rs.reduce((a,b) => a + parseInt(b.Days),0);
                 const tardy = getTardies(rs);
                 const absent = getAbsences(rs);
                 const pct = (total-absent)/total * 100;
+                console.log(total)
                 students[rs[0]['Student ID']].absencePercent = pct;
                 students[rs[0]['Student ID']].absences = [absent];
                 students[rs[0]['Student ID']].tardies = [tardy];

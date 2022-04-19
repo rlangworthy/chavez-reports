@@ -142,7 +142,7 @@ class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
                             <tbody>
                                 <tr>
                                     <td className={'summary-cell'}>Grade Level</td>
-                                    {Object.keys(summary[key]).map(k => {
+                                    {['1','2','3','4','5','Avg'].map(k => {
                                         if(k !== 'Avg'){
                                             return (
                                                 <td className={'summary-cell'} key={k}>OT Level {k}</td>
@@ -156,7 +156,7 @@ class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
                                 </tr>
                                 <tr>
                                     <td className={'summary-cell'}>{key}</td>
-                                    {Object.keys(summary[key]).map(k => {
+                                    {['1','2','3','4','5','Avg'].map(k => {
                                         return (
                                             <td className={'summary-cell'} key={k}>{summary[key][k]}</td>
                                         )
@@ -199,7 +199,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
     render(){
         const hr = this.props.hr
         return (
-            <div>
+            <>
                 <div className='weekly-wrapper'>
                             <span>
                                 <h1 className='inline'>{'Homeroom One Pager - ' + hr.room}</h1>
@@ -251,7 +251,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                         </div>
 
                     {this.props.backpage ? <BackPage hr={hr}/>:null}
-                    </div>
+                    </>
         )
     }
 }
