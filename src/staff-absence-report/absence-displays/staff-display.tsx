@@ -4,6 +4,7 @@ import {
     format,
     startOfWeek,
     endOfWeek,
+    isSameDay,
     } from 'date-fns'
 
 import {
@@ -131,10 +132,10 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
                 nOutEarly +=outEarly? 1 : 0
             }
         })
-        const nCodes = dates.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
-        console.log('Days ' + nDays)
-        console.log('Codes ' + nCodes)
-        console.log(dates)
+        const codeDays = dates.filter(date => props.absences.attDays ? props.absences.attDays.some(attDay => isSameDay(date.date, attDay) ): false)
+        const nCodes = codeDays.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
+        console.log(nCodes)
+        console.log(nDays)
         stats = ((nDays-nCodes)*100/nDays).toFixed(2) + '% Attendance, ' 
             + ((nDays-nInLate)*100/nDays).toFixed(2) + '% In On Time, '
             + ((nDays-nOutEarly)*100/nDays).toFixed(2) + '% Out On Time'
