@@ -10,7 +10,8 @@ import {
 } from '../shared/file-interfaces'
 
 import {
-    getStudentInfo
+    getStudentInfo,
+    parseGrade
     } from './data-utils'
 
 /*
@@ -27,7 +28,7 @@ import {
  */
 
  export const updateReportingDatabase = (rows: StudentReportingDataExportRow[], school: School):School => {
-    rows.forEach(row => {
+    for (const row of rows) {
 
         //Create student if none exists
         if(school.students[row['Student ID']] === undefined){
@@ -35,6 +36,10 @@ import {
                 info:getStudentInfo(row),
                 classes: []
             }
+        }
+        //Exception case for Kindergarteners who only have student info, no classes 
+        if(row['Class ID'] === ''){
+            break;
         }
 
         //Create class if none exists
@@ -109,10 +114,12 @@ import {
         {
             school.classes[row['Class ID']].assignments[row['Grade Term']][row['Assignment ID']].scores[row['Student ID']] = {
                 Score:row.Score,
+                //Only Calculation here, turns into a percent Grade
+                "Number Score": parseGrade(row.Score)/parseInt(row['Score Possible']) * 100,
                 "Grade Entered on":row['Grade Entered on']
             }
         }
-    })
+    }
     return school
  }
 

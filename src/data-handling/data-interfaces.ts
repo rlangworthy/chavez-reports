@@ -5,6 +5,7 @@ export interface Student{
     classes: string[]
 }
 export interface StudentInfo{
+  'Attendance Percent'
   'Student Last Name': string
   'Student First Name': string
   'Student ID': string
@@ -24,10 +25,45 @@ export interface StudentInfo{
   'EL Program Year': string
 }
 
+//Calculated Info about grades and attendance
+export interface CalculatedStudentInfo extends StudentInfo{
+    'Term Averages' : {[className: string]: QuarterGrades}
+    'Assignment Failure Rates' : FailureRates
+    'GPA' : number
+    'On Track' : number
+}
+
+export interface QuarterGrades {
+    'Class Description': string
+    'Term 1' : number | null
+    'Term 2' : number | null
+    'Term 3' : number | null
+    'Term 4' : number | null
+    'Cumulative/Overall Average' : number | null
+}
+
+export interface FailureRates {
+    'Term 1' : number | null
+    'Term 2' : number | null
+    'Term 3' : number | null
+    'Term 4' : number | null
+    'Cumulative/Overall Average' : number | null
+}
+
+//Student Data Export Homeroom
+export interface Homeroom {
+    'Homeroom' : string
+    'Grade Level' : string
+    'Student Count' : number
+    'Attendance Average' : number
+    'Term Averages' : {[className: string]: QuarterGrades}
+    'Students' : CalculatedStudentInfo[]
+}
+
 export interface SchoolClass{
     teachers: string[]
     students: {[id:string]:{[term:string]:StudentClassInfo}}
-    assignments: {[term:string]:{[id:string]:Assignment}}
+    assignments: {[term:string]:{[asssignmentId:string]:Assignment}}
     'Class ID': string
     'Description': string
     'Average Mode': string
@@ -53,6 +89,7 @@ export interface StudentClassInfo{
 export interface Assignment{
     scores: {[id:string]: {
         Score: string
+        'Number Score': number
         'Grade Entered on': string
     }}
     'Grade Term':string

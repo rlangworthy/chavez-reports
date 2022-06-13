@@ -132,6 +132,9 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
             }
         })
         const nCodes = dates.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
+        console.log('Days ' + nDays)
+        console.log('Codes ' + nCodes)
+        console.log(dates)
         stats = ((nDays-nCodes)*100/nDays).toFixed(2) + '% Attendance, ' 
             + ((nDays-nInLate)*100/nDays).toFixed(2) + '% In On Time, '
             + ((nDays-nOutEarly)*100/nDays).toFixed(2) + '% Out On Time'

@@ -158,7 +158,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         cardInfo={card} 
                         onClick={this.activateModal} />)})}
                 </CardDeck>
-                <Navbar sticky='bottom'>
+                <Navbar sticky='top'>
                     <Navbar.Brand>{new Date().getFullYear()}, Barton Dassinger</Navbar.Brand>
                     <Navbar.Text>
                         <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
@@ -265,15 +265,19 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
         if(fileType === FileTypes.STUDENT_REPORTING_DATA_EXPORT){
             const school:School = {fileName: file.name, students:{}, classes:{}}
             return new Promise ((resolve,reject) => {
-                Papa.parse(file, {complete: (result: ParseResult) => {
-                    this.setState({school:school})
-                    resolve();
+                Papa.parse(file, {
+                    complete: (result: ParseResult) => {
+                        this.setState({school:school})
+                        console.log('Papaparse Complete')
+                        resolve();
                     },
                     skipEmptyLines: true,
                     header: true,
-                    chunk: (result:ParseResult) => {
-                        updateReportingDatabase(result.data, school)
+                    //chunkSize: '5 MB',
+                    step: (result:ParseResult, parser) => {
+                            updateReportingDatabase([result.data], school)
                     }
+                    
                 })
             })
         }

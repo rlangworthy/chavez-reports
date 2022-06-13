@@ -55,10 +55,12 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
     }
 
     componentWillMount(){
-        const pctFailure = this.props.reportFiles && 
+        const pctFailure = 
+            this.props.reportFiles && 
+            ((this.props.reportFiles.schooData!== undefined && Object.keys(this.props.reportFiles.schooData.students).length > 0) ||(
             this.props.reportFiles.reportTitle.optionalFiles && 
             (this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ||
-                this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[1].fileDesc]   ) ? true:false
+                this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[1].fileDesc]   ))) ? true:false
         const [homeRooms, summary]: [HomeRoom[], HRSummary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : 
         [[] as HomeRoom[],{} as HRSummary]
         const grades = [... new Set(homeRooms.map(hr => hr.grade))].sort()

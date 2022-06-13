@@ -13,6 +13,22 @@ import {
     stringToDate} from '../shared/utils'
 
 import {
+    getCalculatedStudentInfo,
+    getHomeroomFromStudents,
+    getGPAFromCalculatedStudent,
+    }   from '../data-handling/data-utils'
+import {
+    CoreClassList,
+    }   from '../data-handling/data-constants'
+
+import {
+    CalculatedStudentInfo,
+    School,
+    Homeroom
+    }   from '../data-handling/data-interfaces'
+
+
+import {
     ReportFiles, } from '../shared/report-types'
 
 import {
@@ -32,12 +48,40 @@ import {
     AspenAssignmentRow} from '../shared/file-interfaces'
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import { HSStudent } from '../student-one-pager/student-one-pager-backend'
+import { flatten } from 'ramda'
 
+/*
+
+Homeroom
+    room - duplicate homeroom
+    grade - mode, in case of different grade level students
+    
+    averages
+        grade summary
+            Core class grades, student count, attendance average
+    
+    HRStudent
+        student info, calculated info
+    
+    OT - on track
+    SQRP - needs to be recalculated
+    NWEA - deprecated
+
+
+New Homeroom
+    Room
+    Grade
+    Averages
+    
+
+    CalculatedStudents
+
+*/
 
 export interface HomeRoom{
-    averages: GradesSummary
+    averages: GradesSummary //average of grades and attendance across students
     room: string
-    students: HRStudent[]
+    students: HRStudent[] //
     grade: string
     OT?: number
     SQRP?: number
@@ -126,14 +170,67 @@ export interface HRSummary {
     grades: {[group: string]: GradesSummary}
 }
 
+const calculatedToOTStudent = (s: CalculatedStudentInfo, quarter?: string):Student => {
+
+    const coreGradeNames = Object.keys(s['Term Averages']).filter(cn => CoreClassList.includes(s['Term Averages'][cn]['Class Description']))
+    const coreGrades = {}
+    coreGradeNames.forEach(name => {
+        coreGrades[s['Term Averages'][name]['Class Description']] = s['Term Averages'][name]
+    })
+    
+    const currentQuarter = 'Term '+ (quarter ? quarter : getCurrentQuarter(SY_CURRENT))
+
+    const safeGrade = (coreClass: string, quarter: string):number => {
+        return coreGrades[coreClass] && coreGrades[coreClass][quarter] ? coreGrades[coreClass][quarter] : -1
+    }
+    const gpa = getGPAFromCalculatedStudent(s)
+    return {
+        GradeLevel: s['Grade Level'],
+        HR: s.Homeroom,
+        ID: s['Student ID'],
+        fullName: s['Student First Name']+ ' ' + s['Student Last Name'],
+        ELL: s['EL Program Year'],
+        quarterReadingGrade: safeGrade('CHGO READING FRMWK', currentQuarter),
+        quarterMathGrade: safeGrade('MATHEMATICS STD', currentQuarter),
+        quarterScienceGrade: safeGrade('SCIENCE STANDARDS', currentQuarter),    
+        quarterSocialScienceGrade: safeGrade('SOCIAL SCIENCE STD', currentQuarter),
+        quarterGPA: [getGPAFromCalculatedStudent(s)[currentQuarter]],
+        finalReadingGrade: safeGrade('CHGO READING FRMWK', 'Cumulative/Overall Average'),
+        finalMathGrade: safeGrade('MATHEMATICS STD', 'Cumulative/Overall Average'),
+        finalScienceGrade: safeGrade('SCIENCE STANDARDS', 'Cumulative/Overall Average'),
+        finalSocialScienceGrade: safeGrade('SOCIAL SCIENCE STD', 'Cumulative/Overall Average'),
+        finalGPA: [(getGPAFromCalculatedStudent(s)['Cumulative/Overall Average'] != null ? getGPAFromCalculatedStudent(s)['Cumulative/Overall Average'] : -1 )as number],
+        absencePercent: s['Attendance Percent'],
+        absences: [parseInt(s['Full Day Unexcused'])],
+        tardies: [parseInt(s.Tardy)],
+        totalDays: [parseInt(s['Enrollment Days'])],
+        onTrack: s['On Track'],
+        nweaRead: -1, //-1 if none
+        nweaMath: -1, //-1 if none
+        LRE: s['DL Status'],
+        failureRate: s['Assignment Failure Rates'][currentQuarter]
+    }
+}
+
 export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => {
+    if(files.schooData!== undefined && Object.keys(files.schooData.students).length > 0){
+        const quarter = files.term ? files.term.split(' ')[1] : getCurrentQuarter(SY_CURRENT)
+        const students: Students = {}
+        Object.keys(files.schooData.students).forEach(student => 
+            {
+                students[student] = calculatedToOTStudent(getCalculatedStudentInfo((files.schooData as School ).students[student].info, files.schooData as School), quarter)
+            })
+        const [homeRooms, summary] = flattenStudents(students)
+        
+        return [homeRooms.sort((a,b) => a.grade.localeCompare(b.grade)), summary]
+    }
+
+
     const gr = files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult
     const aspGrades = gr === null? null: gr.data as AspenESGradesRow[]
     const currentQuarter = getCurrentQuarter(SY_CURRENT)
     const grades = aspGrades ? spreadGrades(aspGrades, currentQuarter): aspGrades
     let studentGradeObject = getStudentGrades(grades);
-    console.log('grades')
-    console.log(grades)
 
     const sp = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult;
     const tr = files.reportFiles[files.reportTitle.files[2].fileDesc].parseResult;
@@ -211,7 +308,7 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
 
     const [homeRooms, summary] = flattenStudents(studentGradeObject);
 
-    const students= homeRooms.map(hr => {return hr.students.map(s => {
+    const students = homeRooms.map(hr => {return hr.students.map(s => {
         
         return {
         ...s,

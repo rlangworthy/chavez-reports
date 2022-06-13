@@ -58,8 +58,8 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
             selected[f.fileDesc] = list.length > 0 ? list[list.length-1].fileName :'Upload New File';
         }) : null
         
-        //NOTE right now only enables on Gradebook Audit, as new reports use the data suite can add them here
-        const useSchool = Object.keys(this.props.school.students).length > 0 && this.props.report.title === 'Gradebook Audit Report'
+        //NOTE right now only enables on Gradebook Audit & Homeroom One Pager, as new reports use the data suite can add them here
+        const useSchool = Object.keys(this.props.school.students).length > 0 && ['Gradebook Audit Report', 'Homeroom One Pager'].includes(this.props.report.title)
         /* eslint-enable */
         if(this.props.report.optionalFiles){
             this.state={selectedValues:selected, isLoading: false, selectedQuarter: 'Quarter ' + getCurrentQuarter(SY_CURRENT), useSchool:useSchool}
@@ -150,7 +150,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
     componentDidUpdate(prevProps) {
         if(Object.keys(prevProps.school.students).length !== Object.keys(this.props.school.students).length)
         {
-            this.setState({useSchool: Object.keys(this.props.school.students).length > 0 && this.props.report.title === 'Gradebook Audit Report'})
+            this.setState({useSchool: Object.keys(this.props.school.students).length > 0 && ['Gradebook Audit Report', 'Homeroom One Pager'].includes(this.props.report.title)})
         }
     }
 
@@ -174,7 +174,7 @@ export class ReportModal extends React.Component<ReportModalProps, ReportModalSt
         
         this.fileTypes.map( t => this.fileRefs[t.fileDesc]=null);
         //NOTE Update this along with useSchool in the coinstructor
-        const showSchoolOption = Object.keys(this.props.school.students).length > 0 && this.props.report.title === 'Gradebook Audit Report'
+        const showSchoolOption = Object.keys(this.props.school.students).length > 0 && ['Gradebook Audit Report', 'Homeroom One Pager'].includes(this.props.report.title)
         
         //submits all the files currently selected.  Depending on disabling button for safety/completeness
 

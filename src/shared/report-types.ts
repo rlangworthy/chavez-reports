@@ -6,7 +6,6 @@ import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-contain
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 import {GradeValidationReport} from '../grade-validation/grade-validation-display'
-import { TestReport } from '../test-report/test-backend'
 import { School } from '../data-handling/data-interfaces'
 
 /*
@@ -141,14 +140,6 @@ const allReportCards: ReportTitle[] = [
         files: [
                 {fileType: FileTypes.GRADE_VALIDATION, fileDesc: FileTypes.GRADE_VALIDATION}],
     },
-    {
-        title: 'Test',
-        description: '',
-        link: process.env.PUBLIC_URL + '/test/upload/',
-        component: TestReport,
-        files: [
-                {fileType: FileTypes.JIJI, fileDesc: FileTypes.JIJI}],
-    }
 ]
 
 export const ReportCards: ReportTitle[] = allReportCards.filter(report => activeReports.includes(report.title))

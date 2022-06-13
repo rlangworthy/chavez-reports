@@ -71,7 +71,7 @@ export const convertAspCategories = (cats: AspenCategoriesRow) : RawTeacherCateg
 }
 
 export const getGPA = (grades: number[]):number => {
-  const pos = grades.filter( n => n >= 0);
+  const pos = grades.filter( n => n != null && n >= 0);
   const normGrade = pos.map( (g):number => {
       if(g > 89){return 4;}
       if(g > 79){return 3;}
