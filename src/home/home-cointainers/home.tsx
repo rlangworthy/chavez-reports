@@ -158,7 +158,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         cardInfo={card} 
                         onClick={this.activateModal} />)})}
                 </CardDeck>
-                <Navbar sticky='bottom'>
+                <Navbar sticky='top'>
                     <Navbar.Brand>{new Date().getFullYear()}, Barton Dassinger</Navbar.Brand>
                     <Navbar.Text>
                         <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">

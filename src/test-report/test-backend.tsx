@@ -207,8 +207,8 @@ export class TestReport extends React.Component<TestReportProps, TestReportState
         }
     }
 
-    componentWillMount(){
-        const puzzles: JijiSheet[] = this.props.reportFiles ? this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.files[0].fileDesc].parseResult?.data : [];
+    componentDidMount(){
+        const puzzles: JijiSheet[] = []//this.props.reportFiles ? this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.files[0].fileDesc].parseResult?.data : [];
         const classes = getPuzzleClasses(puzzles)
 
         this.setState({
@@ -349,7 +349,7 @@ export class RemoteLearningStudentInfoSheet extends React.Component<RemoteLearni
     }
 
     componentWillMount(){
-        const schedule: ScheduleInfo[] = this.props.reportFiles ? this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.files[0].fileDesc].parseResult?.data : [];
+        const schedule: ScheduleInfo[] = []//this.props.reportFiles ? this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.files[0].fileDesc].parseResult?.data : [];
         const students = d3.nest()
             .key((s:ScheduleInfo) => s.studentID)
             .object(schedule)

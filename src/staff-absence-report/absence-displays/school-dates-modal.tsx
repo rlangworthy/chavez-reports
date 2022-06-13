@@ -31,7 +31,7 @@ export class SchoolDatesModal extends React.PureComponent<SchoolDatesModalProps,
         super(props)
         this.state={selectedHolidays: this.props.holidays.map(h=> h.name)}
     }
-
+    
     handleClick = (name:string, dates:Date[]) => {
         if(this.state.selectedHolidays.includes(name)){
             this.setState({selectedHolidays: this.state.selectedHolidays.filter(h => h !== name)})
@@ -43,6 +43,9 @@ export class SchoolDatesModal extends React.PureComponent<SchoolDatesModalProps,
     }
 
     render(){
+        const initialMonth:Date = new Date()
+        initialMonth.setMonth(7)
+        initialMonth > new Date() ? initialMonth.setFullYear(initialMonth.getFullYear()-1): null
         return (
             <Modal show={this.props.show} onHide={this.props.handleHide} dialogClassName='calendar-modal'>
                 <div className='school-dates-modal-boundary-picker'>
@@ -67,7 +70,7 @@ export class SchoolDatesModal extends React.PureComponent<SchoolDatesModalProps,
                             <DayPicker
                                 onDayClick={this.props.handleDayClick}
                                 canChangeMonth={false}
-                                initialMonth={new Date(2020, 7)}
+                                initialMonth={initialMonth}
                                 selectedDays={this.props.selectedDates}
                                 numberOfMonths={12}/>
                         </Col>
