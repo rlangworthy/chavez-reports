@@ -236,8 +236,8 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                                 <td>{printGrade(student.quarterMathGrade, student.finalMathGrade)}</td>
                                                 <td>{printGrade(student.quarterScienceGrade, student.finalScienceGrade)}</td>
                                                 <td>{printGrade(student.quarterSocialScienceGrade, student.finalSocialScienceGrade)}</td>
-                                                <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(0):
-                                                    student.finalGPA[0].toFixed(0) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(0)+')'}</td>
+                                                <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(1):
+                                                    student.finalGPA[0].toFixed(1) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(1)+')'}</td>
                                                 <td>{this.props.pctFailure ? student.failureRate >= 0 ? (student.failureRate*100).toFixed(0)+ '%': 'N/A' : student.tardies[0] === student.tardies[1] ? student.tardies[0]:
                                                     student.tardies[0] + '(' + (student.tardies[0]-student.tardies[1])+')'}</td>
                                                 <td>{student.enrollmentDays[0]===student.enrollmentDays[1] ? 

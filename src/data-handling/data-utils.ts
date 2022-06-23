@@ -103,7 +103,6 @@ export const getCalculatedStudentInfo = (student: Data.StudentInfo, school : Dat
 export const getGPAFromCalculatedStudent = (student: Data.CalculatedStudentInfo): Data.QuarterGrades => {
     const grades = Object.keys(student['Term Averages']).filter(cn => Constants.CoreClassList.includes(student['Term Averages'][cn]['Class Description']))
         .map(cn => student['Term Averages'][cn])
-    console.log(grades)
     const GPA: Data.QuarterGrades = Constants.BlankQuarterGrades
     Object.keys(GPA).forEach(key => GPA[key] = getGPA(grades.map(grade => grade[key])))
     return GPA

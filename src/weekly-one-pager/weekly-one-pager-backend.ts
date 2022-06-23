@@ -183,9 +183,10 @@ const calculatedToOTStudent = (s: CalculatedStudentInfo, quarter?: string):Stude
     const safeGrade = (coreClass: string, quarter: string):number => {
         return coreGrades[coreClass] && coreGrades[coreClass][quarter] ? coreGrades[coreClass][quarter] : -1
     }
-    const gpa = getGPAFromCalculatedStudent(s)
+    const gpaQG = getGPAFromCalculatedStudent(s)
+    const gpa = (gpaQG['Cumulative/Overall Average'] != null ? gpaQG['Cumulative/Overall Average'] : -1 )as number
     return {
-        GradeLevel: s['Grade Level'],
+        GradeLevel: s['Grade Level'].replace('0',''),
         HR: s.Homeroom,
         ID: s['Student ID'],
         fullName: s['Student First Name']+ ' ' + s['Student Last Name'],
@@ -199,7 +200,7 @@ const calculatedToOTStudent = (s: CalculatedStudentInfo, quarter?: string):Stude
         finalMathGrade: safeGrade('MATHEMATICS STD', 'Cumulative/Overall Average'),
         finalScienceGrade: safeGrade('SCIENCE STANDARDS', 'Cumulative/Overall Average'),
         finalSocialScienceGrade: safeGrade('SOCIAL SCIENCE STD', 'Cumulative/Overall Average'),
-        finalGPA: [(getGPAFromCalculatedStudent(s)['Cumulative/Overall Average'] != null ? getGPAFromCalculatedStudent(s)['Cumulative/Overall Average'] : -1 )as number],
+        finalGPA: [gpa,gpa],
         absencePercent: s['Attendance Percent'],
         absences: [parseInt(s['Full Day Unexcused'])],
         tardies: [parseInt(s.Tardy)],
@@ -439,6 +440,7 @@ const flattenStudents = (students: Students): [HomeRoom[], HRSummary] => {
         .key((r:Student) => r.onTrack.toString())
         .rollup(rs => rs.length)
         .object(studentArray)
+    console.log(summary)
     summary.OT['3-8'] = {}
     
     Object.keys(summary.OT).forEach(gl => {
