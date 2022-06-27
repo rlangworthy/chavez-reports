@@ -31,11 +31,16 @@ interface OnePageState {
     summary: HRSummary,
     twoSided: boolean
     pctFailure:boolean
+    schoolData: boolean
 }
 
-const printGrade = (quarter: number, final: number) => {
+const printGrade = (quarter: number, final: number):string => {
     if (quarter < 0 && final < 0 ){ return '--'}
     return '(' + ((quarter > 0 ) ? quarter.toFixed(0): '-') + ', ' + ((final > 0 ) ? final.toFixed(0): '-') + ')';
+}
+
+const printPctF = (quarter: number, final: number): string => {
+    return  '(' + ((quarter > 0 ) ? (quarter*100).toFixed(0) + '%': '-') + ', ' + ((final > 0 ) ? (final*100).toFixed(0) + '%': '-') + ')';
 }
 
 const dateString= dateFns.format(new Date(), 'Do MMM, YYYY');
@@ -51,6 +56,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
             summary: {OT:{},grades:{}},
             twoSided: false,
             pctFailure: false,
+            schoolData: false,
         }
     }
 
@@ -61,6 +67,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
             this.props.reportFiles.reportTitle.optionalFiles && 
             (this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ||
                 this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[1].fileDesc]   ))) ? true:false
+        const schoolData = this.props.reportFiles && (this.props.reportFiles.schooData!== undefined && Object.keys(this.props.reportFiles.schooData.students).length > 0) ? true : false
         const [homeRooms, summary]: [HomeRoom[], HRSummary] = this.props.reportFiles ? createOnePagers(this.props.reportFiles) : 
         [[] as HomeRoom[],{} as HRSummary]
         const grades = [... new Set(homeRooms.map(hr => hr.grade))].sort()
@@ -72,6 +79,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
             twoSided: twoSided,
             grades: grades,
             pctFailure:pctFailure,
+            schoolData:schoolData,
         })
     
     } 
@@ -97,7 +105,7 @@ export class HROnePagers extends React.Component<OnePageProps, OnePageState> {
                         {homeRooms.map( hr => {
                                 if(this.state.selectedGrades.length===0 || this.state.selectedGrades.includes(hr.grade)){
                                     return (
-                                        <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided} pctFailure={this.state.pctFailure}/>
+                                        <WeeklyOnePager hr={hr} key={hr.room} backpage={twoSided} pctFailure={this.state.pctFailure} schoolData={this.state.schoolData}/>
                                     )
                                 }else{
                                     return null
@@ -197,7 +205,7 @@ class SummaryPage extends React.PureComponent<{summary: HRSummary}>{
     }
 }
 
-class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolean, pctFailure: boolean}> {
+class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolean, pctFailure: boolean, schoolData: boolean}> {
     render(){
         const hr = this.props.hr
         return (
@@ -222,7 +230,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                         <td>Sci(Q,F)</td>
                                         <td>SS(Q,F)</td>
                                         <td>GPA</td>
-                                        <td>{this.props.pctFailure? "Percent F's": 'Tardies'}</td>
+                                        <td>{this.props.schoolData? "Pct F's(Q,F)" : this.props.pctFailure ? "Percent F's": 'Tardies'}</td>
                                         <td>Attendance</td>
                                     </tr>
                                     {hr.students.map( (student, i) => {
@@ -238,7 +246,7 @@ class WeeklyOnePager extends React.PureComponent<{hr: HomeRoom, backpage: boolea
                                                 <td>{printGrade(student.quarterSocialScienceGrade, student.finalSocialScienceGrade)}</td>
                                                 <td>{student.finalGPA[0] === student.finalGPA[1] ? student.finalGPA[0].toFixed(1):
                                                     student.finalGPA[0].toFixed(1) + '(' + (student.finalGPA[0]-student.finalGPA[1]).toFixed(1)+')'}</td>
-                                                <td>{this.props.pctFailure ? student.failureRate >= 0 ? (student.failureRate*100).toFixed(0)+ '%': 'N/A' : student.tardies[0] === student.tardies[1] ? student.tardies[0]:
+                                                <td>{this.props.schoolData ? printPctF(student.failureRate, student.failureRateFinal) : this.props.pctFailure ? (student.failureRate >= 0 ? (student.failureRate*100).toFixed(0)+ '%': 'N/A') : student.tardies[0] === student.tardies[1] ? student.tardies[0]:
                                                     student.tardies[0] + '(' + (student.tardies[0]-student.tardies[1])+')'}</td>
                                                 <td>{student.enrollmentDays[0]===student.enrollmentDays[1] ? 
                                                 ((student.enrollmentDays[0]-student.absences[0])/student.enrollmentDays[0]*100).toFixed(0) + '%(' +

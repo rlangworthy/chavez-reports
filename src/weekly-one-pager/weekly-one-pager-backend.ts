@@ -122,6 +122,7 @@ export interface HRStudent {
     LRE: string
     mClass?: string
     failureRate: number
+    failureRateFinal:number
 }
 
 export interface ChartHRStudent extends HRStudent {
@@ -159,6 +160,7 @@ interface Student {
     LRE: string
     mClass?: string
     failureRate?: number
+    failureRateFinal?:number
 }
 
 interface Students {
@@ -209,7 +211,8 @@ const calculatedToOTStudent = (s: CalculatedStudentInfo, quarter?: string):Stude
         nweaRead: -1, //-1 if none
         nweaMath: -1, //-1 if none
         LRE: s['DL Status'],
-        failureRate: s['Assignment Failure Rates'][currentQuarter]
+        failureRate: s['Assignment Failure Rates'][currentQuarter],
+        failureRateFinal: s['Assignment Failure Rates']['Cumulative/Overall Average'] ? s['Assignment Failure Rates']['Cumulative/Overall Average'] : undefined
     }
 }
 
@@ -515,6 +518,7 @@ const flattenStudents = (students: Students): [HomeRoom[], HRSummary] => {
                         LRE: r.LRE,
                         mClass: r.mClass,
                         failureRate: r.failureRate ? r.failureRate : -1,
+                        failureRateFinal: r.failureRateFinal ? r.failureRateFinal : -1,
                     }
                 })
             }
