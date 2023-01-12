@@ -6,6 +6,8 @@ import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-contain
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 import {GradeValidationReport} from '../grade-validation/grade-validation-display'
+import { TestReport } from '../test-report/lexia-report'
+
 import { School } from '../data-handling/data-interfaces'
 
 /*
@@ -48,13 +50,13 @@ export interface ReportFiles {
 
 const activeReports: string [] = [
     'Gradebook Audit Report',
-    'Summerschool Report',
-    'Staff Absence Report',
-    'NWEA Summarizer',
     'Homeroom One Pager',
     'Student One Pager',
     'Student Assignment Sheet',
-    'Gradebook Validation',
+    'Staff Absence Report',
+    //'Summerschool Report',
+    //'NWEA Summarizer',
+    //'Gradebook Validation',
     //'Test',
 ]
 
@@ -140,6 +142,14 @@ const allReportCards: ReportTitle[] = [
         files: [
                 {fileType: FileTypes.GRADE_VALIDATION, fileDesc: FileTypes.GRADE_VALIDATION}],
     },
+    {
+        title: 'Test',
+        description: '',
+        link: process.env.PUBLIC_URL + '/gradebook-validation/upload/', 
+        component: TestReport,
+        files: [
+                {fileType: FileTypes.JIJI, fileDesc: FileTypes.JIJI}],
+    }
 ]
 
 export const ReportCards: ReportTitle[] = allReportCards.filter(report => activeReports.includes(report.title))

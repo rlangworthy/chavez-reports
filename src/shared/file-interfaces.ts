@@ -368,90 +368,8 @@ export interface RawNWEACDFRow {
 	RITtoReadingScore:string
 	RITtoReadingMin:string
 	RITtoReadingMax:string
-
-  
-  /*
-  Requirement_Status: string
-  SchoolName: string
-  StudentID: string
-  StudentLastName: string
-  StudentFirstName: string
-  GradeLevel: string
-  StudentHomeroom: string
-  ACCESS_TEST_YEAR1: string
-  ACCESS_LITERACY_COMPOSITE1: string
-  STUDENT_ELL_INDICATOR: string
-  STUDENT_SPECIAL_ED_INDICATOR: string
-  TermName: string
-  Discipline: string
-  GrowthMeasureYN: string
-  TestName: string
-  TestStartDate: string
-  TestDurationMinutes: string
-  TestRITScore: string
-  TestStandardError: string
-  TestPercentile: string
-  TestPercentile_32: string
-  TypicalFallToFallGrowth: string
-  TypicalSpringToSpringGrowth: string
-  TypicalFallToSpringGrowth: string
-  TypicalFallToWinterGrowth: string
-  StartGrade1: string
-  LYSpringTestDate1: string
-  LYSpringRITScore1: string
-  LYTermName1: string
-  SpringProjectedGain1: string
-  CYSpringProjectedRIT1: string
-  GrowthNeededtoAchieveProjected1: string
-  RITtoReadingScore: string
-  RITtoReadingMin: string
-  RITtoReadingMax: string
-  Goal1Name: string
-  Goal1RitScore: string
-  Goal1StdErr: string
-  Goal1Range: string
-  Goal1Adjective: string
-  Goal2Name: string
-  Goal2RitScore: string
-  Goal2StdErr: string
-  Goal2Range: string
-  Goal2Adjective: string
-  Goal3Name: string
-  Goal3RitScore: string
-  Goal3StdErr: string
-  Goal3Range: string
-  Goal3Adjective: string
-  Goal4Name: string
-  Goal4RitScore: string
-  Goal4StdErr: string
-  Goal4Range: string
-  Goal4Adjective: string
-  Goal5Name: string
-  Goal5RitScore: string
-  Goal5StdErr: string
-  Goal5Range: string
-  Goal5Adjective: string
-  Goal6Name: string
-  Goal6RitScore: string
-  Goal6StdErr: string
-  Goal6Range: string
-  Goal6Adjective: string
-  Goal7Name: string
-  Goal7RitScore: string
-  Goal7StdErr: string
-  Goal7Range: string
-  Goal7Adjective: string
-  Goal8Name: string
-  Goal8RitScore: string
-  Goal8StdErr: string
-  Goal8Range: string
-  Goal8Adjective: string
-  TestStartTime: string
-  PercentCorrect: string
-  ProjectedProficiency: string
-  Textbox22: string
-  */
 }
+
 export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
   Network: true,
 	School: true,
@@ -486,88 +404,8 @@ export const rawNWEACDFRowKeys: KeysEnum<RawNWEACDFRow> = {
 	RITtoReadingScore: true,
 	RITtoReadingMin: true,
 	RITtoReadingMax: true,
-
-  /*Requirement_Status: true,
-  SchoolName: true,
-  StudentID: true,
-  StudentLastName: true,
-  StudentFirstName: true,
-  GradeLevel: true,
-  StudentHomeroom: true,
-  ACCESS_TEST_YEAR1: true,
-  ACCESS_LITERACY_COMPOSITE1: true,
-  STUDENT_ELL_INDICATOR: true,
-  STUDENT_SPECIAL_ED_INDICATOR: true,
-  TermName: true,
-  Discipline: true,
-  GrowthMeasureYN: true,
-  TestName: true,
-  TestStartDate: true,
-  TestDurationMinutes: true,
-  TestRITScore: true,
-  TestStandardError: true,
-  TestPercentile: true,
-  TestPercentile_32: true,
-  TypicalFallToFallGrowth: true,
-  TypicalSpringToSpringGrowth: true,
-  TypicalFallToSpringGrowth: true,
-  TypicalFallToWinterGrowth: true,
-  StartGrade1: true,
-  LYSpringTestDate1: true,
-  LYSpringRITScore1: true,
-  LYTermName1: true,
-  SpringProjectedGain1: true,
-  CYSpringProjectedRIT1: true,
-  GrowthNeededtoAchieveProjected1: true,
-  RITtoReadingScore: true,
-  RITtoReadingMin: true,
-  RITtoReadingMax: true,
-  Goal1Name: true,
-  Goal1RitScore: true,
-  Goal1StdErr: true,
-  Goal1Range: true,
-  Goal1Adjective: true,
-  Goal2Name: true,
-  Goal2RitScore: true,
-  Goal2StdErr: true,
-  Goal2Range: true,
-  Goal2Adjective: true,
-  Goal3Name: true,
-  Goal3RitScore: true,
-  Goal3StdErr: true,
-  Goal3Range: true,
-  Goal3Adjective: true,
-  Goal4Name: true,
-  Goal4RitScore: true,
-  Goal4StdErr: true,
-  Goal4Range: true,
-  Goal4Adjective: true,
-  Goal5Name: true,
-  Goal5RitScore: true,
-  Goal5StdErr: true,
-  Goal5Range: true,
-  Goal5Adjective: true,
-  Goal6Name: true,
-  Goal6RitScore: true,
-  Goal6StdErr: true,
-  Goal6Range: true,
-  Goal6Adjective: true,
-  Goal7Name: true,
-  Goal7RitScore: true,
-  Goal7StdErr: true,
-  Goal7Range: true,
-  Goal7Adjective: true,
-  Goal8Name: true,
-  Goal8RitScore: true,
-  Goal8StdErr: true,
-  Goal8Range: true,
-  Goal8Adjective: true,
-  TestStartTime: true,
-  PercentCorrect: true,
-  ProjectedProficiency: true,
-  Textbox22: true,
-  */
 }
+
 export interface Tardies {
   'Student ID': string
   Attended: string
@@ -613,4 +451,28 @@ export const gradeValidationKeys : KeysEnum<GradeValidation> = {
   'Gradebook Score Last Update' : true,
   'Post Column Last Updated' : true,
   'Transcript Column Last Updated' : true,
+}
+
+export interface LexiaReport {
+  'Year': string,
+  'Month': string,
+  'Classes': string,
+  'First Name' : string,
+  'Last Name' :	string,
+  'End of Month Level' : string,
+  'Monthly Units' : string,
+  'Monthly Minutes' : string,
+  'Needs Instruction' : string,
+}
+
+export const lexiaReportKeys : KeysEnum<LexiaReport> = {
+  'Year': true,
+  'Month': true,
+  'Classes': true,
+  'First Name' : true,
+  'Last Name' :	true,
+  'End of Month Level' : true,
+  'Monthly Units' : true,
+  'Monthly Minutes' : true,
+  'Needs Instruction' : true,
 }

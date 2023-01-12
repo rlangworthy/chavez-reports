@@ -12,7 +12,8 @@ import {
     isBefore,
     eachDay,
     isWeekend,
-    isAfter} from 'date-fns'
+    isAfter,
+} from 'date-fns'
 
 import { 
     StaffDisplayContainer } from '../absence-displays/staff-display'
@@ -36,6 +37,7 @@ import {
     TeacherJobCodes, 
     StaffPunchTimes,
     PunchTime,
+    PayCodeDay,
     StaffDates,
     isPunchTime} from '../../shared/staff-absence-types'
 import {
@@ -287,13 +289,16 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
             const outInt = parseInt(this.endTime.value.slice(0,2)+this.endTime.value.slice(3), 10)
             const selected = this.state.selectedTeachers.concat(this.state.selectedNonTeachers)
             selected.forEach( staff => {
-                const tardies = new Map<Date, PunchTime>()
+                const tardies = new Map<Date, PayCodeDay | PunchTime>()
                 const punchTimes:StaffDates = this.state.punchTimes[staff].punchTimes
                 punchTimes.forEach((val,key)=>{
-                    if(isPunchTime(val) && SY_CURRENT.irregularDays.map(d => d.dates).flat().every(d => !isSameDay(d,key))){
-                        if(isTardy(inInt, outInt, val.in, val.out).some(a => a)){
+                    if(SY_CURRENT.irregularDays.map(d => d.dates).flat().every(d => !isSameDay(d,key))){
+                        if(isPunchTime(val) && isTardy(inInt, outInt, val.in, val.out).some(a => a)){
                             tardies.set(key, val)
                             }
+                        }
+                        if(!isPunchTime(val)&& val.payCode==='REG'){
+                            tardies.set(key, val)
                         }
                     }
                 )
@@ -301,6 +306,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
                 staffPunches[staff].startTime=inInt;
                 staffPunches[staff].endTime=outInt;
                 staffPunches[staff].attDays=[...this.state.schoolDates]
+                console.log(staffPunches[staff])
             })
             this.setState({punchTimes:staffPunches})
             this.forceUpdate();

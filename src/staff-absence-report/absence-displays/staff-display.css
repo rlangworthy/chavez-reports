@@ -3,11 +3,15 @@
 }
 
 .tardy-cell-good {
-    background-color: green;
+    background-color: green !important;
 }
 
 .tardy-cell-bad {
-    background-color: red;
+    background-color: red !important;
+}
+
+.tardy-cell-reg {
+    background-color: yellow !important;
 }
 
 .single-staff-absence-stats {

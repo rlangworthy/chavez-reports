@@ -5,6 +5,7 @@ import {
     startOfWeek,
     endOfWeek,
     isSameDay,
+    min,
     } from 'date-fns'
 
 import {
@@ -12,7 +13,8 @@ import {
     PunchTimes,
     AbsencePaycodes,
     PunchTime,
-    PayCodeDay,} from '../../shared/staff-absence-types';
+    PayCodeDay,
+    isPunchTime} from '../../shared/staff-absence-types';
 
 import {
     isTardy } from '../../shared/utils'
@@ -32,6 +34,7 @@ interface SingleAbsenceReportProps {
     absences: PunchTimes
     visibility: boolean
     codes: string[]
+    startDate: Date
 }
 
 
@@ -39,6 +42,7 @@ export class StaffDisplayContainer extends React.PureComponent<StaffDisplayConta
 
     render(){
         const punchTimes=this.props.absenceData
+        const startDate=min(...this.props.dates)
         return (
             <>
                 {Object.keys(punchTimes)
@@ -48,7 +52,8 @@ export class StaffDisplayContainer extends React.PureComponent<StaffDisplayConta
                             visibility={visibility}
                             absences={punchTimes[name]} 
                             codes={this.props.codes} 
-                            key={name}/>)
+                            key={name}
+                            startDate={startDate}/>)
                     })}
             </>
         );
@@ -126,7 +131,7 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
         var nInLate = 0;
         var nOutEarly = 0;
         props.absences.tardies.forEach( p => {
-            if(props.absences.startTime && props.absences.endTime){
+            if(props.absences.startTime && props.absences.endTime && isPunchTime(p)){
                 const [inLate, outEarly] = isTardy(props.absences.startTime, props.absences.endTime, p.in, p.out)
                 nInLate += inLate? 1 : 0
                 nOutEarly +=outEarly? 1 : 0
@@ -134,8 +139,6 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
         })
         const codeDays = dates.filter(date => props.absences.attDays ? props.absences.attDays.some(attDay => isSameDay(date.date, attDay) ): false)
         const nCodes = codeDays.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
-        console.log(nCodes)
-        console.log(nDays)
         stats = ((nDays-nCodes)*100/nDays).toFixed(2) + '% Attendance, ' 
             + ((nDays-nInLate)*100/nDays).toFixed(2) + '% In On Time, '
             + ((nDays-nOutEarly)*100/nDays).toFixed(2) + '% Out On Time'
@@ -168,13 +171,14 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
             {props.absences.tardies && props.absences.startTime && props.absences.endTime? <TardiesTable 
                 tardies={props.absences.tardies}
                 in={props.absences.startTime}
-                out={props.absences.endTime}/>:null}
+                out={props.absences.endTime}
+                startDate={props.startDate}/>:null}
         </div>
     )
 }
 
-const TardiesTable: React.SFC<{tardies: Map<Date, PunchTime>, in:number, out:number}> = (props)=> {
-    const startDate = SY_CURRENT.startDate
+const TardiesTable: React.SFC<{tardies: Map<Date, PayCodeDay | PunchTime>, in:number, out:number, startDate:Date}> = (props)=> {
+    const startDate = props.startDate
     const headRow = (
         <tr key={'Absences Header'}>
           <th>Week Number</th>
@@ -186,28 +190,38 @@ const TardiesTable: React.SFC<{tardies: Map<Date, PunchTime>, in:number, out:num
         </tr>
     );
     let rows:JSX.Element[] = [];
-    let tardiesByWeek: {[week:number]: {date: Date, punchTime: PunchTime}[]} = {}
+    let tardiesByWeek: {[week:number]: {date: Date, punchTime: PayCodeDay | PunchTime}[]} = {}
     props.tardies.forEach((val, key)=>{
-        const week = differenceInCalendarWeeks(key,startDate)
+        const week = differenceInCalendarWeeks(key,startDate) +1
         if(tardiesByWeek[week]!== undefined){
             tardiesByWeek[week]=tardiesByWeek[week].concat([{date:new Date(key), punchTime:val}])
         } else{
             tardiesByWeek[week]=[{date: new Date(key), punchTime:val}]
         }
     })
-    const getTardyCells = (week: {date: Date, punchTime: PunchTime}[]) =>{
+    const getTardyCells = (week: {date: Date, punchTime: PayCodeDay | PunchTime}[]) =>{
         return [...Array(5).keys()].map(i => {
             const day = week.filter(r=>r.date.getDay()===i+1)
             if(day.length > 0){
-                const [inLate, leftEarly] = isTardy(props.in, props.out, day[0].punchTime.in, day[0].punchTime.out)
-                return (
+                const hold = day[0].punchTime
+                if(isPunchTime(hold)){
+                    const [inLate, leftEarly] = isTardy(props.in, props.out, hold.in, hold.out)
+                    return (
+                        <React.Fragment key={i}>
+                            <td className={`${inLate ? 'tardy-cell-bad':''}`}>{format(hold.in, 'hh:mm')}</td>
+                            <td className={`${leftEarly ? 'tardy-cell-bad':''}`}>
+                                {hold.out ? format(hold.out, 'hh:mm'): 'N/A'}
+                            </td>
+                        </React.Fragment>
+                    )
+                }
+                else{
+                    return (
                     <React.Fragment key={i}>
-                        <td className={`${inLate ? 'tardy-cell-bad':''}`}>{format(day[0].punchTime.in, 'hh:mm')}</td>
-                        <td className={`${leftEarly ? 'tardy-cell-bad':''}`}>
-                            {day[0].punchTime.out ? format(day[0].punchTime.out, 'hh:mm'): 'N/A'}
-                        </td>
+                        <td colSpan={2} className='tardy-cell-reg'>REG Paycode</td>
                     </React.Fragment>
-                )
+                    )
+                }
             }else{
                 return (
                     <React.Fragment key={i}>

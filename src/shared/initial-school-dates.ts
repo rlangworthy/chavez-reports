@@ -1,5 +1,5 @@
 import * as fns from 'date-fns'
-import {sy2022} from './school-dates/sy2022'
+import {sy2023} from './school-dates/sy2023'
 
 export interface SchoolYear {
     holidays: HolidayDate[]
@@ -17,7 +17,7 @@ export interface HolidayDate {
     dates: Date[]
 }
 
-export const SY_CURRENT = sy2022
+export const SY_CURRENT = sy2023
 
 export const defaultSchoolYear = (sy: SchoolYear):Date[] => {
     const defaultStartDay = sy.startDate

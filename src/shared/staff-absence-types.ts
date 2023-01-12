@@ -1,14 +1,10 @@
-export const PayCodeKeys: string[] = ['VAC', 'PBD', 'CRT', 'EXC', 'BRV', 'SCK', 'SCG', 'SCU']
-export const AbsencePaycodes: string[] = ['VAC', 'PBD', 'CRT', 'EXC', 'BRV', 'SCK', 'SCG', 'SCU']
+/*
+ * PayCodes for excused or unexcused absences we want to look at for patterns
+ */
 
-export const TeacherJobCodes = 
-                                ['Bilingual Teacher' , 
-                                'PartTime Teacher' , 
-                                'Regular Teacher' ,
-                                'School Counselor',
-                                'Special Education Teacher'] 
-
-export type PayCode = 'VAC'|'PBD'|'CRT'|'EXC'|'BRV'|'SCK'|'SCG'|'SCU'
+export const PayCodeKeys: string[] = ['VAC', 'PBD', 'CRT', 'EXC', 'BRV', 'SCK', 'SCG', 'SCU', 'RHL', 'SCS', 'PHE']
+export const AbsencePaycodes: string[] = ['VAC', 'PBD', 'CRT', 'EXC', 'BRV', 'SCK', 'SCG', 'SCU', 'RHL', 'SCS', 'PHE']
+export type PayCode = 'VAC'|'PBD'|'CRT'|'EXC'|'BRV'|'SCK'|'SCG'|'SCU'|'RHL'|'SCS' | 'PHE'
 
 export interface PayCodeTotals{  
     'VAC': Date[]
@@ -19,8 +15,21 @@ export interface PayCodeTotals{
     'SCK': Date[]
     'SCG': Date[]
     'SCU': Date[]
+    'RHL': Date[]
+    'SCS': Date[]
+    'PHE': Date[]
 }
 
+//Job codes for teaching positions
+
+export const TeacherJobCodes = 
+                                ['Bilingual Teacher' , 
+                                'PartTime Teacher' , 
+                                'Regular Teacher' ,
+                                'School Counselor',
+                                'Special Education Teacher'] 
+
+// A date can have a punch in time and a punch out time, a punch in time and no punch out time, or a Pay Code
 export interface PunchTime {
     in: Date
     out: Date | null
@@ -34,18 +43,21 @@ export interface PayCodeDay {
     outs: Date[]
 }
 
+//Each date should either have a punch in/out or a Pay Code associated with it
 export type StaffDates = Map<Date, PayCodeDay | PunchTime>
+
 
 export interface Absences {
     [code:string]:PayCodeDay[]
 }
 
+//Punch Times is a sum of an employees punchard information
 export interface PunchTimes {
     name: string
     position: string
     absences: Absences
     punchTimes: StaffDates
-    tardies?: Map<Date, PunchTime>
+    tardies?: StaffDates
     startTime?: number
     endTime?: number
     attDays?: Date[]

@@ -1,0 +1,14 @@
+.lexia-report-classroom {
+    padding: 1cm 
+}
+
+.lexia-report-student-flag {
+    background-color: tomato !important;
+}
+@media print { 
+    .lexia-report-student-flag{
+        background-color: tomato !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
