@@ -14,6 +14,51 @@ import './lexia-report.css'
 const ObjectsToCsv = require('objects-to-csv');
 
 
+/*
+mylexia.com
+School Exports
+Core5 Monthly Export
+
+*/
+
+const validClassrooms = [
+    'HOMEROOM - A303 - Pikosz - 3rd grade',
+    'HOMEROOM - A303 - Pikosz - 4th grade',
+    'HOMEROOM - B314 - MCCALL/HERRERA',
+    'HOMEROOM - B317 - MCCALL/HERRERA',
+    'HOMEROOM - Carrasco - B216',
+    'HOMEROOM - Carrasco - B217',
+    'HOMEROOM - Carrasco - B218',
+    'HOMEROOM - DeSanto - A207',
+    'HOMEROOM - Duque - A206',
+    'HOMEROOM - Escobar - A202',
+    'HOMEROOM - Gomez-Doyle - A307',
+    'HOMEROOM - Gonzalez - A106',
+    'HOMEROOM - Harris - A306',
+    'HOMEROOM - Herrera - A308',
+    'HOMEROOM - Herrera - B315',
+    'HOMEROOM - Lopez - A107',
+    'HOMEROOM - McCall - B312',
+    'HOMEROOM - Mendieta - A102',
+    'HOMEROOM - Montoya - B212',
+    'HOMEROOM - Montoya - B213',
+    'HOMEROOM - Montoya - B214',
+    'HOMEROOM - Ortega Sangabriel - A108',
+    'HOMEROOM - Rodriguez - B115',
+    'HOMEROOM - Rodriguez - B115',
+    'HOMEROOM - Rodriguez - B115',
+    'HOMEROOM - Rodriguez - B115',
+    'HOMEROOM - Sandoval - B313',
+    'HOMEROOM - Sandoval - B316',
+    'HOMEROOM - Sandoval - B318',
+    'HOMEROOM - Soto - A309',
+    'HOMEROOM - Strasser - A301',
+    'HOMEROOM - Strasser - A302',
+    'HOMEROOM - Strasser - A304',
+    'HOMEROOM - Velasco - A203',
+    'HOMEROOM - Velasco - A305',
+    'MATHEMATICS STD - Marin - B211']
+
 interface LexiaClasses {
     [className: string] : LexiaClass
 }
@@ -66,6 +111,7 @@ interface TestReportState {
 }
 
 const getLexiaClasses = (studentWeeks: LexiaReport[]): LexiaClasses => {
+    
     const classes = d3.nest()
         .key((c:LexiaReport)=> c.Classes)
         .key((c:LexiaReport)=> c['SIS ID'])
@@ -83,7 +129,7 @@ const getLexiaClasses = (studentWeeks: LexiaReport[]): LexiaClasses => {
                 pctProgress: parseInt(mostMostRecent['Monthly Units'])/LexiaUnitsPerLevel[mostMostRecent['End of Month Level']],
                 minutesPerUnit: parseInt(mostMostRecent['Monthly Units'])> 0? parseInt(mostMostRecent['Monthly Minutes'])/parseInt(mostMostRecent['Monthly Units']) : -1,
             }
-        }).object(studentWeeks)
+        }).object(studentWeeks.filter(week => validClassrooms.some(valid => week.Classes.includes(valid))))
     return classes
 }
 

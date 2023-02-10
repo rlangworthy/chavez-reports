@@ -6,7 +6,7 @@ import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-contain
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 import {GradeValidationReport} from '../grade-validation/grade-validation-display'
-import { TestReport } from '../test-report/lexia-report'
+import { TestReport } from '../test-report/stmath-report'
 
 import { School } from '../data-handling/data-interfaces'
 

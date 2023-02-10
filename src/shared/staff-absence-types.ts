@@ -3,7 +3,7 @@
  */
 
 export const PayCodeKeys: string[] = ['VAC', 'PBD', 'CRT', 'EXC', 'BRV', 'SCK', 'SCG', 'SCU', 'RHL', 'SCS', 'PHE']
-export const AbsencePaycodes: string[] = ['VAC', 'PBD', 'CRT', 'EXC', 'BRV', 'SCK', 'SCG', 'SCU', 'RHL', 'SCS', 'PHE']
+export const AbsencePaycodes: string[] = PayCodeKeys
 export type PayCode = 'VAC'|'PBD'|'CRT'|'EXC'|'BRV'|'SCK'|'SCG'|'SCU'|'RHL'|'SCS' | 'PHE'
 
 export interface PayCodeTotals{  

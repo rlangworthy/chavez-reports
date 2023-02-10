@@ -98,7 +98,10 @@ Sort by progress last week
 % puzzles key - how many puzzles needed for 1% progress
 Organize teacher pages by last week progress
 
+https://us2.hostedftp.com/login/files/path/sftpuser96
+
 */
+
 
 
 
@@ -193,12 +196,13 @@ const getJijiClass = (room: {[student: string]:PuzzleStudent}):PuzzleClass => {
 }
 
 const getLastWeek = (cs: JijiSheet[]):JijiSheet => {
-    const sorted = cs.sort((a,b) => datefns.compareAsc(stringToDate(b.monday_date), stringToDate(a.monday_date)))
-    return sorted[0]
+    const sorted = cs.sort((a,b) => datefns.compareAsc(new Date(b.monday_date), new Date(a.monday_date)))
+    console.log(sorted)
+    return sorted.length > 1 ? sorted[1] : sorted[0]//sorted[0]
 }
 const get2WeeksAgo = (cs: JijiSheet[]):JijiSheet | 0 => {
-    const sorted = cs.sort((a,b) => datefns.compareAsc(stringToDate(b.monday_date), stringToDate(a.monday_date)))
-    return sorted.length > 1 ? sorted[1] : 0
+    const sorted = cs.sort((a,b) => datefns.compareAsc(new Date(b.monday_date), new Date(a.monday_date)))
+    return sorted.length > 2 ? sorted[2] : 0
 }
 
 

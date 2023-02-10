@@ -40,12 +40,14 @@ interface GradebookAuditReportProps{
 }
 interface GradebookAuditReportState{
     selectedTeachers: string[]
+    visibleSummaries: string[]
     teacherClasses: TeacherClasses
     teachers: string[]
     sped: boolean
     downloading: boolean
     dlProgress: number
 }
+const defaultSummaries=['Gradebook Default', 'Failure Rate']
 
 export class GradebookAuditReport extends React.PureComponent<GradebookAuditReportProps, GradebookAuditReportState>{
     
@@ -56,6 +58,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
             dlProgress:0,
             downloading:false,
             selectedTeachers:[],
+            visibleSummaries: defaultSummaries,
             teacherClasses: teacherClasses,
             teachers: selectedTeachers,
             sped: (this.props.reportFiles && 
@@ -118,8 +121,6 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                 this.setState({downloading:false})}
             )
     }
-
-
     
     render(){
         window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')});
@@ -144,6 +145,12 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                             <Button  
                             className='individual-report-button'
                             onClick={()=>{this.setState({downloading: true})}}>Generate Individual Report PDF's</Button>
+                            <MultiSelect 
+                                items={defaultSummaries}
+                                selected={this.state.visibleSummaries}
+                                title='Summaries'
+                                handleClick={this.handleSummaryClick}
+                            />
                             <MultiSelect
                                 items={this.state.teachers}
                                 selected={this.state.selectedTeachers}
@@ -152,7 +159,9 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                             />
                         </Col>
                         <Col className='gpa-display-container'>
-                            <AdminOverviewSheet teacherClasses={this.state.teacherClasses}/>
+                            {this.state.selectedTeachers.length === 0 ? 
+                            <AdminOverviewSheet teacherClasses={this.state.teacherClasses} visible={this.state.visibleSummaries}/>:
+                            <></>}
                             <React.Fragment>
                             {teachers.map( teacher => {
                                 const tKey: string = teacher
@@ -199,6 +208,25 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                 </Container>
             </React.Fragment>
         )
+    }
+
+    //#FIXME turn these into one function
+
+    handleSummaryClick = (summary: string[] | string): void => {
+        console.log(summary)
+        const visible = this.state.visibleSummaries
+        if(Array.isArray(summary)){
+            if(summary.every(s => visible.includes(s))){
+                this.setState({visibleSummaries: visible.filter(f=> !summary.includes(f))})
+            }else{
+                const newSelected = visible.concat(summary.filter(s=> !visible.includes(s)))
+                this.setState({visibleSummaries:newSelected})
+            }
+        }else{
+            visible.includes(summary) ? 
+                this.setState({visibleSummaries: visible.filter(f => f!==summary)}):
+                this.setState({visibleSummaries: visible.concat([summary])})
+        }
     }
 
     handleTeacherClick = (staff: string[] | string): void => {

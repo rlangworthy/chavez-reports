@@ -94,7 +94,6 @@ import {
         var school:School = files.schooData !== undefined ? files.schooData : {fileName: '',classes:{}, students:{}}
         const term = getTerm(files.term) //files.term !== undefined ? 'Term ' + files.term.split(" ")[1] : 'Term ' + getCurrentQuarter(SY_CURRENT)
         const tc:ScheduleClasses = {}
-        console.log(term)
         if(term === 'Semester 1' || term === 'Semester 2'){
             school = getSemesters(school)
         }
@@ -103,7 +102,9 @@ import {
             if(cid === "" || Object.keys(school.classes[cid].assignments[term]).length==0){
                 return
             }
-            const studentClassInfo: StudentClassInfo[] = Object.keys(school.classes[cid].students).map(k => school.classes[cid].students[k][term])
+            const studentClassInfo: StudentClassInfo[] = Object.keys(school.classes[cid].students)
+                .filter(k => school.classes[cid].students[k][term] !== undefined)
+                .map(k => school.classes[cid].students[k][term])
             const groups:{[grade: string]:StudentClassInfo[]} = d3.nest<StudentClassInfo>()
                 .key(r => r['Running Term Letter Grade'])
                 .object(studentClassInfo)
