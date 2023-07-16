@@ -50,13 +50,9 @@ export const FileManagerFooter: React.SFC<FileManagerFooterProps> = (props) => {
                         })
                     }
                 }
-                //false is the lazy way of commenting this bit out.  Can add functionality back in later
                 return (
                     <ButtonToolbar style={{float:'right'}}>
-                        {false && props.fileType?  
-                        <Button>
-                            Add File
-                        </Button> : null }
+                        
                         <Button onClick={() => footSave()}>
                             Save All
                         </Button>

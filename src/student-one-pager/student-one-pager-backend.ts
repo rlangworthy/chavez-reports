@@ -1,4 +1,4 @@
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 import {isAfter} from 'date-fns'
 import * as papa from 'papaparse'
 
@@ -137,7 +137,7 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
     const assignments = rawAllAssignments as Assignment[];
     if(tardies !== null){
         getAttendanceData(studentGradeObject, tardies);
-    };
+    }
     if(assignments !== null){
         Object.keys(studentAssignments).forEach( id => {
             if(studentGradeObject[id] !== undefined){

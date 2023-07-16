@@ -6,8 +6,7 @@ import {
     aspenESGradesRowKeys,
     aspenCategoriesRowKeys,
     rawStudentProfessionalSupportDetailsRowKeys,
-    //rawStaffAbsenceRowKeys,
-    //rawPunchcardRowKeys,
+    rawPunchcardRowKeys,
     tardiesKeys,
     studentSearchListRowKeys,
     rawNWEACDFRowKeys,
@@ -17,8 +16,7 @@ const aspenESGradesRow : string[] = Object.keys(aspenESGradesRowKeys)//keys<Aspe
 const aspenAssignmentRow: string[] =  Object.keys(aspenAssignmentRowKeys)
 const aspenCategoriesRow: string[] =  Object.keys(aspenCategoriesRowKeys)
 const rawStudentProfessionalSupportDetailsRow: string[] =  Object.keys(rawStudentProfessionalSupportDetailsRowKeys)
-//const rawStaffAbsenceRow: string[] =  Object.keys(rawStaffAbsenceRowKeys)
-//const rawPunchcardRow: string[] =  Object.keys(rawPunchcardRowKeys)
+const rawPunchcardRow: string[] =  Object.keys(rawPunchcardRowKeys)
 const studentSearchListRow: string[] = Object.keys(studentSearchListRowKeys)
 const rawNWEACDFRow: string[] =  Object.keys(rawNWEACDFRowKeys)
 const tardiesRow: string[] = Object.keys(tardiesKeys)
@@ -39,12 +37,6 @@ export const getFileType = (fields: string[] | undefined): string => {
         if(rawStudentProfessionalSupportDetailsRow.every(field => fieldStrings.includes(field))){
             return FileTypes.TOTAL_STUDENTS_SPED_INSTRUCTION
         }
-       /*if(rawStaffAbsenceRow.every(field => fieldStrings.includes(field))){
-            return FileTypes.KRONOS_DATA
-        }
-        if(rawPunchcardRow.every(field => fieldStrings.includes(field))){
-            return FileTypes.KRONOS_DATA
-        }*/
         if(studentSearchListRow.every(field => fieldStrings.includes(field))){
             return FileTypes.STUDENT_INFO
         }

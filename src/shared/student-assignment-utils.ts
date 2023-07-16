@@ -1,4 +1,4 @@
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 
 import {
     AspenAssignmentRow,
@@ -364,7 +364,7 @@ const getOnTrackfromClasses = (students: StudentAssignments, attData: Tardies[])
         .key( r => r['Student ID'])
         .rollup( rs => {
             if(students[rs[0]['Student ID']]!==undefined){
-                const total = rs.reduce((a,b) => a + parseInt(b.Absences),0);
+                const total = rs.reduce((a,b) => a + parseInt(b.Days),0);
                 const tardy = getTardies(rs);
                 const absent = getAbsences(rs);
                 const pct = (total-absent)/total * 100;

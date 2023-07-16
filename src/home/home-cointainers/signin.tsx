@@ -48,9 +48,7 @@ export class SignInWrapper extends React.PureComponent<{}, SignInState> {
             if(email.split('@')[email.split('@').length-1] === 'cps.edu'){
                 this.setState({log:'Form', account:response as GoogleLoginResponse})
             }
-            else{
 
-            }
         }
         else 
         {

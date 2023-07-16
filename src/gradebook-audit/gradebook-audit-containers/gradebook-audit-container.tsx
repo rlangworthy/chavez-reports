@@ -4,11 +4,16 @@ import {partition} from 'ramda';
 import {jsPDF} from 'jspdf';
 import {saveAs} from 'file-saver';
 import html2canvas from 'html2canvas';
+import RangeSlider from 'react-bootstrap-range-slider';
+
 
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
+import Tab from 'react-bootstrap/Tab'
+import Tabs from 'react-bootstrap/Tabs'
+import Form from 'react-bootstrap/Form'
 
 import {del} from 'idb-keyval'
 import { ReportFiles } from '../../shared/report-types'
@@ -18,6 +23,7 @@ import {
     GradeLogic,
     AssignmentImpact,
     TeacherClasses,
+    AdminOverview,
     } from '../gradebook-audit-interfaces'
 
 import {
@@ -46,6 +52,10 @@ interface GradebookAuditReportState{
     sped: boolean
     downloading: boolean
     dlProgress: number
+
+    uniqueAssignmentsCutoff: number
+    pctStudentsFailingCutoff: number
+    pctGradedDorFCutoff: number
 }
 const defaultSummaries=['Gradebook Default', 'Failure Rate']
 
@@ -54,6 +64,8 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
     componentWillMount(){
         const teacherClasses = this.props.reportFiles ? createGradebookReports(this.props.reportFiles): {}
         const selectedTeachers = Object.keys(teacherClasses)
+        
+
         this.setState({
             dlProgress:0,
             downloading:false,
@@ -63,7 +75,10 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
             teachers: selectedTeachers,
             sped: (this.props.reportFiles && 
             this.props.reportFiles.reportTitle.optionalFiles && 
-            this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ? true:false)
+            this.props.reportFiles.reportFiles[this.props.reportFiles.reportTitle.optionalFiles[0].fileDesc] ? true:false),
+            uniqueAssignmentsCutoff : 8,
+            pctGradedDorFCutoff : 10,
+            pctStudentsFailingCutoff : 10,
         })
     }
 
@@ -122,6 +137,62 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
             )
     }
     
+    createAdminOverview(teacherClasses: TeacherClasses): AdminOverview{
+        const adminOverview:AdminOverview = 
+        {
+            uniqueAssignmentFlag: {},
+            pctGradedDFFlag: {},
+            pctStudentFailingFlag: {},
+        }
+        Object.keys(teacherClasses).forEach((teacher) => {
+            Object.keys(teacherClasses[teacher]).forEach((className) => {
+                        if(teacherClasses[teacher][className].totalAsgn < this.state.uniqueAssignmentsCutoff){
+                            if(adminOverview.uniqueAssignmentFlag[teacher] == undefined){
+                                adminOverview.uniqueAssignmentFlag[teacher] = {}
+                            }
+                            adminOverview.uniqueAssignmentFlag[teacher][className] = teacherClasses[teacher][className]
+                        }
+
+                        if(teacherClasses[teacher][className].pctDF > this.state.pctGradedDorFCutoff){
+                            if(adminOverview.pctGradedDFFlag[teacher] == undefined){
+                                adminOverview.pctGradedDFFlag[teacher] = {}
+                            }
+                            adminOverview.pctGradedDFFlag[teacher][className] = teacherClasses[teacher][className]
+                        }
+
+                        if(teacherClasses[teacher][className].pctStudentsFailing > this.state.pctStudentsFailingCutoff){
+                            if(adminOverview.pctStudentFailingFlag[teacher] == undefined){
+                                adminOverview.pctStudentFailingFlag[teacher] = {}
+                            }
+                            adminOverview.pctStudentFailingFlag[teacher][className] = teacherClasses[teacher][className]
+                        }
+                    }
+                )
+            }
+        )
+        console.log("admin overview")
+        console.log(adminOverview)
+        return adminOverview
+    }
+
+    slider(label: string, min: number, max: number, initial: number): React.JSX.Element {
+        
+        const [temp, setTemp] = React.useState(initial)
+        
+        return (
+            <Form.Group>
+                <Form.Label>{label}</Form.Label>
+                <RangeSlider 
+                    min={min}
+                    max={max}
+                    value={temp}
+                    onChange={e => setTemp(parseInt(e.target.value))}
+                    onAfterChange={(e) => this.setState({uniqueAssignmentsCutoff: parseInt(e.target.value)})}
+                    />
+            </Form.Group>
+        )
+    }
+
     render(){
         window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')});
         //expects sorted teachers
@@ -142,25 +213,58 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                 <Container>
                     <Row>
                         <Col className='gpa-filter-container'>
-                            <Button  
-                            className='individual-report-button'
-                            onClick={()=>{this.setState({downloading: true})}}>Generate Individual Report PDF's</Button>
-                            <MultiSelect 
-                                items={defaultSummaries}
-                                selected={this.state.visibleSummaries}
-                                title='Summaries'
-                                handleClick={this.handleSummaryClick}
-                            />
-                            <MultiSelect
-                                items={this.state.teachers}
-                                selected={this.state.selectedTeachers}
-                                title='Teachers'
-                                handleClick={this.handleTeacherClick}
-                            />
+                            <Tabs>
+                                <Tab eventKey="teachers" title="Teachers">
+                                    <Button  
+                                    className='individual-report-button'
+                                    onClick={()=>{this.setState({downloading: true})}}>Generate Individual Report PDF's</Button>
+                                    
+                                    <MultiSelect
+                                        items={this.state.teachers}
+                                        selected={this.state.selectedTeachers}
+                                        title='Teachers'
+                                        handleClick={this.handleTeacherClick}
+                                    />
+                                </Tab>
+                                <Tab eventKey="summary" title="Summary">
+                                    <MultiSelect 
+                                        items={defaultSummaries}
+                                        selected={this.state.visibleSummaries}
+                                        title='Summaries'
+                                        handleClick={this.handleSummaryClick}
+                                    />
+                                    <Form>
+                                        <AdminSlider 
+                                        label='Unique Assignments Cutoff'
+                                        min={3}
+                                        max={20}
+                                        initial={7}
+                                        handle={(n) => this.setState({uniqueAssignmentsCutoff: n})}
+                                        />
+                                        <AdminSlider 
+                                        label='Percent Graded D or F Cutoff'
+                                        min={0}
+                                        max={100}
+                                        initial={10}
+                                        handle={(n) => this.setState({pctGradedDorFCutoff: n})}
+                                        />
+                                        <AdminSlider 
+                                        label='Percent Students Failing Cutoff'
+                                        min={0}
+                                        max={100}
+                                        initial={10}
+                                        handle={(n) => this.setState({pctStudentsFailingCutoff: n})}
+                                        />
+                                    </Form>
+                                </Tab>
+                            </Tabs>    
                         </Col>
                         <Col className='gpa-display-container'>
                             {this.state.selectedTeachers.length === 0 ? 
-                            <AdminOverviewSheet teacherClasses={this.state.teacherClasses} visible={this.state.visibleSummaries}/>:
+                            <AdminOverviewSheet
+                                teacherClasses={this.state.teacherClasses}
+                                adminOverview={this.createAdminOverview(this.state.teacherClasses)} 
+                                visible={this.state.visibleSummaries}/>:
                             <></>}
                             <React.Fragment>
                             {teachers.map( teacher => {
@@ -244,6 +348,39 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                 this.setState({selectedTeachers: selected.concat([staff])})
         }
     }
+
+}
+
+const AdminSlider : React.FunctionComponent<{label: string, min: number, max: number, initial: number, handle: (number)=>void}> = props => {
+        
+    const [temp, setTemp] = React.useState(props.initial)
+    
+    return (
+        <Form.Group as={Row}>
+            <Col xs="9">
+            <Form.Label>{props.label}</Form.Label>
+                <RangeSlider 
+                    min={props.min}
+                    max={props.max}
+                    value={temp}
+                    onChange={e => setTemp(parseInt(e.target.value))}
+                    onAfterChange={(e) => props.handle(parseInt(e.target.value))}
+                    />
+            </Col>
+            <Col xs="3">
+                <Form.Control 
+                value={temp}
+                onChange={e => {
+                    setTemp(parseInt(e.target.value))
+                    if(!isNaN(parseInt(e.target.value))){
+                        props.handle(parseInt(e.target.value))
+                    }
+                }}
+                />
+            </Col>
+
+        </Form.Group>
+    )
 }
 
 const createGradebookReports = (reportFiles: ReportFiles):TeacherClasses => {

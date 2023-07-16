@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
-    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlnsInkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlnsRdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:ns1="http://sozi.baierouge.fr"
-    xmlns:cc="http://creativecommons.org/ns#"
-    xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+    xmlnsNs1="http://sozi.baierouge.fr"
+    xmlnsCc="http://creativecommons.org/ns#"
+    xmlnsDc="http://purl.org/dc/elements/1.1/"
+    xmlnsSodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
     id="svg2319"
-    sodipodi:modified="true"
-    sodipodi:docname="simple_Gear.svg"
+    sodipodiModified="true"
+    sodipodiDocname="simple_Gear.svg"
     viewBox="0 0 121 121"
-    sodipodi:version="0.32"
+    sodipodiVersion="0.32"
     version="1.0"
-    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-    inkscape:version="0.48.4 r9939"
+    inkscapeOutput_extension="org.inkscape.output.svg.inkscape"
+    inkscapeVersion="0.48.4 r9939"
   >
   <title
       id="title2822"
     >Gear</title
   >
-  <sodipodi:namedview
+  <sodipodiNamedview
       id="base"
-      inkscape:snap-center="true"
-      inkscape:showpageshadow="false"
-      inkscape:zoom="1.6644983"
+      inkscapeSnap-center="true"
+      inkscapeShowpageshadow="false"
+      inkscapeZoom="1.6644983"
       borderopacity="1.0"
-      inkscape:current-layer="Capa_x0020_1"
-      inkscape:cx="73.944172"
-      inkscape:cy="40.809784"
-      inkscape:window-maximized="1"
+      inkscapeCurrent-layer="Capa_x0020_1"
+      inkscapeCx="73.944172"
+      inkscapeCy="40.809784"
+      inkscapeWindow-maximized="1"
       showgrid="false"
-      inkscape:guide-bbox="true"
+      inkscapeGuide-bbox="true"
       showguides="true"
       bordercolor="#666666"
-      inkscape:window-x="65"
+      inkscapeWindow-x="65"
       guidetolerance="10"
       objecttolerance="10"
-      inkscape:window-y="24"
-      inkscape:window-width="1855"
-      inkscape:pageopacity="0.0"
-      inkscape:pageshadow="2"
+      inkscapeWindow-y="24"
+      inkscapeWindow-width="1855"
+      inkscapePageopacity="0.0"
+      inkscapePageshadow="2"
       pagecolor="#ffffff"
       gridtolerance="10000"
-      inkscape:document-units="px"
-      inkscape:window-height="1056"
+      inkscapeDocument-units="px"
+      inkscapeWindow-height="1056"
   />
   <g
       id="layer1"
-      inkscape:label="Layer 1"
-      inkscape:groupmode="layer"
+      inkscapeLabel="Layer 1"
+      inkscapeGroupmode="layer"
       transform="translate(-153.03 -268.95)"
     >
     <g
@@ -71,48 +71,48 @@
   >
   <metadata
     >
-    <rdf:RDF
+    <rdfRDF
       >
-      <cc:Work
+      <ccWork
         >
-        <dc:format
-          >image/svg+xml</dc:format
+        <dcFormat
+          >image/svg+xml</dcFormat
         >
-        <dc:type
-            rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+        <dcType
+            rdfResource="http://purl.org/dc/dcmitype/StillImage"
         />
-        <cc:license
-            rdf:resource="http://creativecommons.org/licenses/publicdomain/"
+        <ccLicense
+            rdfResource="http://creativecommons.org/licenses/publicdomain/"
         />
-        <dc:publisher
+        <dcPublisher
           >
-          <cc:Agent
-              rdf:about="http://openclipart.org/"
+          <ccAgent
+              rdfAbout="http://openclipart.org/"
             >
-            <dc:title
-              >Openclipart</dc:title
+            <dcTitle
+              >Openclipart</dcTitle
             >
-          </cc:Agent
+          </ccAgent
           >
-        </dc:publisher
+        </dcPublisher
         >
-      </cc:Work
+      </ccWork
       >
-      <cc:License
-          rdf:about="http://creativecommons.org/licenses/publicdomain/"
+      <ccLicense
+          rdfAbout="http://creativecommons.org/licenses/publicdomain/"
         >
-        <cc:permits
-            rdf:resource="http://creativecommons.org/ns#Reproduction"
+        <ccPermits
+            rdfResource="http://creativecommons.org/ns#Reproduction"
         />
-        <cc:permits
-            rdf:resource="http://creativecommons.org/ns#Distribution"
+        <ccPermits
+            rdfResource="http://creativecommons.org/ns#Distribution"
         />
-        <cc:permits
-            rdf:resource="http://creativecommons.org/ns#DerivativeWorks"
+        <ccPermits
+            rdfResource="http://creativecommons.org/ns#DerivativeWorks"
         />
-      </cc:License
+      </ccLicense
       >
-    </rdf:RDF
+    </rdfRDF
     >
   </metadata
   >

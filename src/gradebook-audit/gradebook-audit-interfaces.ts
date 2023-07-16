@@ -156,3 +156,10 @@ export interface ClassSummary {
     pctStudentsFailing: number
 
 }
+
+
+export interface AdminOverview { 
+    uniqueAssignmentFlag: TeacherClasses
+    pctGradedDFFlag: TeacherClasses
+    pctStudentFailingFlag: TeacherClasses
+}

@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import * as d3 from 'd3-collection';
 
 import {
   RawESCumulativeGradeExtractRow,
@@ -59,7 +59,7 @@ export interface SummerschoolReportOutputRow {
   statusDescription: string
   warning: SummerschoolWarning
   warningDescription: string
-};
+}
 
 export interface Student {
   studentID: string

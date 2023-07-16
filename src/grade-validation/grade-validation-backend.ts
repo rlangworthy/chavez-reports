@@ -1,4 +1,4 @@
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 import * as ramda from 'ramda'
 
 import {

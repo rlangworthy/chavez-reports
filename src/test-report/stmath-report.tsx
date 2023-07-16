@@ -3,11 +3,10 @@ import { parseSchedule } from '../shared/schedule-parser'
 import {stringToDate} from '../shared/utils'
 import * as React from 'react'
 import * as idb from 'idb-keyval'
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 import * as datefns from 'date-fns'
 import Table from 'react-bootstrap/Table'
 
-const ObjectsToCsv = require('objects-to-csv');
 
 interface JijiSheet {
     term: string,

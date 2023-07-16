@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { ReportHome } from './home/home-cointainers/home'
 import { SignInWrapper } from './home/home-cointainers/signin'
 import './App.css';
 import {Route} from 'react-router';

@@ -33,14 +33,13 @@ export const createAssignmentReports = (files: ReportFiles ): StudentAssignments
     const aspCats = cats ? cats.data as AspenCategoriesRow[] : []
     const attendance = att? att.data as Tardies[] : []
     const studentSchedules = schedule? parseSchedule(schedule.data) : []
-    const currentTerm = '1'
+    const currentTerm = '3'
     const q4Start = new Date(2019, 7, 5)
 
     const rawAllAssignments=aspAllAssignments.filter(a => isAfter(stringToDate(a['Assigned Date']), q4Start))
     const rawCats = aspCats.filter(c => c['CLS Cycle']===currentTerm || c['CLS Cycle'] === 'All Cycles')
     const studentAssignments = getStudentAssignments(attendance, 
                                                     rawCats, rawAllAssignments, studentSchedules)
-
     
     return studentAssignments
 }

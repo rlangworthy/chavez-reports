@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'

@@ -112,7 +112,6 @@ const SingleAbsenceReport: React.SFC<SingleAbsenceReportProps> = props => {
             if(!wasHere[d.toString()]){
                 nUnx = nUnx + 1;
                 unxDates.push(d)
-            }else{
             }
         })
         if(nUnx > 0){

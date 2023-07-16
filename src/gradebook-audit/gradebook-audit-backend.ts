@@ -1,4 +1,4 @@
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 import {convertSchooltoScheduleClasses} from './data-export-conversion'
 import {
     mean,
@@ -321,7 +321,7 @@ const addCategoryAssignments = (categories: {[category: string]: Category}, assi
         .rollup((rs:AspenAssignmentRow[]): Assignment => {
             const scores: Score[] = rs.map(r => r.Score)
             const scorePossible = parseInt(rs[0]["Score Possible"])
-            console.log(rs[0])
+           
             return {
                 maxPoints: scorePossible,
                 dueDate: stringToDate(rs[0]["Assignment Due"]),

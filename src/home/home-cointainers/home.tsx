@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as Papa from 'papaparse'
 import * as idb from 'idb-keyval'
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 import CardDeck from 'react-bootstrap/CardDeck'
 import Navbar from 'react-bootstrap/Navbar'
 import Button from 'react-bootstrap/Button'

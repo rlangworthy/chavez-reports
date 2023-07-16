@@ -5,11 +5,13 @@ import {
 
 import {
     TeacherClasses,
+    AdminOverview
     } from '../gradebook-audit-interfaces'
     
 
 
 interface AdminOverviewSheetProps {
+    adminOverview: AdminOverview
     teacherClasses: TeacherClasses
     visible: string[]
 }
@@ -34,7 +36,7 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
                         </p>)
                     })}
                 </GradeBookDefaultOverview>
-            <FailureRateOverview visible={props.visible.includes('Failure Rate')}>
+            <FailureRateOverview visible={false}>
                 {gradeLevels.map(gl => {
                     return ( 
                     <>
@@ -72,6 +74,89 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
                     </>
                     )})}
                 </FailureRateOverview>
+
+            <h3>Unique Assignments Below Threshold</h3>
+            <table className='data-table'>
+                <tbody>
+                    <tr className='gradebook-header-row'>
+                        <th>Teacher Name</th>
+                        <th>Class Name</th>
+                        <th># Unique Assignments</th>
+                        <th>% Assignments Graded D or F</th>
+                        <th># Assignments Over 15% of Total Grade</th>
+                        <th>% Students Failing</th>
+                    </tr>
+                    {Object.keys(props.adminOverview.uniqueAssignmentFlag).map(t => {
+                        return(
+                        Object.keys(props.adminOverview.uniqueAssignmentFlag[t]).map(cn => 
+                            {return(
+                         <tr>
+                            <td>{t}</td>
+                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].className}</td>
+                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].totalAsgn}</td>         
+                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].pctDF.toFixed(2)}</td>
+                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].numberOver15}</td>                                    
+                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].pctStudentsFailing.toFixed(2)}</td>
+                        </tr>
+                    )}))})}
+                </tbody>
+            </table>
+
+            <h3>Percent Assignments Graded D or F Above Threshold</h3>
+            <table className='data-table'>
+                <tbody>
+                    <tr className='gradebook-header-row'>
+                        <th>Teacher Name</th>
+                        <th>Class Name</th>
+                        <th># Unique Assignments</th>
+                        <th>% Assignments Graded D or F</th>
+                        <th># Assignments Over 15% of Total Grade</th>
+                        <th>% Students Failing</th>
+                    </tr>
+                    {Object.keys(props.adminOverview.pctGradedDFFlag).map(t => {
+                        return(
+                        Object.keys(props.adminOverview.pctGradedDFFlag[t]).map(cn => 
+                            {return(
+                         <tr>
+                            <td>{t}</td>
+                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].className}</td>
+                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].totalAsgn}</td>         
+                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].pctDF.toFixed(2)}</td>
+                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].numberOver15}</td>                                    
+                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].pctStudentsFailing.toFixed(2)}</td>
+                        </tr>
+                    )}))})}
+                </tbody>
+            </table>
+
+            <h3>Percent Students Failing Above Threshold</h3>
+            <table className='data-table'>
+                <tbody>
+                    <tr className='gradebook-header-row'>
+                        <th>Teacher Name</th>
+                        <th>Class Name</th>
+                        <th># Unique Assignments</th>
+                        <th>% Assignments Graded D or F</th>
+                        <th># Assignments Over 15% of Total Grade</th>
+                        <th>% Students Failing</th>
+                    </tr>
+                    {Object.keys(props.adminOverview.pctStudentFailingFlag).map(t => {
+                        return(
+                        Object.keys(props.adminOverview.pctStudentFailingFlag[t]).map(cn => 
+                            {return(
+                         <tr>
+                            <td>{t}</td>
+                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].className}</td>
+                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].totalAsgn}</td>         
+                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].pctDF.toFixed(2)}</td>
+                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].numberOver15}</td>                                    
+                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].pctStudentsFailing.toFixed(2)}</td>
+                        </tr>
+                    )}))})}
+                </tbody>
+            </table>
+
+
             <hr/>
         </div>
     )

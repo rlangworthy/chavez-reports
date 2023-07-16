@@ -1,4 +1,4 @@
-import * as d3 from 'd3'
+import * as d3 from 'd3-collection'
 import * as papa from 'papaparse'
 
 import { 
@@ -294,13 +294,13 @@ export const createOnePagers = (files: ReportFiles): [HomeRoom[], HRSummary] => 
     });}
     if(tardies != null){
         getAttendanceData(studentGradeObject, tardies);
-    };
+    }
 
-    if(gradeHist !== {} && tardiesHist !== null){
+    if(Object.keys(gradeHist).length > 0 && tardiesHist !== null){
         getAttendanceData(gradeHist, tardiesHist);
     }
 
-    if(mClassData !== {}){
+    if(Object.keys(mClassData).length > 0){
         Object.keys(studentGradeObject).forEach(id => {
             if(mClassData[id]!== undefined){
                 studentGradeObject[id].mClass = mClassData[id]['Assessment Measure-TRC Proficiency Level-Levels']

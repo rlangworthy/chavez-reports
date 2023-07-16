@@ -256,19 +256,6 @@ export const rawStudentProfessionalSupportDetailsRowKeys: KeysEnum<RawStudentPro
   Grade: true,
   LRE: true,
 }
-export interface RawStaffAbsenceRow {
-  AMOUNT: number | null
-  Date: string
-  Emplid: number
-  HOMELABORACCTNAME: string
-  'Job Code': number
-  Name: string
-  PAYCODENAME: string | null
-  Position: string
-  'Position Number': number
-  'Unit Name': string
-  'Unit/Dept ID': number
-}
 export interface RawPunchcardRow {
   PERSONNUM: string
   PERSONFULLNAME: string
@@ -279,6 +266,18 @@ export interface RawPunchcardRow {
   ENDPUNCHDTM: string    
   HOURS: string
 }
+
+export const rawPunchcardRowKeys: KeysEnum<RawPunchcardRow> = {
+  PERSONNUM: true,
+  PERSONFULLNAME: true,
+  POSITION: true,
+  EVENTDATE: true,
+  PAYCODENAME: true,
+  PUNCHDTM: true,
+  ENDPUNCHDTM: true,    
+  HOURS: true,
+}
+
 export interface RawAssignmentsRow {
   StuStudentId: string
   ClassName: string
