@@ -18,6 +18,8 @@ interface AdminOverviewSheetProps {
 
 
 
+
+
 export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps> = props => {
     const teachers = Object.keys(props.teacherClasses)
     const gradebookDefaultTeachers = teachers.filter(t => Object.keys(props.teacherClasses[t]).some(k => props.teacherClasses[t][k].defaultMode && props.teacherClasses[t][k].hasGrades))
@@ -26,7 +28,7 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
     return (
         <div className='admin-overview-sheet'>
             <h2>Chavez Gradebook Audit</h2>
-                <GradeBookDefaultOverview visible={props.visible.includes('Gradebook Default')}>
+                <GradeBookDefaultOverview visible={props.visible.includes('Gradebook Default') && gradebookDefaultTeachers.length > 0}>
                     {gradebookDefaultTeachers.map(t => {
                         return (
                         <p key={t}>
@@ -75,92 +77,59 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
                     )})}
                 </FailureRateOverview>
 
-            <h3>Unique Assignments Below Threshold</h3>
-            <table className='data-table'>
-                <tbody>
-                    <tr className='gradebook-header-row'>
-                        <th>Teacher Name</th>
-                        <th>Class Name</th>
-                        <th># Unique Assignments</th>
-                        <th>% Assignments Graded D or F</th>
-                        <th># Assignments Over 15% of Total Grade</th>
-                        <th>% Students Failing</th>
-                    </tr>
-                    {Object.keys(props.adminOverview.uniqueAssignmentFlag).map(t => {
-                        return(
-                        Object.keys(props.adminOverview.uniqueAssignmentFlag[t]).map(cn => 
-                            {return(
-                         <tr>
-                            <td>{t}</td>
-                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].className}</td>
-                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].totalAsgn}</td>         
-                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].pctDF.toFixed(2)}</td>
-                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].numberOver15}</td>                                    
-                            <td>{props.adminOverview.uniqueAssignmentFlag[t][cn].pctStudentsFailing.toFixed(2)}</td>
-                        </tr>
-                    )}))})}
-                </tbody>
-            </table>
+            <DefaultStatOverviewTable 
+                title='Percent Students Failing Above Cutoff' 
+                classes={props.adminOverview.pctStudentFailingFlag}
+                highlightColumn={5}/>
 
-            <h3>Percent Assignments Graded D or F Above Threshold</h3>
-            <table className='data-table'>
-                <tbody>
-                    <tr className='gradebook-header-row'>
-                        <th>Teacher Name</th>
-                        <th>Class Name</th>
-                        <th># Unique Assignments</th>
-                        <th>% Assignments Graded D or F</th>
-                        <th># Assignments Over 15% of Total Grade</th>
-                        <th>% Students Failing</th>
-                    </tr>
-                    {Object.keys(props.adminOverview.pctGradedDFFlag).map(t => {
-                        return(
-                        Object.keys(props.adminOverview.pctGradedDFFlag[t]).map(cn => 
-                            {return(
-                         <tr>
-                            <td>{t}</td>
-                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].className}</td>
-                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].totalAsgn}</td>         
-                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].pctDF.toFixed(2)}</td>
-                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].numberOver15}</td>                                    
-                            <td>{props.adminOverview.pctGradedDFFlag[t][cn].pctStudentsFailing.toFixed(2)}</td>
-                        </tr>
-                    )}))})}
-                </tbody>
-            </table>
+            <DefaultStatOverviewTable 
+                title='Unique Assignments Below Cutoff' 
+                classes={props.adminOverview.uniqueAssignmentFlag}
+                highlightColumn={2}/>
 
-            <h3>Percent Students Failing Above Threshold</h3>
-            <table className='data-table'>
-                <tbody>
-                    <tr className='gradebook-header-row'>
-                        <th>Teacher Name</th>
-                        <th>Class Name</th>
-                        <th># Unique Assignments</th>
-                        <th>% Assignments Graded D or F</th>
-                        <th># Assignments Over 15% of Total Grade</th>
-                        <th>% Students Failing</th>
-                    </tr>
-                    {Object.keys(props.adminOverview.pctStudentFailingFlag).map(t => {
-                        return(
-                        Object.keys(props.adminOverview.pctStudentFailingFlag[t]).map(cn => 
-                            {return(
-                         <tr>
-                            <td>{t}</td>
-                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].className}</td>
-                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].totalAsgn}</td>         
-                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].pctDF.toFixed(2)}</td>
-                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].numberOver15}</td>                                    
-                            <td>{props.adminOverview.pctStudentFailingFlag[t][cn].pctStudentsFailing.toFixed(2)}</td>
-                        </tr>
-                    )}))})}
-                </tbody>
-            </table>
-
+            <DefaultStatOverviewTable 
+                title='Percent Assignments Graded D or F Above Cutoff' 
+                classes={props.adminOverview.pctGradedDFFlag}
+                highlightColumn={3}/>
 
             <hr/>
         </div>
     )
 
+}
+
+const DefaultStatOverviewTable: React.FunctionComponent<{title: string, classes: TeacherClasses, highlightColumn: number}> = props => {
+    return (
+        <>
+            <h3>{props.title}</h3>
+                <table className='data-table'>
+                    <tbody>
+                        <tr className='gradebook-header-row'>
+                            <th style={{backgroundColor: props.highlightColumn == 0 ? '#FFFF00':''}}>Teacher Name</th>
+                            <th style={{backgroundColor: props.highlightColumn == 1 ? '#FFFF00':''}}>Class Name</th>
+                            <th style={{backgroundColor: props.highlightColumn == 2 ? '#FFFF00':''}}># Unique Assignments</th>
+                            <th style={{backgroundColor: props.highlightColumn == 3 ? '#FFFF00':''}}>% Assignments Graded D or F</th>
+                            <th style={{backgroundColor: props.highlightColumn == 4 ? '#FFFF00':''}}># Assignments Over 15% of Total Grade</th>
+                            <th style={{backgroundColor: props.highlightColumn == 5 ? '#FFFF00':''}}>% Students Failing</th>
+                        </tr>
+                        {Object.keys(props.classes).map(t => {
+                            return(
+                            Object.keys(props.classes[t]).map((cn, i) => 
+                                {
+                                    return(
+                                        <tr>
+                                            {i==0 ? <td rowSpan={Object.keys(props.classes[t]).length}><a href={`#`+t}>{t}</a></td>: <></>}
+                                            <td>{props.classes[t][cn].className}</td>
+                                            <td>{props.classes[t][cn].totalAsgn}</td>         
+                                            <td>{props.classes[t][cn].pctDF.toFixed(2)}</td>
+                                            <td>{props.classes[t][cn].numberOver15}</td>                                    
+                                            <td>{props.classes[t][cn].pctStudentsFailing.toFixed(2)}</td>
+                                        </tr>
+                        )}))})}
+                    </tbody>
+                </table>
+            </>
+    )
 }
 
 const FailureRateOverview: React.FunctionComponent<{visible :boolean}> = props => {

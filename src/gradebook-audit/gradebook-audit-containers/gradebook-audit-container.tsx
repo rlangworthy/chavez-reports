@@ -170,8 +170,6 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                 )
             }
         )
-        console.log("admin overview")
-        console.log(adminOverview)
         return adminOverview
     }
 
@@ -227,13 +225,15 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                                     />
                                 </Tab>
                                 <Tab eventKey="summary" title="Summary">
-                                    <MultiSelect 
-                                        items={defaultSummaries}
-                                        selected={this.state.visibleSummaries}
-                                        title='Summaries'
-                                        handleClick={this.handleSummaryClick}
-                                    />
                                     <Form>
+                                        <div style={{paddingTop:'30px'}}/>
+                                        <AdminSlider 
+                                        label='Percent Students Failing Cutoff'
+                                        min={0}
+                                        max={100}
+                                        initial={10}
+                                        handle={(n) => this.setState({pctStudentsFailingCutoff: n})}
+                                        />
                                         <AdminSlider 
                                         label='Unique Assignments Cutoff'
                                         min={3}
@@ -248,13 +248,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                                         initial={10}
                                         handle={(n) => this.setState({pctGradedDorFCutoff: n})}
                                         />
-                                        <AdminSlider 
-                                        label='Percent Students Failing Cutoff'
-                                        min={0}
-                                        max={100}
-                                        initial={10}
-                                        handle={(n) => this.setState({pctStudentsFailingCutoff: n})}
-                                        />
+                                       
                                     </Form>
                                 </Tab>
                             </Tabs>    
@@ -354,6 +348,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
 const AdminSlider : React.FunctionComponent<{label: string, min: number, max: number, initial: number, handle: (number)=>void}> = props => {
         
     const [temp, setTemp] = React.useState(props.initial)
+    const [cursorTemp, setCursorTemp] = React.useState(props.initial.toString())
     
     return (
         <Form.Group as={Row}>
@@ -363,19 +358,31 @@ const AdminSlider : React.FunctionComponent<{label: string, min: number, max: nu
                     min={props.min}
                     max={props.max}
                     value={temp}
-                    onChange={e => setTemp(parseInt(e.target.value))}
+                    onChange={e => 
+                        {
+                            setTemp(parseInt(e.target.value))
+                            setCursorTemp(e.target.value)
+                        }}
                     onAfterChange={(e) => props.handle(parseInt(e.target.value))}
-                    />
+                       />
             </Col>
             <Col xs="3">
                 <Form.Control 
-                value={temp}
+                type='textarea'
+                value={cursorTemp}
+                
                 onChange={e => {
-                    setTemp(parseInt(e.target.value))
+                    e.preventDefault()
                     if(!isNaN(parseInt(e.target.value))){
+                        setTemp(parseInt(e.target.value))
+                        setCursorTemp(e.target.value)
                         props.handle(parseInt(e.target.value))
                     }
+                    else{
+                        setCursorTemp(e.target.value)
+                    }
                 }}
+                
                 />
             </Col>
 
