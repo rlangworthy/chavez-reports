@@ -46,7 +46,7 @@ interface GradebookAuditReportProps{
 }
 interface GradebookAuditReportState{
     selectedTeachers: string[]
-    visibleSummaries: string[]
+    visibleSummaries: object
     teacherClasses: TeacherClasses
     teachers: string[]
     sped: boolean
@@ -56,15 +56,16 @@ interface GradebookAuditReportState{
     uniqueAssignmentsCutoff: number
     pctStudentsFailingCutoff: number
     pctGradedDorFCutoff: number
+
+    auditScroll: number
 }
-const defaultSummaries=['Gradebook Default', 'Failure Rate']
+const defaultSummaries={'Percent Students Failing Cutoff':true, 'Unique Assignments Cutoff':true, 'Percent Graded D or F Cutoff':true}
 
 export class GradebookAuditReport extends React.PureComponent<GradebookAuditReportProps, GradebookAuditReportState>{
-    
+
     componentWillMount(){
         const teacherClasses = this.props.reportFiles ? createGradebookReports(this.props.reportFiles): {}
         const selectedTeachers = Object.keys(teacherClasses)
-        
 
         this.setState({
             dlProgress:0,
@@ -79,6 +80,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
             uniqueAssignmentsCutoff : 8,
             pctGradedDorFCutoff : 10,
             pctStudentsFailingCutoff : 10,
+            auditScroll: 0,
         })
     }
 
@@ -190,9 +192,35 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
             </Form.Group>
         )
     }
+/*
+    this.window.onscroll = function () {
+        mybutton = document.getElementById("btn-back-to-top");
+        scrollFunction(mybutton);
+    };
+*/
+    scrollFunction(): "block"| "none" {
+        
+        const display  = document.getElementById("gpa-display-container");
+        console.log('Scroll')
+        if (
+        document.body.scrollTop > 20 ||
+        (display && display.scrollTop > 20)
+        ) {
+        return "block";
+        } else {
+        return "none";
+        }
+    }
+    backToTop() {
+        document.body.scrollTop = 0;
+        const display  = document.getElementById("gpa-display-container");
+        if(display){
+            display.scrollTop = 0
+        }
+    }
 
     render(){
-        window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')});
+        window.addEventListener('beforeunload', () => {del('Gradebook Audit Report')}); 
         //expects sorted teachers
         const teachers = this.state.selectedTeachers.length === 0 ? this.state.teachers : this.state.selectedTeachers
         const teacherClasses = this.state.teacherClasses
@@ -208,6 +236,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                         Formatting {this.state.dlProgress}/{this.state.selectedTeachers.length === 0 ? this.state.teachers.length : this.state.selectedTeachers.length}
                     </ModalBody>
                 </Modal>
+                <TopButton scroll={this.state.auditScroll} backToTop={this.backToTop}/>
                 <Container>
                     <Row>
                         <Col className='gpa-filter-container'>
@@ -232,28 +261,38 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                                         min={0}
                                         max={100}
                                         initial={10}
-                                        handle={(n) => this.setState({pctStudentsFailingCutoff: n})}
+                                        checked={this.state.visibleSummaries['Percent Students Failing Cutoff']}
+                                        handleSlider={(n) => this.setState({pctStudentsFailingCutoff: n})}
+                                        handleCheck={this.handleAdminCheck}
+
                                         />
                                         <AdminSlider 
                                         label='Unique Assignments Cutoff'
                                         min={3}
                                         max={20}
                                         initial={7}
-                                        handle={(n) => this.setState({uniqueAssignmentsCutoff: n})}
+                                        checked={this.state.visibleSummaries['Unique Assignments Cutoff']}
+                                        handleSlider={(n) => this.setState({uniqueAssignmentsCutoff: n})}
+                                        handleCheck={this.handleAdminCheck}
                                         />
                                         <AdminSlider 
                                         label='Percent Graded D or F Cutoff'
                                         min={0}
                                         max={100}
                                         initial={10}
-                                        handle={(n) => this.setState({pctGradedDorFCutoff: n})}
+                                        checked={this.state.visibleSummaries['Percent Graded D or F Cutoff']}
+                                        handleSlider={(n) => this.setState({pctGradedDorFCutoff: n})}
+                                        handleCheck={this.handleAdminCheck}
                                         />
                                        
                                     </Form>
                                 </Tab>
                             </Tabs>    
                         </Col>
-                        <Col className='gpa-display-container'>
+                        <Col className='gpa-display-container' id='gpa-display-container'
+                        onScroll={(ev) => {
+                            this.setState({auditScroll: document.getElementById('gpa-display-container')?.scrollTop as number})
+                        }}>
                             {this.state.selectedTeachers.length === 0 ? 
                             <AdminOverviewSheet
                                 teacherClasses={this.state.teacherClasses}
@@ -309,7 +348,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
     }
 
     //#FIXME turn these into one function
-
+/*
     handleSummaryClick = (summary: string[] | string): void => {
         console.log(summary)
         const visible = this.state.visibleSummaries
@@ -326,7 +365,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                 this.setState({visibleSummaries: visible.concat([summary])})
         }
     }
-
+*/
     handleTeacherClick = (staff: string[] | string): void => {
         const selected=this.state.selectedTeachers;
         if(Array.isArray(staff)){
@@ -343,16 +382,31 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
         }
     }
 
+    handleAdminCheck = (overview: string): void =>{
+        const summaries = {...this.state.visibleSummaries}
+        summaries[overview] = !this.state.visibleSummaries[overview]
+        this.setState({visibleSummaries: summaries})
+    }
+
 }
 
-const AdminSlider : React.FunctionComponent<{label: string, min: number, max: number, initial: number, handle: (number)=>void}> = props => {
+const AdminSlider : React.FunctionComponent<{label: string, min: number, max: number, initial: number, checked: boolean, handleSlider: (number)=>void, handleCheck: (string)=> void}> = props => {
         
     const [temp, setTemp] = React.useState(props.initial)
     const [cursorTemp, setCursorTemp] = React.useState(props.initial.toString())
     
     return (
         <Form.Group as={Row}>
-            <Col xs="9">
+            <Col xs="1">
+            <input
+                type="checkbox"
+                id="visible"
+                name="visible"
+                value="visible" 
+                checked={props.checked}
+                onChange={(e) => props.handleCheck(props.label)} />
+            </Col>
+            <Col>
             <Form.Label>{props.label}</Form.Label>
                 <RangeSlider 
                     min={props.min}
@@ -363,7 +417,7 @@ const AdminSlider : React.FunctionComponent<{label: string, min: number, max: nu
                             setTemp(parseInt(e.target.value))
                             setCursorTemp(e.target.value)
                         }}
-                    onAfterChange={(e) => props.handle(parseInt(e.target.value))}
+                    onAfterChange={(e) => props.handleSlider(parseInt(e.target.value))}
                        />
             </Col>
             <Col xs="3">
@@ -376,7 +430,7 @@ const AdminSlider : React.FunctionComponent<{label: string, min: number, max: nu
                     if(!isNaN(parseInt(e.target.value))){
                         setTemp(parseInt(e.target.value))
                         setCursorTemp(e.target.value)
-                        props.handle(parseInt(e.target.value))
+                        props.handleSlider(parseInt(e.target.value))
                     }
                     else{
                         setCursorTemp(e.target.value)
@@ -387,6 +441,25 @@ const AdminSlider : React.FunctionComponent<{label: string, min: number, max: nu
             </Col>
 
         </Form.Group>
+    )
+}
+
+const TopButton: React.FunctionComponent<{scroll:number, backToTop:(ev:Event) => void}> = (props) => {
+    return (
+        <Button onClick={props.backToTop as any} 
+                    id='btn-back-to-top' 
+                    style={{
+                    position: "fixed",
+                    bottom: "20px",
+                    right: "20px",
+                    display: props.scroll > 20 ? 'block' : 'none',
+                    zIndex: "999"
+                    }} 
+                    className='btn-floating' 
+                    color='danger' 
+                    size='lg'>
+                        Back to Top
+                </Button>
     )
 }
 

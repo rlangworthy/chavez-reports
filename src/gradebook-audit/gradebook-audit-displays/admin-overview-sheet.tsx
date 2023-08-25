@@ -13,7 +13,7 @@ import {
 interface AdminOverviewSheetProps {
     adminOverview: AdminOverview
     teacherClasses: TeacherClasses
-    visible: string[]
+    visible: object
 }
 
 
@@ -24,11 +24,10 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
     const teachers = Object.keys(props.teacherClasses)
     const gradebookDefaultTeachers = teachers.filter(t => Object.keys(props.teacherClasses[t]).some(k => props.teacherClasses[t][k].defaultMode && props.teacherClasses[t][k].hasGrades))
     const gradeLevels = uniq(teachers.map(t => Object.keys(props.teacherClasses[t]).map(c=>props.teacherClasses[t][c].gradeLevel)).flat()).sort()
-
     return (
         <div className='admin-overview-sheet'>
             <h2>Chavez Gradebook Audit</h2>
-                <GradeBookDefaultOverview visible={props.visible.includes('Gradebook Default') && gradebookDefaultTeachers.length > 0}>
+                <GradeBookDefaultOverview visible={Object.keys(props.visible).includes('Gradebook Default') && gradebookDefaultTeachers.length > 0}>
                     {gradebookDefaultTeachers.map(t => {
                         return (
                         <p key={t}>
@@ -76,21 +75,24 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
                     </>
                     )})}
                 </FailureRateOverview>
-
-            <DefaultStatOverviewTable 
+            
+            {props.visible['Percent Students Failing Cutoff'] ? 
+            <DefaultStatOverviewTable
                 title='Percent Students Failing Above Cutoff' 
                 classes={props.adminOverview.pctStudentFailingFlag}
-                highlightColumn={5}/>
+                highlightColumn={5}/> : <></>}
 
+            {props.visible['Unique Assignments Cutoff'] ? 
             <DefaultStatOverviewTable 
                 title='Unique Assignments Below Cutoff' 
                 classes={props.adminOverview.uniqueAssignmentFlag}
-                highlightColumn={2}/>
+                highlightColumn={2}/> : <></>}
 
+            {props.visible['Percent Graded D or F Cutoff'] ? 
             <DefaultStatOverviewTable 
                 title='Percent Assignments Graded D or F Above Cutoff' 
                 classes={props.adminOverview.pctGradedDFFlag}
-                highlightColumn={3}/>
+                highlightColumn={3}/>: <></>}
 
             <hr/>
         </div>
@@ -112,7 +114,7 @@ const DefaultStatOverviewTable: React.FunctionComponent<{title: string, classes:
                             <th style={{backgroundColor: props.highlightColumn == 4 ? '#FFFF00':''}}># Assignments Over 15% of Total Grade</th>
                             <th style={{backgroundColor: props.highlightColumn == 5 ? '#FFFF00':''}}>% Students Failing</th>
                         </tr>
-                        {Object.keys(props.classes).map(t => {
+                        {Object.keys(props.classes).sort((a,b) => a.split(' ').slice(-1)[0].localeCompare(b.split(' ').slice(-1)[0])).map(t => {
                             return(
                             Object.keys(props.classes[t]).map((cn, i) => 
                                 {
