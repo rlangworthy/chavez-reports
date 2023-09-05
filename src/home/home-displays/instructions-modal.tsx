@@ -21,13 +21,13 @@ export const InstructionModal: React.SFC<InstructionModalProps> = (props) => {
                     Reports open in a new tab, make sure your popup blocker allows this.
                 </Alert>
                 <p>
-                    This website is here to make publicly availbale several tools for organizing and displaying data in helpful ways.  You school generates a mind boggling amount of information and we are here to help you interpret that data and get it to the people that need to see it.
+                    This website is here to make publicly available several tools for organizing and displaying data in helpful ways.  You school generates a mind boggling amount of information and we are here to help you interpret that data and get it to the people that need to see it.
                 </p>
                 <p>
                     Click on any of the detail buttons on the reports to see a list of required files.
                 </p>
                 <p>
-                    Informaiton is stored locally in your browser to avoid data security issues.  You can save files for use over multiple sessions, but they are not automatically saved.
+                    Information is stored locally in your browser to avoid data security issues.  You can save files for use over multiple sessions, but they are not automatically saved.
                 </p>
                 <p>
                     This site is a work in progress; more features will be added over time.
