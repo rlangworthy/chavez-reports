@@ -165,7 +165,7 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                         if(teacherClasses[teacher][className].pctStudentsFailing > this.state.pctStudentsFailingCutoff){
                             if(adminOverview.pctStudentFailingFlag[teacher] == undefined){
                                 adminOverview.pctStudentFailingFlag[teacher] = {}
-                            }
+                            }   
                             adminOverview.pctStudentFailingFlag[teacher][className] = teacherClasses[teacher][className]
                         }
                     }
@@ -175,42 +175,6 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
         return adminOverview
     }
 
-    slider(label: string, min: number, max: number, initial: number): React.JSX.Element {
-        
-        const [temp, setTemp] = React.useState(initial)
-        
-        return (
-            <Form.Group>
-                <Form.Label>{label}</Form.Label>
-                <RangeSlider 
-                    min={min}
-                    max={max}
-                    value={temp}
-                    onChange={e => setTemp(parseInt(e.target.value))}
-                    onAfterChange={(e) => this.setState({uniqueAssignmentsCutoff: parseInt(e.target.value)})}
-                    />
-            </Form.Group>
-        )
-    }
-/*
-    this.window.onscroll = function () {
-        mybutton = document.getElementById("btn-back-to-top");
-        scrollFunction(mybutton);
-    };
-*/
-    scrollFunction(): "block"| "none" {
-        
-        const display  = document.getElementById("gpa-display-container");
-        console.log('Scroll')
-        if (
-        document.body.scrollTop > 20 ||
-        (display && display.scrollTop > 20)
-        ) {
-        return "block";
-        } else {
-        return "none";
-        }
-    }
     backToTop() {
         document.body.scrollTop = 0;
         const display  = document.getElementById("gpa-display-container");
