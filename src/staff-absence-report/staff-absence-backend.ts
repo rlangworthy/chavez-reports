@@ -4,7 +4,13 @@ import {
     compareAsc,
     min,
     max,
-    isAfter} from 'date-fns'
+    isAfter,
+    isBefore,
+    isSameDay} from 'date-fns'
+
+import {
+    defaultSchoolYear,
+    SY_CURRENT } from '../shared/initial-school-dates'
 
 import { 
     RawPunchcardRow } from '../shared/file-interfaces'
@@ -19,7 +25,8 @@ import {
     PunchTime,
     PayCodeDay,
     isPunchTime,
-    Absences
+    Absences,
+    PayCodeKeys
     } from '../shared/staff-absence-types'
 
 interface SortedPunchcardRow extends RawPunchcardRow {
@@ -71,11 +78,21 @@ const punchcardParser = (files: ReportFiles): {punchTimes: StaffPunchTimes, posi
                                 dates.each((val,key) => {
                                     dateMap.set(new Date(key), val);
                                 })
+                                var absDates: PayCodeDay[] = []
+                                PayCodeKeys.forEach(code => {
+                                    if(absences[code])
+                                        {absDates = absDates.concat(absences[code])}})
+                                const codeDays = absDates.filter(date => defaultSchoolYear(SY_CURRENT).filter( d => isBefore(d, endDate)).some(attDay => isSameDay(date.date, attDay)))
+                                const nCodes = codeDays.reduce((a,b) => a + (b.halfDay ? .5: 1),0);
+                                const nDays = Object.keys(dates).length
+                                const attendancePct = nDays > 0 ? ((nDays-nCodes)*100/nDays).toFixed(2) : 100
+                                
                                 return {
                                     name: rs[0].PERSONFULLNAME,
                                     position: rs[0].POSITION,
                                     punchTimes: dateMap,
                                     absences: absences,
+                                    attendancePct: attendancePct
                                 }
                             }).object(data)
         const positions = d3.nest()

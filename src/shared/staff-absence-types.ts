@@ -61,6 +61,7 @@ export interface PunchTimes {
     position: string
     absences: Absences
     punchTimes: StaffDates
+    attendancePct: number
     tardies?: StaffDates
     startTime?: number
     endTime?: number

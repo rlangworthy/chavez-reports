@@ -5,6 +5,8 @@ import {
   TeacherClass
 } from '../gradebook-audit-interfaces';
 
+import {Chart} from 'react-google-charts'
+
 interface GradeDistributionProps {
   distribution : GradeDistribution
   className: string
@@ -16,6 +18,37 @@ interface GradeDistributionDisplayProps{
 }
 
 const GradeDistributionRender: React.SFC<GradeDistributionProps> = props => {
+  const gd = props.distribution
+  const data = []
+  return(
+    <div className='grade-distribution-container'>
+        <h5 className='grade-distribution-header'>{props.className}</h5>
+        
+          <Chart
+            width={'100%'}
+            chartType="ColumnChart"
+            data={[
+              ['Grade','Count', {role: 'style'}, {role: 'annotation'}],
+              ['A', gd.A, 'green', 'A'],
+              ['B', gd.B, 'blue', 'B'],
+              ['C', gd.C, 'yellow', 'C'],
+              ['D', gd.D, 'orange', 'D'],
+              ['F', gd.F, 'red', 'F'],
+              ['Blank', gd.Blank, 'grey', 'Blank']
+            ]}
+            options={{
+              legend: {position: 'none'},
+              chartArea: {width: '85%'},
+              hAxis: {textPosition: 'none'}
+            }}
+            />
+          
+      </div>
+  )
+
+}
+
+const GradeDistributionRender2: React.SFC<GradeDistributionProps> = props => {
     const gd = props.distribution;
     const total = gd.A+gd.B+gd.C+gd.D+gd.F+gd.Blank
     return (

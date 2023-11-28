@@ -87,6 +87,7 @@ export class StaffAbsenceReport extends React.PureComponent<StaffAbsenceReportPr
     componentWillMount(){
         if(this.props.reportFiles){
             const {punchTimes, positions, endDate} = createStaffAbsenceReport(this.props.reportFiles)
+            console.log(punchTimes)
             const teacherList = {}
             const nonTeacherList = {}
             Object.keys(positions).forEach( p => {

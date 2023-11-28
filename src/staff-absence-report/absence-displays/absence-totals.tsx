@@ -15,6 +15,9 @@ import {
 import {
     SY_CURRENT} from '../../shared/initial-school-dates'
 
+import {
+    RollingAttendanceGraph} from './rolling-attendance'
+
 interface AbsenceTotalsProps{
     absenceData: StaffPunchTimes
     staffNames: string[]
@@ -44,6 +47,11 @@ export const AbsenceTotals: React.SFC<AbsenceTotalsProps> = (props) => {
 
     return (
         <>
+            <RollingAttendanceGraph 
+                absenceData={props.absenceData}
+                staffNames={props.staffNames}
+                dates={props.dates}
+                codes={props.codes}/>
             <TotalsByDay totalAbsences={totalAbsences}/>
             <TotalsByMonth totalAbsences={totalAbsences}/>
             <TotalsByWeek totalAbsences={totalAbsences}/>
