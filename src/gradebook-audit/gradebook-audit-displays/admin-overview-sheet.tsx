@@ -100,6 +100,14 @@ export const AdminOverviewSheet: React.FunctionComponent<AdminOverviewSheetProps
 
 }
 
+const AverageModeCounts: React.FunctionComponent<{title: string, classes: TeacherClasses, highlightColumn: number}> = props => {
+    return (
+        <>
+            
+        </>
+    )
+}
+
 const DefaultStatOverviewTable: React.FunctionComponent<{title: string, classes: TeacherClasses, highlightColumn: number}> = props => {
     return (
         <>

@@ -94,5 +94,5 @@ export interface AbsenceDate{
 
 //Helper function to make StaffDates more useable
 export const isPunchTime = (val: PayCodeDay|PunchTime): val is PunchTime => {
-    return (val as PunchTime).in !== undefined
+    return (val as PunchTime).in !== undefined || (val as PunchTime).out !== undefined
 }

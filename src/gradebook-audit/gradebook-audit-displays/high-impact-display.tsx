@@ -30,7 +30,7 @@ export const HighImpactAssignmentsRender: React.SFC<HighImpactAssignmentsRenderP
     const tpl = props.classes[c].tpl
 
     const warning = tpl === 'Categories and assignments'
-    const [weightStr, numStr] = tpl === 'Categories only' ? ['Assignment Weight','# Assignments in Category']:
+    const [weightStr, numStr] = (tpl === 'Categories only' || tpl === 'Categories Only') ? ['Assignment Weight','# Assignments in Category']:
       ['Assignment Weight', 'Points in Category']
     const NUM_ASSIGNS_PER_CLASS = 3;
     

@@ -175,7 +175,10 @@ export const validationStringToDate = (s: string): Date => {
   return newDate
 }
 
-//parses dates of the form mm-dd-yyyy tt:tt:tt AM/PM
+//parses dates of the forms:
+//  mm-dd-yyyy tt:tt:tt AM/PM
+//  
+
 export const punchcardStringToDate = (s: string): Date => {
   const d = s.split(' ')
   if(d.length === 1){
@@ -190,6 +193,7 @@ export const punchcardStringToDate = (s: string): Date => {
       console.log('Invalid date:' + newDate + ' from string' + s)
     }
     return newDate
+    //excel dates?
   }else if(d.length === 2){
     const day= stringToDate(d[0])
     const time = d[1].split(':').map(a=> parseInt(a))
@@ -303,10 +307,10 @@ export const parseGrade = (g: string): number => {
 }
 
 //returns two boolean values for getting in late and getting out early
-export const isTardy = (start: number, end: number, clockIn: Date, clockOut: Date | null) : boolean[] => {
-  const timeIn:number = (getHours(clockIn) * 100 + getMinutes(clockIn)) 
+export const isTardy = (start: number, end: number, clockIn: Date | null, clockOut: Date | null) : boolean[] => {
+  const timeIn:number | null= clockIn? (getHours(clockIn) * 100 + getMinutes(clockIn)) : null
   const timeOut:number | null = clockOut ? (getHours(clockOut) * 100 + getMinutes(clockOut)):null
-  return [timeIn > start, timeOut !== null && timeOut < end]
+  return [timeIn !== null && timeIn > start, timeOut !== null && timeOut < end]
 }
 
 export const isCoreClass = (cName: string):boolean => {

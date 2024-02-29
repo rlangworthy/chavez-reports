@@ -226,6 +226,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
 
     //add file to the working instance of the app, should refactor into utils along with delete and save
     private addFile = (fileType: string, file: File, selectedQuarter?: string): Promise<void> => {
+        console.log(file.type)
         if(fileType === FileTypes.ASSIGNMENTS_SLOW_LOAD){
             var download:AspenAssignmentRow[] = []
             const qStart = selectedQuarter !== undefined? selectedQuarter : 'Quarter ' + getCurrentQuarter(SY_CURRENT)

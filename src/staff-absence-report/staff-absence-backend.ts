@@ -1,5 +1,5 @@
 import * as d3 from 'd3-collection'
-import {uniq} from 'ramda'
+import {sort, uniq} from 'ramda'
 import {
     compareAsc,
     min,
@@ -137,7 +137,8 @@ const punchcardDayParser = (events: SortedPunchcardRow[]): PayCodeDay|PunchTime 
         }
     }else{
         //multiple punch-ins & outs, for use with people who punch out for lunch
-        if(events.every( e => e.PAYCODENAME === '')){
+        if(events.every( e => e.PAYCODENAME === ''||
+        e.PAYCODENAME.slice(0,3) ==='UNS')){
             const ins = events.map( e => punchcardStringToDate(e.PUNCHDTM))
             const outs = events.map( e => punchcardStringToDate(e.ENDPUNCHDTM))
             return {
@@ -148,9 +149,10 @@ const punchcardDayParser = (events: SortedPunchcardRow[]): PayCodeDay|PunchTime 
                                     e.PAYCODENAME.slice(0,3) ==='REG' ||
                                     e.PAYCODENAME.slice(0,3) ==='UNS')){
             //adjusted normal work day
+            const paycode = events.map(e => e.PAYCODENAME.slice(0,3)).filter(e => e.length > 0)
             return {
                 date: punchcardStringToDate(events[0].EVENTDATE),
-                payCode: 'REG',
+                payCode: paycode.length > 0? paycode[0]: '',
                 halfDay: false,
                 ins: events.map(e=>e.PUNCHDTM).filter( e => e!== '').map(e=>punchcardStringToDate(e)),
                 outs: events.map(e=>e.ENDPUNCHDTM).filter( e => e!== '').map(e=>punchcardStringToDate(e))

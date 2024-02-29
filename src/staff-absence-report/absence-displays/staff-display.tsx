@@ -6,6 +6,8 @@ import {
     endOfWeek,
     isSameDay,
     min,
+    max,
+    isValid,
     } from 'date-fns'
 
 import {
@@ -214,12 +216,29 @@ const TardiesTable: React.SFC<{tardies: Map<Date, PayCodeDay | PunchTime>, in:nu
                         </React.Fragment>
                     )
                 }
+                //logic for pay codes and missing swipes
                 else{
-                    return (
-                    <React.Fragment key={i}>
-                        <td colSpan={2} className='tardy-cell-reg'>REG Paycode</td>
-                    </React.Fragment>
-                    )
+                    const inTime = isValid(min(...hold.ins)) ? min(...hold.ins) : null
+                    const outTime = isValid(max(...hold.outs)) ? max(...hold.outs): null
+                    console.log(outTime)
+                    const[inLate, leftEarly]= isTardy(props.in, props.out, inTime, outTime)
+                    const paycode = hold.payCode
+                    if(!inLate && !leftEarly){
+                        return (
+                        <React.Fragment key={i}>
+                            <td colSpan={2} className='tardy-cell-reg'>REG Paycode</td>
+                        </React.Fragment>
+                        )
+                    }
+                    else {
+                        return (
+                            <React.Fragment key={i}>
+                                <td className={`${inLate ? 'tardy-cell-bad':'tardy-cell-reg'}`}> {inTime ? format(inTime, 'hh:mm'): "REG"}</td>
+                                <td className={`${leftEarly ? 'tardy-cell-bad':'tardy-cell-reg'}`}>
+                                    {outTime ? format(outTime, 'hh:mm'): 'REG'}
+                                </td>
+                            </React.Fragment>)
+                    }
                 }
             }else{
                 return (
