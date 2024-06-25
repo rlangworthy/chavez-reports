@@ -44,10 +44,10 @@ const punchcardParser = (files: ReportFiles): {punchTimes: StaffPunchTimes, posi
     else{
         var endDate = new Date(2018, 8, 3)
         const data = parse.data as RawPunchcardRow[]
-        /*
-        if(data[0].EVENTDATE === '00/DD/YYYY 00:00:SS'){
+        
+        if(data[0].EVENTDATE === '00/DD/YYYY 00:00:SS' || data[0].EVENTDATE === '00:00.0'){
             data.forEach(d => d.EVENTDATE = d.PUNCHDTM)
-        }*/
+        }
         const staffTimes = d3.nest<RawPunchcardRow, PunchTimes>()
                             .key( r => r.PERSONFULLNAME)
                             .rollup(rs => {

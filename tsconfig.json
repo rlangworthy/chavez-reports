@@ -27,5 +27,8 @@
   },
   "include": [
     "src"
-  ]
+  ],
+  "rules": {
+    " @typescript-eslint/no-unused-expressions": "off"
+  }
 }

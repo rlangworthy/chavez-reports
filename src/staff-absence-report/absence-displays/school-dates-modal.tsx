@@ -45,7 +45,9 @@ export class SchoolDatesModal extends React.PureComponent<SchoolDatesModalProps,
     render(){
         const initialMonth:Date = new Date()
         initialMonth.setMonth(7)
-        initialMonth > new Date() ? initialMonth.setFullYear(initialMonth.getFullYear()-1): null
+        if (initialMonth > new Date()){
+            initialMonth.setFullYear(initialMonth.getFullYear()-1)
+        }
         return (
             <Modal show={this.props.show} onHide={this.props.handleHide} dialogClassName='calendar-modal'>
                 <div className='school-dates-modal-boundary-picker'>

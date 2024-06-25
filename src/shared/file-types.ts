@@ -30,6 +30,9 @@ export enum FileTypes {
     SCHEDULE_INFO = 'Schedule Info',
     GRADE_VALIDATION = 'CPS Grade Validation Export',
     JIJI = 'Jiji Sheet',
+
+    TEACHER_MINUTES = 'Total Students Special Education Instruction (IEP Only)',
+    AIDE_MINUTES = 'Total Students Paraprofessional Support (IEP & 504)'
 }
 
 /*
@@ -122,4 +125,10 @@ FileDescriptions[FileTypes.GRADE_VALIDATION] = {
 }
 FileDescriptions[FileTypes.STUDENT_REPORTING_DATA_EXPORT] = {
     description:''
+}
+FileDescriptions[FileTypes.AIDE_MINUTES] = {
+    description: ''
+}
+FileDescriptions[FileTypes.TEACHER_MINUTES] = {
+    description: ''
 }

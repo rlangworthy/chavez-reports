@@ -182,7 +182,10 @@ export const validationStringToDate = (s: string): Date => {
 export const punchcardStringToDate = (s: string): Date => {
   const d = s.split(' ')
   if(d.length === 1){
+    if(d[0].split('-').length > 1){
     const date = d[0].split('-').map(a=> parseInt(a))
+    return new Date(date[2], date[0]-1, date[1])}
+    const date = d[0].split('/').map(a=> parseInt(a))
     return new Date(date[2], date[0]-1, date[1])
   } else if(d.length === 3){
     const date = d[0].split('-').map(a=> parseInt(a))

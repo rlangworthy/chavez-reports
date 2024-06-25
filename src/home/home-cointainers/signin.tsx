@@ -1,10 +1,16 @@
 import * as React from 'react'
 import Navbar from 'react-bootstrap/Navbar'
+import axios from 'axios'
 import { 
     GoogleLogin, 
     GoogleLoginResponse, 
     GoogleLoginResponseOffline } from 'react-google-login';
-
+/*
+import {
+    useGoogleLogin,
+    CredentialResponse
+    } from 'react-oauth'
+*/
 
 import {ReportHome} from './home'
 
@@ -18,8 +24,30 @@ interface SignInProps {
     failure: (response: GoogleLoginResponse | GoogleLoginResponseOffline) => void
 }
 
+/*
+const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+        console.log(tokenResponse);
+        const userInfo = await axios.get(
+        'https://www.googleapis.com/oauth2/v3/userinfo',
+        { headers: { Authorization: 'Bearer <tokenResponse.access_token>' } },
+        );
+    
+        console.log(userInfo);
+    },
+    onError: errorResponse => console.log(errorResponse),
+    });
 
-export class SignInWrapper extends React.PureComponent<{}, SignInState> {
+
+export const SignInWrapper = (<button
+onClick={e => useGoogleLogin({  onSuccess: tokenResponse => console.log(tokenResponse),
+})}>
+Sign In
+</button>)
+
+*/
+
+export class SignInWrapper extends React.Component<{}, SignInState> {
     constructor(props){
         super(props)
         this.state={log: 'New', account: null}
@@ -27,8 +55,10 @@ export class SignInWrapper extends React.PureComponent<{}, SignInState> {
 
     render(){
         if(this.state.log==='New'){
-            return(
+            return(<>
                 <SignIn success={this.successResponse} failure={this.failureResponse}/>
+                
+                </>
             )
         }
         else{

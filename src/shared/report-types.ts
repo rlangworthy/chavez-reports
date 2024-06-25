@@ -6,6 +6,7 @@ import { GradebookAuditReport } from '../gradebook-audit/gradebook-audit-contain
 import { StudentGradeSheets } from '../student-grade-sheets/student-grade-display'
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 import {GradeValidationReport} from '../grade-validation/grade-validation-display'
+import { DLSchedulingReport } from '../dl-scheduling/dl-scheduling-backend'
 import { TestReport } from '../test-report/stmath-report'
 
 import { School } from '../data-handling/data-interfaces'
@@ -54,10 +55,12 @@ const activeReports: string [] = [
     'Student One Pager',
     'Student Assignment Sheet',
     'Staff Absence Report',
+    'DL Scheduling Aid',
     //'Summerschool Report',
     //'NWEA Summarizer',
     //'Gradebook Validation',
     //'Test',
+    
 ]
 
 //It is important here that each report have unique descriptions for each file
@@ -149,7 +152,17 @@ const allReportCards: ReportTitle[] = [
         component: TestReport,
         files: [
                 {fileType: FileTypes.JIJI, fileDesc: FileTypes.JIJI}],
-    }
+    },
+    {
+        title: 'DL Scheduling Aid',
+        description: 'Organized and summarized teacher and aide minutes',
+        link: process.env.PUBLIC_URL + '/dl-aid/upload/',
+        component: DLSchedulingReport,
+        files: [
+            {fileType: FileTypes.TEACHER_MINUTES, fileDesc: FileTypes.TEACHER_MINUTES},
+            {fileType: FileTypes.AIDE_MINUTES, fileDesc: FileTypes.AIDE_MINUTES}
+        ],
+    },  
 ]
 
 export const ReportCards: ReportTitle[] = allReportCards.filter(report => activeReports.includes(report.title))
