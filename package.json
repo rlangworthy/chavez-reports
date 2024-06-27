@@ -7,7 +7,7 @@
     "@react-oauth/google": "^0.12.1",
     "@react-pdf/renderer": "^2.1.1",
     "@types/babel__traverse": "^7.17.1",
-    "@types/http-proxy": "^1.17.11",
+    "@types/http-proxy": "^1.17.14",
     "@types/jest": "^24.0.5",
     "@types/node": "^11.15.54",
     "@types/ramda": "^0.26.21",
@@ -35,11 +35,14 @@
     "react-google-login": "^5.0.7",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "^3.0.1",
+    "react-scripts": "^5.0.1",
     "react-virtualized": "^9.21.1",
     "react-window": "^1.8.2",
     "serve": "^14.2.0",
     "ts-transformer-keys": "^0.4.2"
+  },
+  "overrides": {
+    "typescript": "^5.4.5"
   },
   "scripts": {
     "start": "react-scripts start",
