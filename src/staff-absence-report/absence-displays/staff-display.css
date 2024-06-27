@@ -20,7 +20,7 @@
 
 @media print {
     .tardy-cell-bad{
-        color-adjust: exact;
+        print-color-adjust: exact;
     }
 
     .tardy-cell-good {

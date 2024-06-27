@@ -73,7 +73,7 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
         array.forEach(row => {
             Object.keys(row).forEach(key => {
                 if(!usedColumns[key]){
-                    if(row[key] != '0' && row[key] != '##' && row[key] != '' && row[key] != ' '){
+                    if(row[key] !== '0' && row[key] !== '##' && row[key] !== '' && row[key] !== ' '){
                         usedColumns[key] = true
                     }
                 }

@@ -150,7 +150,7 @@ export const getCPSOnTrack = (math: number, reading: number, attendancePCT: numb
 */
 export const stringToDate = (s: string, t?: string): Date => {
   if(s === undefined){
-    return new Date
+    return new Date()
   }
   if(s.split('/').length === 3){
     const d = s.split('/').map(a => parseInt(a))

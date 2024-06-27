@@ -1,5 +1,5 @@
 import * as d3 from 'd3-collection'
-import {sort, uniq} from 'ramda'
+import {uniq} from 'ramda'
 import {
     compareAsc,
     min,
