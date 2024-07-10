@@ -5,12 +5,12 @@ import {
     GoogleLogin, 
     GoogleLoginResponse, 
     GoogleLoginResponseOffline } from 'react-google-login';
-/*
+
 import {
     useGoogleLogin,
-    CredentialResponse
-    } from 'react-oauth'
-*/
+    CredentialResponse,
+    } from '@react-oauth/google'
+
 
 import {ReportHome} from './home'
 
@@ -37,16 +37,26 @@ const googleLogin = useGoogleLogin({
     },
     onError: errorResponse => console.log(errorResponse),
     });
+export function SignInWrapper(props) {
+    return (<button onClick={e => useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            console.log(tokenResponse);
+            const userInfo = await axios.get(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            { headers: { Authorization: 'Bearer <tokenResponse.access_token>' } },
+            );
+        
+            console.log(userInfo);
+        },
+        onError: errorResponse => console.log(errorResponse),
+        })}>
+        Sign In
+        </button>);
+    }
 
-
-export const SignInWrapper = (<button
-onClick={e => useGoogleLogin({  onSuccess: tokenResponse => console.log(tokenResponse),
-})}>
-Sign In
-</button>)
 
 */
-
+/**/ 
 export class SignInWrapper extends React.Component<{}, SignInState> {
     constructor(props){
         super(props)
@@ -88,7 +98,8 @@ export class SignInWrapper extends React.Component<{}, SignInState> {
 
 }
 
-const SignIn = (props: SignInProps) =>   <>
+const SignIn = (props: SignInProps) =>   
+                            <>
                                 <Navbar>
                                     <Navbar.Brand>Chavez Report Suite</Navbar.Brand>
                                 </Navbar>
@@ -101,3 +112,4 @@ const SignIn = (props: SignInProps) =>   <>
                                 />
                             </>
 
+/**/

@@ -15,7 +15,6 @@ import { InstructionModal } from '../home-displays/instructions-modal'
 import { FileManagerContainer } from './file-manager-container'
 import { getFileType } from '../../shared/file-types-utils'
 import { reportTag } from '../../shared/gtag'
-import AspenRequest from '../../shared/icons/Aspen Support Request.png'
 
 import { 
     FileList,
