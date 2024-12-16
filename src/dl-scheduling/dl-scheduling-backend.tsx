@@ -10,7 +10,8 @@ import {
 import {
     info_columns,
     final_columns,
-    display_info
+    display_info,
+    drop_columns
     } from './dl-scheduling-constants'
 
 interface DLSchedulingProps {
@@ -79,7 +80,7 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
                 }
             })
         })
-        const newKeys: string[] = Object.keys(usedColumns).filter(k => usedColumns[k])
+        const newKeys: string[] = Object.keys(usedColumns).filter(k => usedColumns[k] && !drop_columns.includes(k))
         const newArray: {[key: string]: {[key: string]: string}} = {}
         array.forEach(row => {
             newArray[row[keyCol]] = newKeys.reduce((obj, key) => {

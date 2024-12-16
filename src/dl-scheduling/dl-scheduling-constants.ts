@@ -4,13 +4,13 @@ import { ReportFiles } from '../shared/report-types'
 
 export const display_info = ['Student ID', 'Name','Current Homeroom', 'Grade','ELL Program Year Code','LRE','ARS','PDIS']
 export const info_columns = [
-    'School','Current Homeroom', 'Name','Birthdate','Gender','Grade','ELL','ELL Program Year Code',
-    'LRE','ARS','PDIS','Cluster Program', 'Medical Condition'
+    'Current Homeroom', 'Name','Birthdate','Gender','Grade','ELL','ELL Program Year Code',
+    'LRE','ARS','PDIS','Cluster Program'
     ]
 
     export const drop_columns = [
-    'Network','School Code','Para','Access Test RPL','Access Test WPL','Access Test LPL',
-    'Access Test SPL','Access Test LitPL','Access Test ComprehensionPL','Access Com'
+    'School', 'Network','School Code','Para','Access Test RPL','Access Test WPL','Access Test LPL',
+    'Access Test SPL','Access Test LitPL','Access Test ComprehensionPL','Access Com', 'Medical Condition'
     ]
 
     export const teacher_core = [
