@@ -5,7 +5,7 @@ export interface Student{
     classes: string[]
 }
 export interface StudentInfo{
-  'Attendance Percent'
+  'Attendance Percent' : number
   'Student Last Name': string
   'Student First Name': string
   'Student ID': string

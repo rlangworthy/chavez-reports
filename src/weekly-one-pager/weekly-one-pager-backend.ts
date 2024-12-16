@@ -114,6 +114,7 @@ export interface HRStudent {
     absences: number[]
     tardies: number[]
     enrollmentDays: number[]
+    attendancePCT: number
     onTrack: number
     otDelta?: number
     CPSonTrack: boolean
@@ -510,6 +511,7 @@ const flattenStudents = (students: Students): [HomeRoom[], HRSummary] => {
                         absences: r.absences,
                         tardies: r.tardies,
                         enrollmentDays: r.totalDays,
+                        attendancePCT: r.absencePercent,
                         onTrack: r.onTrack,
                         otDelta: getOTDelta(r.onTrack, r.finalGPA[0], r.absencePercent),
                         CPSonTrack: getCPSOnTrack(r.finalMathGrade, r.finalReadingGrade, r.absencePercent),

@@ -35,6 +35,7 @@ import './home.css'
 import { AspenAssignmentRow } from '../../shared/file-interfaces'
 import { SY_CURRENT } from '../../shared/initial-school-dates'
 import { GoogleLoginResponse } from 'react-google-login'
+import { TokenResponse } from '@react-oauth/google'
 
 export type Action = 'Delete' | 'Save' | 'Rename'
  
@@ -66,7 +67,7 @@ interface ReportHomeState {
 }
 
 interface ReportHomeProps {
-    account: GoogleLoginResponse
+    account: string
 }    
 
 //ReportHome renders the cards and report modals, also holds onto the file list and state.
@@ -191,7 +192,7 @@ export class ReportHome extends React.PureComponent<ReportHomeProps, ReportHomeS
                         show={this.state.activeModal === report.title}
                         handleHide={this.handleHide}
                         addFile={this.addFile} 
-                        tag={()=>reportTag(window, 'report_generate', this.props.account.getBasicProfile().getEmail(), report.title)}/>)
+                        tag={()=>reportTag(window, 'report_generate', this.props.account, report.title)}/>)
                 })}
             </FileContextProvider>
         )

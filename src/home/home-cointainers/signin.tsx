@@ -9,6 +9,7 @@ import {
 import {
     useGoogleLogin,
     CredentialResponse,
+    TokenResponse,
     } from '@react-oauth/google'
 
 
@@ -16,47 +17,62 @@ import {ReportHome} from './home'
 
 interface SignInState {
     log: 'New' | 'Form' | 'Signed'
-    account: GoogleLoginResponse | null
+    account: string //GoogleLoginResponse | null
 }
 
 interface SignInProps {
-    success: (response: GoogleLoginResponse | GoogleLoginResponseOffline) => void
-    failure: (response: GoogleLoginResponse | GoogleLoginResponseOffline) => void
+    //success: (response: GoogleLoginResponse | GoogleLoginResponseOffline) => void
+    //failure: (response: GoogleLoginResponse | GoogleLoginResponseOffline) => void
+    setState: (state: SignInState) => void
+}
+
+
+export function SignInWrapper() {
+    const [state, setState]: [SignInState, any]  = React.useState({log: 'New', account: ''})
+
+    if( state.log === 'New'){
+        return <LoginPage setState={setState}></LoginPage>
+    }
+    else{
+        return (
+            <ReportHome account={state.account}/>
+        )
+    }
+
+}
+
+export function LoginPage(props: SignInProps) {
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            //console.log(tokenResponse);
+            const userInfo = await axios.get(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            { headers: { Authorization: 'Bearer '+ tokenResponse.access_token }},
+            );
+            const email = userInfo.data.email
+            if(email.split('@')[email.split('@').length-1] === 'cps.edu'){
+
+                props.setState({log:'Form', account: email})
+            }
+            //console.log(userInfo);
+        },
+        onError: errorResponse => console.log(errorResponse),
+        });
+
+
+    return (
+        <>
+            <button onClick={e => googleLogin()}>
+                Login with Your CPS Email
+            </button>
+            
+        </>
+    )
 }
 
 /*
-const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-        console.log(tokenResponse);
-        const userInfo = await axios.get(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-        { headers: { Authorization: 'Bearer <tokenResponse.access_token>' } },
-        );
-    
-        console.log(userInfo);
-    },
-    onError: errorResponse => console.log(errorResponse),
-    });
-export function SignInWrapper(props) {
-    return (<button onClick={e => useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            console.log(tokenResponse);
-            const userInfo = await axios.get(
-            'https://www.googleapis.com/oauth2/v3/userinfo',
-            { headers: { Authorization: 'Bearer <tokenResponse.access_token>' } },
-            );
-        
-            console.log(userInfo);
-        },
-        onError: errorResponse => console.log(errorResponse),
-        })}>
-        Sign In
-        </button>);
-    }
 
 
-*/
-/**/ 
 export class SignInWrapper extends React.Component<{}, SignInState> {
     constructor(props){
         super(props)
@@ -112,4 +128,4 @@ const SignIn = (props: SignInProps) =>
                                 />
                             </>
 
-/**/
+*/
