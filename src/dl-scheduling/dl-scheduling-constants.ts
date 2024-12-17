@@ -8,7 +8,7 @@ export const info_columns = [
     'LRE','ARS','PDIS','Cluster Program'
     ]
 
-    export const drop_columns = [
+    export const teacher_drop_columns = [
     'School', 'Network','School Code','Para','Access Test RPL','Access Test WPL','Access Test LPL',
     'Access Test SPL','Access Test LitPL','Access Test ComprehensionPL','Access Com', 'Medical Condition'
     ]
@@ -116,5 +116,6 @@ export const teacher_additional = [
 'Source'
     ]
 
+    export const drop_columns = teacher_drop_columns.concat(teacher_rls, teacher_rls_totals)
     export const final_columns = teacher_core.concat(teacher_specials, teacher_rls, 
     aide_core, aide_specials, aide_services, aide_totals)
