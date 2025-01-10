@@ -117,5 +117,5 @@ export const teacher_additional = [
     ]
 
     export const drop_columns = teacher_drop_columns.concat(teacher_rls, teacher_rls_totals)
-    export const final_columns = teacher_core.concat(teacher_specials, teacher_rls, 
-    aide_core, aide_specials, aide_services, aide_totals)
+    export const final_columns = teacher_core.concat(teacher_specials, teacher_additional,
+    aide_core, aide_specials, aide_additional, aide_services, aide_totals)

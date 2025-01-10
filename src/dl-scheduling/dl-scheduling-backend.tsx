@@ -3,6 +3,10 @@ import { ReportFiles } from '../shared/report-types'
 import {unparse} from 'papaparse'
 
 import {
+    isNumeric
+    } from '../shared/utils'
+
+import {
     RawStudentSpecialEdInstructionRow,
     RawStudentParaprofessionalMinutesRow,
     } from '../shared/file-interfaces'
@@ -13,7 +17,7 @@ import {
     display_info,
     drop_columns
     } from './dl-scheduling-constants'
-
+//1/10/25
 interface DLSchedulingProps {
     reportFiles?: ReportFiles
 }
@@ -26,9 +30,10 @@ export class DLSchedulingReport extends React.PureComponent<DLSchedulingProps, D
 
     componentWillMount(){
         if(this.props.reportFiles){
-            console.log(createDLScheduleDoc(this.props.reportFiles))
+            const doc = createDLScheduleDoc(this.props.reportFiles)
+            console.log(doc)
             this.setState({
-                dlAide: unparse(createDLScheduleDoc(this.props.reportFiles))
+                dlAide: unparse(doc)
             })
         }
     }
@@ -59,7 +64,6 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
         files.reportFiles[files.reportTitle.files[0].fileDesc].parseResult?.data as RawStudentSpecialEdInstructionRow[] : []
     const aide = files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult ? 
         files.reportFiles[files.reportTitle.files[1].fileDesc].parseResult?.data as RawStudentParaprofessionalMinutesRow[] : []
-
     /*
     Clear unused columns for sped and aide
     Create a boolean for each column defaulting to true
@@ -67,8 +71,9 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
     if a valid input exists change column to false
     go through and remove columns
     Takes a key (studentID in this case) to index object to make merging easy later
+    Return list of used keys to simplify final sheet creation
     */
-    const dropUnusedColumns = (array: {[key: string]: string}[], keyCol: string): {[key: string]:{[key: string]: string}} => {
+    const dropUnusedColumns = (array: {[key: string]: string}[], keyCol: string): [{[key: string]:{[key: string]: string}}, string[]] => {
         const usedColumns = {}
         Object.keys(array[0]).forEach(key => {usedColumns[key] = false})
         array.forEach(row => {
@@ -88,33 +93,55 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
                 return obj
             }, {} as {[key: string]: string})
         })
-        return newArray
+        return [newArray, newKeys]
     }
 
-    const filteredSped = dropUnusedColumns(sped.filter(row => row.PDIS !== '--') as {[key: string]:any}[], 'Student ID')
-    const filteredAide = dropUnusedColumns(aide.filter(row => row.PDIS !== '--') as {[key: string]:any}[], 'Student ID')
+    const [filteredSped, spedKeys] = dropUnusedColumns(sped.filter(row => row.PDIS !== '--') as {[key: string]:any}[], 'Student ID')
+    const [filteredAide, aideKeys] = dropUnusedColumns(aide.filter(row => row.PDIS !== '--') as {[key: string]:any}[], 'Student ID')
 
+    const finalUsedColumns = final_columns.filter(value => spedKeys.includes(value) || aideKeys.includes(value))
     const joinedMinutes:{[key:string]: string}[] = []
-    console.log(filteredSped)
-    console.log(filteredAide)
-    //create joined sped & aide rows
-    Object.keys(filteredSped).forEach(studentID => {
+    //create joined sped & aide rows, ordered sped keys for student ID's
+    
+
+
+    Object.keys(filteredSped).sort((a,b) => {
+        if(filteredSped[a].Grade !== filteredSped[b].Grade){
+            return filteredSped[a].Grade > filteredSped[b].Grade ? -1:1
+        }
+        return parseInt(filteredSped[a]['ARS']) < parseInt(filteredSped[b]['ARS']) ? -1:1
+    }).forEach(studentID => {
         const combinedStudent = {}
         display_info.forEach( key => {
             if(filteredSped[studentID][key]){
                 combinedStudent[key] = filteredSped[studentID][key]
             }
-        })
-        final_columns.forEach(key => {
-            if(filteredSped[studentID][key]){
-                combinedStudent[key] = filteredSped[studentID][key]
-            } else if(filteredAide[studentID] && filteredAide[studentID][key]){
-                combinedStudent[key] = filteredAide[studentID][key]
+            //ELL code remove N/A values
+            if(combinedStudent[key] === 'N/A'){
+                combinedStudent[key] = ''
             }
         })
-        
-
-        joinedMinutes.push(combinedStudent)
+        finalUsedColumns.forEach(key => {
+            if(filteredSped[studentID][key]){
+                combinedStudent[key] = filteredSped[studentID][key]
+            }else if((filteredAide[studentID]) && (filteredAide[studentID][key])){
+                combinedStudent[key] = filteredAide[studentID][key]
+            } else {
+                combinedStudent[key] = ''
+            }
+            //remove ## values for consistency
+            if(combinedStudent[key] === '##'){
+                combinedStudent[key] = ''
+            }
+            if(isNumeric(combinedStudent[key])){
+                combinedStudent[key] = (parseInt(combinedStudent[key])/5).toString()
+            }
+            
+        })
+        joinedMinutes.push({...combinedStudent})
     })
+    
+
+
     return joinedMinutes
 }
