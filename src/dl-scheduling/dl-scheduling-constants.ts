@@ -2,7 +2,16 @@ import { ReportFiles } from '../shared/report-types'
 
 //FIXME replace these names with javascript styled names
 
-export const display_info = ['Student ID', 'Name','Current Homeroom', 'Grade','ELL Program Year Code','LRE','ARS','PDIS']
+export const display_info = [
+    'Student ID',
+    'Name',
+    'Grade',
+    'Current Homeroom', 
+    'ELL Program Year Code',
+    'LRE',
+    'ARS',
+    'PDIS']
+    
 export const info_columns = [
     'Current Homeroom', 'Name','Birthdate','Gender','Grade','ELL','ELL Program Year Code',
     'LRE','ARS','PDIS','Cluster Program'

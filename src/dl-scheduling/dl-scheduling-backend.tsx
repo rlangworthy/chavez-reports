@@ -103,21 +103,42 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
     const joinedMinutes:{[key:string]: string}[] = []
     //create joined sped & aide rows, ordered sped keys for student ID's
     
+    const parseGrade = (a): Number => {
+        if(a === 'K'){
+            return 0
+        }
+        if(a === 'PK'){
+            return -1
+        }
+        return parseInt(a)
+    }
 
-
-    Object.keys(filteredSped).sort((a,b) => {
+    Object.keys(filteredSped)
+    .sort((a,b) => {
         if(filteredSped[a].Grade !== filteredSped[b].Grade){
-            return filteredSped[a].Grade > filteredSped[b].Grade ? -1:1
+            
+            return parseGrade(filteredSped[a].Grade) > parseGrade(filteredSped[b].Grade) ? -1:1
         }
         return parseInt(filteredSped[a]['ARS']) < parseInt(filteredSped[b]['ARS']) ? -1:1
-    }).forEach(studentID => {
+    })
+    .forEach(studentID => {
+        //remove students with no assigned minutes
+        // this doc is for scheduling and they have nothing to schedule
+        // Could be done earlier for efficiency, shouldn't be an issue
+        if(filteredSped[studentID]['ARS'] === '0' || 
+                filteredSped[studentID]['ARS'] === '##'){
+                    return
+                }
         const combinedStudent = {}
         display_info.forEach( key => {
+            
             if(filteredSped[studentID][key]){
                 combinedStudent[key] = filteredSped[studentID][key]
             }
             //ELL code remove N/A values
-            if(combinedStudent[key] === 'N/A'){
+            if(combinedStudent[key] === 'N/A' || 
+                combinedStudent[key] ==='0' || 
+                combinedStudent[key]==='##'){
                 combinedStudent[key] = ''
             }
         })
@@ -129,8 +150,10 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
             } else {
                 combinedStudent[key] = ''
             }
-            //remove ## values for consistency
-            if(combinedStudent[key] === '##'){
+            //remove ## values and 0's for consistency
+            if(combinedStudent[key] === '##' ||
+                combinedStudent[key] ==='0')
+            {
                 combinedStudent[key] = ''
             }
             if(isNumeric(combinedStudent[key])){
