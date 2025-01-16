@@ -152,7 +152,8 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
             }
             //remove ## values and 0's for consistency
             if(combinedStudent[key] === '##' ||
-                combinedStudent[key] ==='0')
+                combinedStudent[key] ==='0' ||
+                combinedStudent[key] === '0.00')
             {
                 combinedStudent[key] = ''
             }
