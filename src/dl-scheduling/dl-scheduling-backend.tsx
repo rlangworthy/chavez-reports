@@ -1,4 +1,11 @@
-import * as React from 'react';
+import * as React from 'react'
+import * as gapi from 'googleapis'
+
+import express from 'express'
+import path from 'path'
+import fs from 'fs-extra'
+import opn from 'open'
+
 import { ReportFiles } from '../shared/report-types'
 import {unparse} from 'papaparse'
 
@@ -17,7 +24,7 @@ import {
     display_info,
     drop_columns
     } from './dl-scheduling-constants'
-//1/10/25
+
 interface DLSchedulingProps {
     reportFiles?: ReportFiles
 }
@@ -41,6 +48,52 @@ export class DLSchedulingReport extends React.PureComponent<DLSchedulingProps, D
         const file = new File([this.state.dlAide], 'dl_sheet.csv', {
             type: 'text/plain',
             })
+        
+        const keyfile = path.join('../../private', 'credentials.json');
+        const keys = JSON.parse(fs.readFileSync(keyfile).toString());
+        
+        
+        
+        
+        const client = new gapi.Auth.OAuth2Client(
+            keys.web.client_id,
+            keys.web.client_secret,
+            keys.web.redirect_uris[2]
+            );
+        
+        const scopes = [
+            "https://www.googleapis.com/auth/spreadsheets"
+        ]
+
+        //NOTE different from sample, check
+        const url = client.generateAuthUrl({
+            access_type: 'offline',
+            scope: scopes,
+          });
+
+        
+        // Open an http server to accept the oauth callback. In this
+        // simple example, the only request to our webserver is to
+        // /oauth2callback?code=<code>
+        const app = express()
+        app.get('/oauth2callback', (req, res) => {
+        const code = req.query.code;
+        client.getToken(code as any, (err, tokens) => {
+            if (err) {
+            console.error('Error getting oAuth tokens:');
+            throw err;
+            }
+            client.credentials = tokens as any;
+            res.send('Authentication successful! Please return to the console.');
+            server.close();
+            //listMajors(client);
+        });
+        });
+        const server = app.listen(3000, () => {
+        // open the browser to the authorize url to start the workflow
+        opn(url, {wait: false});
+        });
+
 
         function download() {
             const link = document.createElement('a')
@@ -54,8 +107,10 @@ export class DLSchedulingReport extends React.PureComponent<DLSchedulingProps, D
             document.body.removeChild(link)
             window.URL.revokeObjectURL(url)
         }
+
+
         download()
-       return <></>
+        return <></>
     }
 }
 
@@ -125,6 +180,7 @@ const createDLScheduleDoc = (files: ReportFiles):{[key:string]:string}[] => {
         //remove students with no assigned minutes
         // this doc is for scheduling and they have nothing to schedule
         // Could be done earlier for efficiency, shouldn't be an issue
+        //FIXME - use total columns to filter, ARS doesnt include 
         if(filteredSped[studentID]['ARS'] === '0' || 
                 filteredSped[studentID]['ARS'] === '##'){
                     return

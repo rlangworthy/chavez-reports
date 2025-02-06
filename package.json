@@ -2,8 +2,14 @@
   "name": "chavez-reports",
   "version": "0.1.0",
   "private": true,
+  "browser": {
+    "child_process": false,
+    "async_hooks": false,
+    "fs/promises":false
+    },
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@googleapis/docs": "^3.3.0",
     "@react-oauth/google": "^0.12.1",
     "@react-pdf/renderer": "^2.1.1",
     "@types/babel__traverse": "^7.17.1",
@@ -18,14 +24,21 @@
     "d3": "^7.8.5",
     "d3-collection": "^1.0.7",
     "date-fns": "^1.30.1",
+    "express": "^4.21.2",
     "file-saver": "^2.0.5",
+    "googleapis": "^144.0.0",
     "html2canvas": "^1.4.1",
     "idb-keyval": "^3.1.0",
     "jspdf": "^2.5.1",
     "jszip": "^3.7.1",
+    "node-polyfill-webpack-plugin": "^4.1.0",
+    "open": "^10.1.0",
+    "os-browserify": "^0.3.0",
     "papaparse": "^5.3.2",
+    "path": "^0.12.7",
     "ramda": "^0.26.1",
     "react": "^17.0.2",
+    "react-app-rewired": "^2.2.1",
     "react-bootstrap": "^1.0.0-beta.5",
     "react-bootstrap-range-slider": "^3.0.8",
     "react-day-picker": "^7.3.0",
@@ -39,16 +52,17 @@
     "react-virtualized": "^9.21.1",
     "react-window": "^1.8.2",
     "serve": "^14.2.0",
-    "ts-transformer-keys": "^0.4.2"
+    "ts-transformer-keys": "^0.4.2",
+    "util": "^0.12.5"
   },
   "overrides": {
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
     "build-localhost": "PUBLIC_URL=/ react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "deploy-aws": "aws s3 sync build/ s3://chavez-reports.com --acl public-read",
     "deploy": "ssh rlangworthy@10.129.210.11 'rm -r /var/www/reports/* && rsync -rtv /home/rlangworthy/repos/chavez-reports/build/ /var/www/reports/ && restorecon -R /var/www/reports'",

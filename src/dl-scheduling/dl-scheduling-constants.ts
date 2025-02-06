@@ -13,8 +13,17 @@ export const display_info = [
     'PDIS']
     
 export const info_columns = [
-    'Current Homeroom', 'Name','Birthdate','Gender','Grade','ELL','ELL Program Year Code',
-    'LRE','ARS','PDIS','Cluster Program'
+    'Current Homeroom', 
+    'Name',
+    'Birthdate',
+    'Gender',
+    'Grade',
+    'ELL',
+    'ELL Program Year Code',
+    'LRE'
+    ,'ARS'
+    ,'PDIS'
+    ,'Cluster Program'
     ]
 
 export const teacher_drop_columns = [
@@ -26,7 +35,7 @@ export const teacher_drop_columns = [
     'Access Test WPL',
     'Access Test LPL',
     'Access Test SPL',
-    'Access Test LitPL',
+    'Access Test LitPL', //Maybe do not cut for scheduling, FIXME
     'Access Test ComprehensionPL',
     'Access Com', 
     'Medical Condition'
