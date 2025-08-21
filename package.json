@@ -11,8 +11,6 @@
     "@types/jest": "^24.0.5",
     "@types/node": "^11.15.54",
     "@types/ramda": "^0.26.21",
-    "@types/react": "^16.14.15",
-    "@types/react-dom": "^16.8.1",
     "axios": "^1.6.8",
     "bootstrap": "^4.3.1",
     "d3": "^7.8.5",
@@ -38,6 +36,7 @@
     "react-scripts": "^5.0.1",
     "react-virtualized": "^9.21.1",
     "react-window": "^1.8.2",
+    "recharts": "^2.10.4",
     "serve": "^14.2.0",
     "ts-transformer-keys": "^0.4.2"
   },
@@ -64,6 +63,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@types/react": "^17.0.87",
+    "@types/react-dom": "^17.0.26",
     "globals": "^15.0.0",
     "typescript": "^5.4.5"
   },
