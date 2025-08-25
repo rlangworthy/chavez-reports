@@ -1,6 +1,14 @@
 // charts/StackedGradeBars.tsx
 import * as React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  LabelList,
+} from "recharts";
 
 type Datum = {
   name: string;
@@ -10,9 +18,9 @@ type Datum = {
   D: number;
   F: number;
   graded: number;
+  weight?: number; // percent assignment weight
 };
 
-// Multi-line tick for long assignment names
 const MultiLineTick = (props: {
   x?: number;
   y?: number;
@@ -49,12 +57,30 @@ const MultiLineTick = (props: {
   );
 };
 
+// custom label that uses payload.weight
+const WeightLabel: React.FC<any> = ({ x, y, width, payload }) => {
+  if (payload?.weight == null) return null;
+  const text = `${Math.round(payload.weight)}%`;
+  return (
+    <text
+      x={x + width / 2}
+      y={y - 6}
+      textAnchor="middle"
+      fontSize={11}
+      fill="#34495e"
+      style={{ paintOrder: "stroke", stroke: "white", strokeWidth: 2 }}
+    >
+      {text}
+    </text>
+  );
+};
+
 export function StackedGradeBars({
   data,
   title,
   minWidth = 540,
   maxWidth = 1080,
-  height = 240, // a touch shorter; we add legend outside
+  height = 240,
 }: {
   data: Datum[];
   title: string;
@@ -62,9 +88,8 @@ export function StackedGradeBars({
   maxWidth?: number;
   height?: number;
 }) {
-  // Width scales with number of bars; clamped for sanity
   const barCount = Math.max(1, data?.length ?? 0);
-  const perBar = 120; // includes gaps; tweak as you like
+  const perBar = 120;
   const computedWidth = Math.min(
     maxWidth,
     Math.max(minWidth, barCount * perBar)
@@ -76,15 +101,13 @@ export function StackedGradeBars({
         {title}
       </div>
 
-      {/* Center the fixed-size chart */}
       <div style={{ display: "flex", justifyContent: "center" }}>
         <BarChart
           width={computedWidth}
           height={height}
           data={data}
-          // tighter top/bottom; extra bottom room is no longer needed since legend is outside
-          margin={{ top: 6, right: 12, left: 12, bottom: 36 }}
-          barCategoryGap="18%" // nicer spacing between clusters
+          margin={{ top: 12, right: 12, left: 12, bottom: 36 }}
+          barCategoryGap="18%"
           barGap={2}
         >
           <CartesianGrid strokeDasharray="3 3" />
@@ -102,12 +125,16 @@ export function StackedGradeBars({
               k === "graded" ? v : `${v.toFixed(1)}%`
             }
           />
-          <Bar dataKey="A" stackId="g" fill="#2ecc71" name="% A" />
-          <Bar dataKey="B" stackId="g" fill="#3498db" name="% B" />
-          <Bar dataKey="C" stackId="g" fill="#f1c40f" name="% C" />
-          <Bar dataKey="D" stackId="g" fill="#e67e22" name="% D" />
+
+          {/* flipped order: F bottom → A top */}
           <Bar dataKey="F" stackId="g" fill="#e74c3c" name="% F" />
-          {/* hidden series for tooltip only */}
+          <Bar dataKey="D" stackId="g" fill="#e67e22" name="% D" />
+          <Bar dataKey="C" stackId="g" fill="#f1c40f" name="% C" />
+          <Bar dataKey="B" stackId="g" fill="#3498db" name="% B" />
+          <Bar dataKey="A" stackId="g" fill="#2ecc71" name="% A">
+            <LabelList content={<WeightLabel />} />
+          </Bar>
+
           <Bar
             dataKey="graded"
             stackId="tooltipOnly"
@@ -117,7 +144,6 @@ export function StackedGradeBars({
         </BarChart>
       </div>
 
-      {/* Custom legend BELOW the chart, with predictable spacing */}
       <div
         style={{
           display: "flex",

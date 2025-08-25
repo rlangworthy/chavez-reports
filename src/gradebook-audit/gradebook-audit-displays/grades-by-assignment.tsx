@@ -93,6 +93,7 @@ const ClassAssignmentBreakdown: React.SFC<{
           ),
           F: +pct(grades.filter((g) => g < 59).length, total).toFixed(1),
           graded: total,
+          weight: a.impact,
         };
       });
   };

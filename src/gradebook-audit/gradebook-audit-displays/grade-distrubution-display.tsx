@@ -53,12 +53,12 @@ const GradeDistributionRender: React.SFC<GradeDistributionProps> = (props) => {
         chartType="ColumnChart"
         data={[
           ["Grade", "Count", { role: "style" }, { role: "annotation" }],
-          ["A", gd.A, "green", "A"],
-          ["B", gd.B, "blue", "B"],
-          ["C", gd.C, "yellow", "C"],
-          ["D", gd.D, "orange", "D"],
-          ["F", gd.F, "red", "F"],
-          ["Blank", gd.Blank, "grey", "Blank"],
+          ["A", gd.A, "#2ecc71", "A"],
+          ["B", gd.B, "#3498db", "B"],
+          ["C", gd.C, "#f1c40f", "C"],
+          ["D", gd.D, "#e67e22", "D"],
+          ["F", gd.F, "#e74c3c", "F"],
+          ["Blank", gd.Blank, "#95a5a6", "Blank"],
         ]}
         options={{
           legend: { position: "none" },
@@ -68,11 +68,19 @@ const GradeDistributionRender: React.SFC<GradeDistributionProps> = (props) => {
         }}
       />
 
-      {/* failing block directly under the chart */}
+      {/* failing table */}
       <div style={{ marginTop: 8 }}>
-        <div style={{ fontSize: 12, margin: "2px 0" }}>
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            margin: "4px 0",
+            color: "#2c3e50",
+          }}
+        >
           Class Size: {classSize || "—"}
         </div>
+
         <div style={{ fontSize: 12, margin: "2px 0" }}>
           {props.failing.length} Students Failing:
         </div>
