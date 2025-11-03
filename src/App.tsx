@@ -38,6 +38,7 @@ class App extends Component {
 
   
   render() {
+
     return (
       <>
         <Route exact={true} path={process.env.PUBLIC_URL + '/'} component={SignInWrapper} />

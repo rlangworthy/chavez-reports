@@ -53,7 +53,7 @@
     "eject": "react-scripts eject",
     "deploy-aws": "aws s3 sync build/ s3://chavez-reports.com --acl public-read",
     "deploy": "ssh rlangworthy@10.129.210.11 'rm -r /var/www/reports/* && rsync -rtv /home/rlangworthy/repos/chavez-reports/build/ /var/www/reports/ && restorecon -R /var/www/reports'",
-    "deploy-remote": "ssh -t rlangworthy@10.129.210.11 'sudo rm -r /var/www/reports/* /home/rlangworthy/repos/chavez-reports/build/*' && scp -r ./build/* rlangworthy@10.129.210.11:/home/rlangworthy/repos/chavez-reports/build && ssh -t rlangworthy@10.129.210.11 'sudo rsync -rtv /home/rlangworthy/repos/chavez-reports/build/ /var/www/reports/ && sudo restorecon -R /var/www/reports'"
+    "deploy-remote": "ssh -t rlangworthy@10.129.210.4 'sudo rm -r /var/www/reports/* /home/rlangworthy/repos/chavez-reports/build/*' && scp -r ./build/* ./build/.htaccess rlangworthy@10.129.210.4:/home/rlangworthy/repos/chavez-reports/build && ssh -t rlangworthy@10.129.210.4 'sudo rsync -rtv /home/rlangworthy/repos/chavez-reports/build/ /var/www/reports/ && sudo restorecon -R /var/www/reports'"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -68,5 +68,5 @@
     "globals": "^15.0.0",
     "typescript": "^5.4.5"
   },
-  "homepage": "https://co-ps-chavez-sites-w01.cps.k12.il.us/reports"
+  "homepage": "https://co-ps-chavez-sites-w02.cps.k12.il.us/reports"
 }
