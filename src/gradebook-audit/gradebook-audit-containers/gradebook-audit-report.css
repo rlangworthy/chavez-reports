@@ -135,6 +135,62 @@ table.data-table tbody .index-column {
   border: 2px solid #333;
 
 }
+/* hide the semantic header but keep it in the DOM for screenreaders */
+.data-table thead.real-head {
+  position: absolute;
+  left: -9999px;
+}
+
+/* visible subheader row that you render under the chart, inside <tbody> */
+.data-table .subheader-row th {
+  font-weight: 600;
+  background: #f5f5f7;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  padding: 6px 8px;
+  text-align: center;
+}
+.data-table td.chart-cell { padding: 0; }
+.chart-wrapper {
+  width: 100%;
+  height: 260px;     /* match your chart height */
+  overflow: hidden;  /* avoid layout feedback loops */
+}
+
+/* controls row inside the table header */
+.data-table.teacher-summary thead .controls-row th {
+  background: #f7f7f9;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.data-table .control {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.data-table .control-input {
+  width: 64px;
+  padding: 2px 6px;
+  font-size: 12px;
+  text-align: right;
+}
+
+.data-table .control-suffix {
+  font-size: 12px;
+  color: #555;
+}
+
+/* highlight cells meeting the selected threshold */
+.data-table td.hit {
+  background: #FFF76B !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+
 table.data-table thead th:first-child {
   border-left: none;
 }
@@ -169,6 +225,9 @@ table.data-table td div.cell-icon {
   background-color: #FFF76B !important;
   text-align: left;
 }
+
+/* keep each class card printable and avoid breaking in the middle */
+.grade-distribution-container { page-break-inside: avoid; }
 
 .high-impact-dot-1 {
   border-radius: 50%;
