@@ -6,17 +6,17 @@
 
 import * as Papa from 'papaparse'
 
-const SCHED_IND=5
-const NAME=4
-const SCHOOL_COL=13
+const SCHED_IND=4
+const NAME=5
+const SCHOOL_COL=14
 const GROUP_COL=0
-const STUDENT_INFO_IND=6
-const STUDENT_INFO_COL=7
+//const STUDENT_INFO_IND=6
+const STUDENT_INFO_COL=8
 const COURSE_COL=1
 const DESC_COL=3
-const ROOM_COL=8
-const TEACHER_COL=10
-
+const ROOM_COL=9
+const TEACHER_COL=11
+const COURSE_LIST_OFFSET=9 //offset of course list from student name
 export interface StudentClassList {
     studentID: string
     studentName: string
@@ -33,14 +33,14 @@ export const parseSchedule = (rawSched: string[][]): StudentClassList[] => {
     const GROUP_CONST = rawSched[0][GROUP_COL]
     const SCHOOL_NAME = rawSched[0][SCHOOL_COL]
     while(rawSched[i] !== undefined){
-        if(rawSched[i][0] === GROUP_CONST && rawSched[i][13] === SCHOOL_NAME){
+        if(rawSched[i][GROUP_COL] === GROUP_CONST && rawSched[i][SCHOOL_COL] === SCHOOL_NAME){
             i++;
-            if(rawSched[i] !== undefined && rawSched[i][SCHED_IND] === 'Student Schedule'){
+            if(rawSched[i] !== undefined && rawSched[i][SCHED_IND] === 'Student Schedule (Sheet)'){
                 i = i+3 //naiive jump to name
                 const sName = rawSched[i][NAME]
                 const id = rawSched[i+1][STUDENT_INFO_COL]
                 const hr = rawSched[i+3][STUDENT_INFO_COL]
-                i = i + 7 //naiive jump to course list
+                i = i + COURSE_LIST_OFFSET //naiive jump to course list
                 let courses:StudentClassList[] = []
                 //loop simply grabs the easy classes to grab by checking for properly formatted 3 part name
                 while(rawSched[i] !== undefined 
@@ -103,6 +103,6 @@ export const parseSchedule = (rawSched: string[][]): StudentClassList[] => {
             i++
         }
     }
-    console.log(Papa.unparse(sched.flat()))
+    //console.log(Papa.unparse(sched.flat()))
     return sched.flat()
 }

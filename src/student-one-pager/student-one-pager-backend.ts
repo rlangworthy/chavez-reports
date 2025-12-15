@@ -131,8 +131,8 @@ export const createStudentOnePagers = (files: ReportFiles):HSStudent[] => {
 
     let studentGradeObject = getStudentGrades(rawESGrades);
     //console.log(currentTerm)
-    //console.log(rawESGrades)
-    //console.log(studentGradeObject)
+    console.log(rawESGrades)
+    console.log(studentAssignments)
     //const tardies = at === null ? null: at.data as Tardies[];
     const assignments = rawAllAssignments as Assignment[];
     if(tardies !== null){
@@ -286,7 +286,7 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
 
     const getAbsences = (rs: Tardies[]):number =>{
         return rs.filter(r=> r.Attended !== 'Tardy' && r.Attended !== 'Present')
-                    .reduce((a,b) => {return a + (b.Attended === ('1/2 Day Excused' || b.Attended === '1/2 Day Unexcused') ?
+                    .reduce((a,b) => {return a + ((b.Attended === '1/2 Day Excused') || (b.Attended === '1/2 Day Unexcused') ?
                                                     parseInt(b.Days)/2 : parseInt(b.Days))}, 0)
     }
 
@@ -298,7 +298,6 @@ const getAttendanceData = (students: Students, attData: Tardies[]) => {
                 const tardy = getTardies(rs);
                 const absent = getAbsences(rs);
                 const pct = (total-absent)/total * 100;
-                console.log(total)
                 students[rs[0]['Student ID']].absencePercent = pct;
                 students[rs[0]['Student ID']].absences = [absent];
                 students[rs[0]['Student ID']].tardies = [tardy];

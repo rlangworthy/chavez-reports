@@ -75,8 +75,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
 
     const rawCategoriesAndTPL = aspCategoriesAndTPL.filter(c => c['CLS Cycle']===currentTerm ||
         c['CLS Cycle'] ==='All Cycles')
-    console.log(currentTerm)
-    console.log(rawESGrades)
+
     let spedStatus = {}
     if(files.reportTitle.optionalFiles && files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc]){
         const sp = files.reportFiles[files.reportTitle.optionalFiles[0].fileDesc].parseResult
@@ -85,6 +84,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     }
     
     const scheduleClasses: ScheduleClasses = getScheduleClasses(studentSched)
+    console.log(studentSched)
     //first get classes and categories
     const classCats: ScheduleClasses = getClassesAndCategories(rawCategoriesAndTPL, scheduleClasses)
     //second add grade distributions (including student list) and class names through the grades extract
@@ -93,9 +93,7 @@ export const createESGradebookReports = (files: ReportFiles ):TeacherClasses => 
     const studentAssignments = getStudentAssignment(rawAllAssignments)
     //combine assignments and classes
     const classesFinal = addAssignmentsToClasses(classGrades, studentAssignments)
-    console.log(classesFinal)
     const teacherclasses = invertScheduleClasses(classesFinal)
-    console.log(teacherclasses)
     
     
     return teacherclasses
@@ -174,7 +172,6 @@ const getClassesAndCategories = (categories: AspenCategoriesRow[], schedule: Sch
                 gradeLevel: '',
                 }
         }).object(categories)
-    console.log(classes)
 
     Object.keys(classes).forEach(cID => {
         if(schedule[cID] !== undefined){
@@ -207,7 +204,6 @@ const getGradeDistributions = (grades: AspenESGradesRow[], classes: ScheduleClas
         //Use just course number here, of form code-gradelevel
         .key((r:AspenESGradesRow) => r["Course Name"])
         .object(grades);
-
     //adding the distributions to the teacherclasses, has the list of students there as well.
     Object.keys(classes).forEach(cID => {
         const students = classes[cID].students
