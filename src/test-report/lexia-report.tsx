@@ -223,9 +223,6 @@ export class TestReport extends React.Component<TestReportProps, TestReportState
 
 
 
-
-
-
 interface ScheduleInfo {
     Clssrm: string,
     Contact: string,

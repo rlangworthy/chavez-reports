@@ -7,7 +7,7 @@ import { StudentGradeSheets } from '../student-grade-sheets/student-grade-displa
 import {HROnePagers} from '../weekly-one-pager/weekly-one-pager-displays/weekly-one-pagers-display'
 import {GradeValidationReport} from '../grade-validation/grade-validation-display'
 import { DLSchedulingReport } from '../dl-scheduling/dl-scheduling-backend'
-import { TestReport } from '../test-report/stmath-report'
+import { TestReport } from '../test-report/lexia-report'
 
 import { School } from '../data-handling/data-interfaces'
 
