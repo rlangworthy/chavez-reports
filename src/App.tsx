@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { SignInWrapper } from './home/home-cointainers/signin'
 import './App.css';
+import './shared/style-sheets/data-table.css'
 import {Route} from 'react-router';
 import { createBrowserHistory } from 'history';
 import {ReportWrapper} from './shared/report-wrapper'

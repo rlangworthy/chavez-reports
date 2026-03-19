@@ -23,6 +23,7 @@
   width: 2in;
   height: 2em;
 }
+
 .x-axis-label {
   width: 0.5in;
   height: 100%;
@@ -36,9 +37,11 @@
   width: 2in;
   height: 1.5in;
 }
+
 .grade-distribution-header {
   width: 2.5in;
 }
+
 .grade-distribution:not(:last-child) {
   margin-right: 1em;
 }
@@ -86,83 +89,14 @@
   background-color: grey;
 }
 
-table.data-table {
-  border: 2px solid #000;
-  width: 100%;
-  text-align: center;
-  border-collapse: collapse;
-
-  margin: 1em 0;
-}
-table.data-table td, table.data-table th {
-  border: 1px solid #000;
-  padding: 3px 4px;
-}
-
-
-table.data-table tbody td {
-  font-size: 13px;
-}
-table.data-table tr:nth-child(even) td{
-  background: #EBEBEB;
-}
-
-table.data-table tr:first-child{
-  background: #EBEBEB;
-}
-
 .gradebook-header-row {
   border-bottom: 4px solid #333333;
 }
-table.data-table thead {
-  background: #FFFFFF;
-  border-bottom: 4px solid #333333;
-}
 
-table.data-table thead th {
-  font-size: 15px;
-  font-weight: bold;
-  color: #333333;
-  text-align: center;
-  border-left: 2px solid #333333;
-}
-table.data-table tbody .index-column {
-  font-size: 15px;
-  font-weight: bold;
-  color: #333333;
-  background-color: #EBEBEB;
-  text-align: center;
-  border: 2px solid #333;
-
-}
-table.data-table thead th:first-child {
-  border-left: none;
-}
-
-table.data-table tfoot {
-  font-size: 14px;
-  font-weight: bold;
-  color: #333333;
-  border-top: 4px solid #333333;
-}
-table.data-table tfoot td {
-  font-size: 14px;
-}
-
-table.data-table td.warning {
-  background-color: #FFF76B !important;
-}
-
-table.data-table td div.cell-icon {
-  width: 16px;
-  height: 16px;
-  float: left;
-  display: inline-block;
-  margin: 0 0.5em;
-}
 .warning-icon {
   fill: none;
   stroke: black;
+  object-fit: contain;
 }
 
 .warning-key-cell {
@@ -266,6 +200,19 @@ table.data-table td div.cell-icon {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  table.data-table td.alert {
+    background: red !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  table.data-table td.warning {
+    background: yellow !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   .bar-blank {
     background-color: grey;
     -webkit-print-color-adjust: exact;

@@ -20,19 +20,19 @@ import { ReportFiles } from '../../shared/report-types'
 import { 
     createESGradebookReports} from '../gradebook-audit-backend'
 import {
-    GradeLogic,
-    AssignmentImpact,
     TeacherClasses,
     AdminOverview,
     } from '../gradebook-audit-interfaces'
 
 import {
     GradeDistributionDisplay,
-    CategoryTableRender,
+    //CategoryTableRender,
     FailingGradesRender,
-    HighImpactAssignmentsRender,
+    //HighImpactAssignmentsRender,
     GradesByAssignmentRender,
-    AdminOverviewSheet} from '../gradebook-audit-displays'
+    AdminOverviewSheet
+    } from '../gradebook-audit-displays'
+
 import {
     MultiSelect
     } from '../../shared/components/multi-select'
@@ -286,16 +286,10 @@ export class GradebookAuditReport extends React.PureComponent<GradebookAuditRepo
                                                 classes={teacherClasses[tKey]}
                                                 hasGrades={hasGrades}
                                                 noGrades={noGrades}/>
-                                            <CategoryTableRender 
-                                                classes={teacherClasses[tKey]}
-                                                hasGrades={hasAsgn}/>
                                             <FailingGradesRender 
                                                 classes={teacherClasses[tKey]}
                                                 hasGrades={hasGrades}
                                                 hasSped={this.state.sped}/>
-                                            <HighImpactAssignmentsRender 
-                                                classes={teacherClasses[tKey]}
-                                                hasGrades={hasGrades}/>
                                             <GradesByAssignmentRender
                                                 classes={teacherClasses[tKey]}
                                                 hasAsign={hasAsgn}/>

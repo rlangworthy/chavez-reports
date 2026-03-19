@@ -1,0 +1,84 @@
+
+table.data-table {
+  border: 2px solid #000;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+table.data-table td, table.data-table th {
+  border: 1px solid #000;
+  padding: 3px 4px;
+}
+
+table.data-table tbody td {
+  font-size: 13px;
+}
+
+table.data-table p {
+  font-style:italic;
+  font-weight:normal;
+}
+
+table.data-table {
+    tr:nth-child(even){
+      background: #EBEBEB;
+    }
+}
+
+table.data-table thead {
+    background: #FFFFFF;
+    border-bottom: 4px solid #333333;
+}
+
+table.data-table thead th {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333333;
+    text-align: center;
+    border-left: 2px solid #333333;
+}
+
+table.data-table tbody .index-column {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333333;
+    background-color: #EBEBEB;
+    text-align: center;
+    border: 2px solid #333;
+}
+
+table.data-table thead th:first-child {
+    border-left: none;
+}
+
+table.data-table tfoot {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333333;
+    border-top: 4px solid #333333;
+}
+
+table.data-table tfoot td {
+    font-size: 14px;
+}
+  
+table.data-table td div.cell-icon {
+    width: 16px;
+    height: 16px;
+    float: left;
+    display: inline-block;
+    margin: 0 0.5em;
+}
+
+table.data-table td.alert {
+    background: red !important;
+}
+
+table.data-table td.warning {
+    background: yellow !important;
+}
+
+
+
