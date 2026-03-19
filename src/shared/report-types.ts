@@ -95,14 +95,6 @@ const allReportCards: ReportTitle[] = [
         files: [{fileType: FileTypes.KRONOS_DATA,fileDesc: FileTypes.KRONOS_DATA}],
     },
     {
-        title: 'NWEA Summarizer',
-        description: 'Spring-Spring growth and attainment by classroom (for Admin).',
-        link: process.env.PUBLIC_URL + '/NWEA-summarizer/',
-        component: React.Fragment,
-        files: [],
-        externalLink: 'https://chavez.shinyapps.io/NWEA-Summary/'
-    },
-    {
         title: 'Homeroom One Pager',
         description: 'Review student on-track informaiton by classroom (for teachers).',
         link: process.env.PUBLIC_URL + '/homeroom-one-pager/upload/',

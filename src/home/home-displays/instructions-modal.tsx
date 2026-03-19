@@ -14,7 +14,7 @@ export const InstructionModal: React.SFC<InstructionModalProps> = (props) => {
     return (
         <Modal show={props.show} onHide={props.handleHide} dialogClassName={'modal-report-instrucitons'}>
             <Modal.Header closeButton>
-                <Modal.Title>Welcome To Chavez Reports</Modal.Title>
+                <Modal.Title>Welcome To Dassinger Report Suite</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Alert variant='primary'>
